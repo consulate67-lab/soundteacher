@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+build
+coverage
+package-lock.json
+public
+*.ico
+*.png
+*.svg
+*.jpg
+*.webp

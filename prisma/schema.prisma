@@ -1,0 +1,157 @@
+// SoundTeacher / SoungTeacher — Prisma sketch (Dilim A)
+// Mirror of db/schema.sql. Not wired to the app yet; no live DB required.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Band {
+  child
+  teen
+  adult
+}
+
+enum Level {
+  A0
+  A1
+  A2
+  B1
+}
+
+enum Plan {
+  trial
+  monthly
+  yearly
+}
+
+enum SubscriptionStatus {
+  trial
+  active
+  past_due
+  canceled
+}
+
+enum LessonPhase {
+  theory
+  practice
+  listening
+  gate
+}
+
+enum LessonProgressStatus {
+  in_progress
+  passed
+  failed_gate
+}
+
+// Stored as "1" | "2" | "3" in SQL; string until Dilim E wires Prisma.
+enum ListeningMethod {
+  ambient   @map("1")
+  live      @map("2")
+  midi      @map("3")
+}
+
+enum GateOutcome {
+  pass
+  fail
+}
+
+model User {
+  id                 String            @id @default(cuid())
+  email              String            @unique
+  displayName        String?
+  band               Band?
+  level              Level?
+  placementComplete  Boolean           @default(false)
+  createdAt          DateTime          @default(now())
+  subscription       Subscription?
+  path               Path?
+  lessonProgress     LessonProgress[]
+  attempts           Attempt[]
+  gateResults        GateResult[]
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan               Plan
+  status             SubscriptionStatus
+  periodStart        DateTime?
+  periodEnd          DateTime?
+  stripeCustomerId   String?
+  stripeSubId        String?
+  instrumentAccess   String             @default("piano")
+  quotaMethod1       Int                @default(0)
+  quotaMethod1Limit  Int?
+  quotaMethod2       Int                @default(0)
+  quotaMethod2Limit  Int?
+  moduleAccessPolicy String             @default("strict_sequence")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+}
+
+model Path {
+  id                     String   @id @default(cuid())
+  userId                 String   @unique
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  band                   Band
+  level                  Level
+  moduleEntry            Int
+  defaultSessionMinutes  Int
+  openLessonId           String?
+  completedLessonIds     String[] @default([])
+  injectedMicroLessons   String[] @default([])
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model LessonProgress {
+  id        String               @id @default(cuid())
+  userId    String
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId  String
+  phase     LessonPhase
+  status    LessonProgressStatus
+  updatedAt DateTime             @updatedAt
+
+  @@unique([userId, lessonId])
+}
+
+model Attempt {
+  id             String           @id @default(cuid())
+  userId         String
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId       String
+  method         ListeningMethod
+  startedAt      DateTime         @default(now())
+  endedAt        DateTime?
+  valid          Boolean          @default(false)
+  invalidReason  String?
+  scoreSummary   Json?
+  errorSpans     Json?
+  audioObjectKey String?
+  quotaConsumed  Boolean          @default(false)
+  gateResult     GateResult?
+
+  @@index([userId, lessonId])
+}
+
+model GateResult {
+  id         String      @id @default(cuid())
+  attemptId  String      @unique
+  attempt    Attempt     @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  lessonId   String
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  result     GateOutcome
+  tolerances Json?
+  createdAt  DateTime    @default(now())
+
+  @@index([userId, lessonId])
+}
