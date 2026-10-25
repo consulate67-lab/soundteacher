@@ -69,9 +69,11 @@ http://localhost:3000 — only when iterating on code.
 3. **Yerleştirme** — `/placement` → yaş bandı → beceri soruları → (gerekirse) doğrulama → Path oluşur
 4. **Path Home** — `/home` → M1–M4 omurga + açık ders
 5. **Ders** — teori → pratik → **Dinleme handoff**
-6. **Yöntem 1** — mic izni → geri sayım → kısa ortam kaydı → analiz stub → geri bildirim → kapı
+6. **Yöntem 1** — mic izni → geri sayım → kısa ortam kaydı → analiz demo → geri bildirim → kapı
 
 Yöntem 2 (performans) handoff’tan seçilebilir; kota dolunca Y1’e düşer.
+
+**Yöntem 3 (MIDI / USB klavye):** Web MIDI API (Chrome/Edge). Nota-on/off + zamanlama → aynı Attempt / S35 / Kapı yolu. Mic yok. Kota Yöntem 1 ile paylaşılır. Erken M1 mic-first kalır; MIDI önerisi: **`piano.m1.l5`**, **`piano.m2.l2`**. Destek yoksa net TR uyarı + Y1/Y2 fallback.
 
 ## Dilim özeti
 
@@ -81,6 +83,7 @@ Yöntem 2 (performans) handoff’tan seçilebilir; kota dolunca Y1’e düşer.
 | C | Yerleştirme + Path Home |
 | D | M1 ders kabuğu |
 | E–F | Yöntem 1–2 MediaRecorder + kota |
+| E+ | Yöntem 3 Web MIDI (USB klavye) |
 | G | M2–M4 omurga, scoreRef, kapı metrikleri |
 | H | **PWA**, structured log, Saklama A, Web Speech TTS |
 
@@ -103,4 +106,4 @@ Yöntem 2 (performans) handoff’tan seçilebilir; kota dolunca Y1’e düşer.
 - Merge PR #1 after production smoke is green (optional order: live first, then merge)
 - Real pitch analyzer · Stripe live keys · Postgres + S3
 
-M5–7 / MIDI: post-MVP.
+M5–7: post-MVP. Method 3 MIDI demo analyzer: `src/lib/analysis/midi-analyzer.ts`.

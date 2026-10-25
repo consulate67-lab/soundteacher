@@ -7,7 +7,7 @@ import type { ErrorSpan, InvalidReason, ScoreSummary } from "@/lib/attempt";
 export type AnalyzeAudioInput = {
   lessonId: string;
   userId: string;
-  method: "1" | "2";
+  method: "1" | "2" | "3";
   durationMs: number;
   byteLength: number;
   /** Raw audio bytes available for future real models — stub ignores content. */

@@ -1,6 +1,6 @@
 import type { Band } from "./bands";
 
-export type ListeningMethod = "1" | "2";
+export type ListeningMethod = "1" | "2" | "3";
 
 export type BandedText = Record<Band, string>;
 

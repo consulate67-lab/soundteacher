@@ -264,13 +264,23 @@ export function loadLessonContent(lessonId: string): LessonContent | null {
         adult: "Tamam. … Yavaş tutun. [kısa durak] Dinlemeye hazır olduğunuzda devam.",
       },
     ],
-    recommendedMethod: def.order >= 6 ? "2" : "1",
-    allowedMethods: def.order >= 6 ? ["1", "2"] : ["1", "2"],
-    listeningPrep: {
-      child: "Yakın otur. … Sessiz ortam. [kısa durak] Bakıcı yardım edebilir.",
-      teen: "Yakın otur. … Ortamı sessiz tut.",
-      adult: "Yakın oturun. … Ortamı sessiz tutun.",
-    },
+    recommendedMethod: midiPracticeLesson(def)
+      ? "3"
+      : def.order >= 6
+        ? "2"
+        : "1",
+    allowedMethods: midiPracticeLesson(def) ? ["3", "1", "2"] : ["1", "2"],
+    listeningPrep: midiPracticeLesson(def)
+      ? {
+          child: "MIDI klavye bağla. … Yoksa mic ile de olur. [kısa durak]",
+          teen: "USB/MIDI önerilir. … Yöntem 1–2 yedek.",
+          adult: "USB veya MIDI klavye önerilir. … Ortam/performans yedek.",
+        }
+      : {
+          child: "Yakın otur. … Sessiz ortam. [kısa durak] Bakıcı yardım edebilir.",
+          teen: "Yakın otur. … Ortamı sessiz tut.",
+          adult: "Yakın oturun. … Ortamı sessiz tutun.",
+        },
     mockFeedback: {
       child: "Güzel deneme. … Bu tur yeterli. [nefes] Kapıya bakabiliriz.",
       teen: "Oldu. … Özet hazır. [kısa durak] Kapıya geçebiliriz.",
@@ -300,4 +310,11 @@ export function loadLessonContent(lessonId: string): LessonContent | null {
 
 export function pickBand<T>(map: Record<Band, T>, band: Band): T {
   return map[band];
+}
+
+/** Later M1 + early M2 lessons that recommend Method 3 (MIDI). Early M1 stays mic-first. */
+function midiPracticeLesson(def: { moduleId: number; order: number; id: string }): boolean {
+  if (def.id === "piano.m1.l5") return true;
+  if (def.id === "piano.m2.l2") return true;
+  return false;
 }

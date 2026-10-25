@@ -28,6 +28,7 @@ export function ListeningFeedback({ attempt, band, lessonId }: Props) {
   const primary = primaryError(ordered);
   const rest = ordered.filter((e) => e !== primary);
   const isY2 = attempt.method === "2";
+  const isMidi = attempt.method === "3";
 
   async function goGate() {
     setPending(true);
@@ -44,14 +45,15 @@ export function ListeningFeedback({ attempt, band, lessonId }: Props) {
   return (
     <section className="flex flex-col gap-4">
       <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
-        {isY2 ? "Performans raporu" : "Geri bildirim"}
+        {isY2 ? "Performans raporu" : isMidi ? "MIDI geri bildirim" : "Geri bildirim"}
       </h2>
 
-      {isY2 && attempt.scoreSummary ? (
+      {(isY2 || isMidi) && attempt.scoreSummary ? (
         <p className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
           Skor bandı: <strong>{scoreLabel(attempt.scoreSummary.bandLabel, band)}</strong>
           {" · "}
-          {attempt.scoreSummary.notesDetected} nota algısı (demo)
+          {attempt.scoreSummary.notesDetected} nota
+          {isMidi ? " (MIDI)" : " algısı (demo)"}
         </p>
       ) : null}
 

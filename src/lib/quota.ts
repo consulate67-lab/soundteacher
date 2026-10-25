@@ -14,6 +14,8 @@ import type { SubscriptionRecord } from "./subscription";
 export const Y2_ABANDON_MS = 5_000;
 export const Y2_MAX_SECONDS = 45;
 export const Y1_MAX_SECONDS = 12;
+/** Method 3 — short MIDI practice take (shares Yöntem 1 kota). */
+export const Y3_MAX_SECONDS = 20;
 
 export type QuotaSnapshot = {
   method1Used: number;
@@ -45,14 +47,19 @@ export function quotaSnapshot(sub: SubscriptionRecord): QuotaSnapshot {
   };
 }
 
-export function canUseMethod(sub: SubscriptionRecord, method: "1" | "2"): boolean {
+export function canUseMethod(
+  sub: SubscriptionRecord,
+  method: "1" | "2" | "3",
+): boolean {
   const q = quotaSnapshot(sub);
-  return method === "1" ? q.method1Available : q.method2Available;
+  if (method === "2") return q.method2Available;
+  // Method 3 shares the high Method 1 quota bucket
+  return q.method1Available;
 }
 
 /** Clear abandon: short stop or explicit flag — no quota burn. */
 export function isAbandonedTake(input: {
-  method: "1" | "2";
+  method: "1" | "2" | "3";
   durationMs: number;
   abandonedFlag?: boolean;
 }): boolean {

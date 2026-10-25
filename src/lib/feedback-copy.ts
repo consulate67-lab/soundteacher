@@ -94,6 +94,26 @@ export function performanceIntroBubble(band: Band): string {
   return "Performans kaydı. … [kısa durak] Analiz bitişte; kayıt sırasında sessiz kalırım.";
 }
 
+export function midiIntroBubble(band: Band): string {
+  if (band === "child") {
+    return "USB / MIDI klavyeni bağla. … [kısa durak] Tuşlara basınca dinlerim — mikrofon yok.";
+  }
+  if (band === "teen") {
+    return "MIDI klavye bağla. … [kısa durak] Nota sinyali gelir; mic gerekmez.";
+  }
+  return "USB veya MIDI klavyeyi bağlayın. … [kısa durak] Nota-on/off ile dinlerim; mikrofon gerekmez.";
+}
+
+export function midiUnsupportedBubble(band: Band): string {
+  if (band === "child") {
+    return "Bu tarayıcı MIDI desteklemiyor. … [kısa durak] Ortam veya performans kaydıyla devam edebilirsin.";
+  }
+  if (band === "teen") {
+    return "Web MIDI yok bu tarayıcıda. … [kısa durak] Yöntem 1 veya 2’ye geç.";
+  }
+  return "Bu tarayıcı Web MIDI API desteklemiyor. … [kısa durak] Yöntem 1 veya 2 ile devam edebilirsiniz (Chrome / Edge önerilir).";
+}
+
 export function quotaExhaustedBubble(band: Band): string {
   if (band === "child") {
     return "Performans kotan doldu. … [kısa durak] Ortam kaydıyla devam edebilirsin.";

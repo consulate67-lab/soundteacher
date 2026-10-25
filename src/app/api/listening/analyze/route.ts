@@ -60,7 +60,14 @@ export async function POST(request: Request) {
   }
 
   const lessonId = String(form.get("lessonId") ?? "");
-  const method = (String(form.get("method") ?? "1") as "1" | "2") || "1";
+  const methodRaw = String(form.get("method") ?? "1");
+  if (methodRaw === "3") {
+    return NextResponse.json(
+      { error: "MIDI için /api/listening/analyze-midi kullanın", code: "USE_MIDI_ROUTE" },
+      { status: 400 },
+    );
+  }
+  const method = (methodRaw as "1" | "2") || "1";
   const durationMs = Number(form.get("durationMs") ?? 0);
   const abandonedFlag = String(form.get("abandoned") ?? "") === "true";
   const file = form.get("audio");
