@@ -6,44 +6,59 @@
 
 Bu depo **Faz 1 / Dilim A–H** MVP iskeletidir (sertleştirme dahil).
 
-## Yerel çalıştırma
+## Preferred: production on Vercel
 
-```bash
-npm install
-cp .env.example .env.local
-npm run dev
-```
+**Use the permanent `*.vercel.app` URL for testing** — not `npm run dev` / localhost, unless you are editing code locally.
 
-Aç: [http://localhost:3000](http://localhost:3000)
+App is standard **Next.js** App Router (`vercel.json`). In-memory stores reset on serverless cold starts (MVP OK; Postgres later).
 
-## Vercel deploy
+### One-time: Import GitHub → permanent URL
 
-App is a standard **Next.js** App Router project (`vercel.json` sets framework). In-memory stores (users/Path/Attempt) reset across serverless cold starts — fine for MVP demo; Postgres later.
-
-### Dashboard (recommended)
-
-1. Open [vercel.com/new](https://vercel.com/new) → **Import** GitHub repo `consulate67-lab/soundteacher`
-2. Branch: `cursor/mvp-scaffold-a-f7f9` (or `main` after merge)
-3. Framework: **Next.js** (auto) → Deploy
-4. **Environment Variables** (Settings → Environment Variables), then Redeploy:
+1. Open [vercel.com/new](https://vercel.com/new) → **Import** `consulate67-lab/soundteacher`
+2. Branch: **`cursor/mvp-scaffold-a-f7f9`** (or `main` after merge — merge is optional until live works)
+3. Framework: **Next.js** (auto) → **Deploy**
+4. **Settings → Environment Variables** → add, then **Redeploy**:
 
 | Name | Required? | Value |
 | --- | --- | --- |
-| `AUTH_SECRET` | **Yes** | `openssl rand -base64 32` output |
+| `AUTH_SECRET` | **Yes** | run `openssl rand -base64 32` and paste |
 | `AUTH_URL` | Optional | `https://YOUR-PROJECT.vercel.app` |
 | `STRIPE_*` | No | leave empty → mock billing |
 | `DATABASE_URL` / `S3_*` / `TTS_*` | No | unused in MVP mock |
 
-### CLI
+5. Copy the Production URL (`https://….vercel.app`) and use that for QA.
+
+### Agent / CI permanent deploy (optional)
+
+Cloud agent **cannot** create a sticky production URL without a Vercel token:
+
+1. [vercel.com/account/tokens](https://vercel.com/account/tokens) → create token  
+2. Add secret **`VERCEL_TOKEN`** to the Cursor cloud agent / environment (and optionally `VERCEL_ORG_ID` + `VERCEL_PROJECT_ID` after first `vercel link`)  
+3. Re-run agent → `npx vercel deploy --prod --yes` with `AUTH_SECRET` set on the project
 
 ```bash
-npx vercel login
-npx vercel link   # pick team + project
-npx vercel env add AUTH_SECRET
-npx vercel --prod
+npx vercel login          # or export VERCEL_TOKEN=…
+npx vercel link           # project: soundteacher
+npx vercel env add AUTH_SECRET production
+npx vercel --prod --yes
 ```
 
-Anonymous / claimable preview (no account): `npx vercel deploy --temporary` — expires quickly; claim via the printed URL.
+Anonymous `npx vercel deploy --temporary` expires in ~60 minutes — claim via the printed claim URL, or use Dashboard Import above for a permanent project.
+
+### Claim a temporary deploy (fast keep)
+
+If the agent printed a **claim** link (`vercel.com/claim-deployment?code=…`), open it while logged into Vercel to attach that build to your account/project.
+
+## Local dev (optional)
+
+```bash
+npm install
+cp .env.example .env.local
+# set AUTH_SECRET in .env.local
+npm run dev
+```
+
+http://localhost:3000 — only when iterating on code.
 
 ## Kritik yol (signup → Y1)
 
@@ -58,21 +73,21 @@ Yöntem 2 (performans) handoff’tan seçilebilir; kota dolunca Y1’e düşer.
 
 ## Dilim özeti
 
-| Dilim | İçerik                                             |
-| ----- | -------------------------------------------------- |
-| A–B   | Scaffold, Auth.js, Stripe mock                     |
-| C     | Yerleştirme + Path Home                            |
-| D     | M1 ders kabuğu                                     |
-| E–F   | Yöntem 1–2 MediaRecorder + kota                    |
-| G     | M2–M4 omurga, scoreRef, kapı metrikleri            |
-| H     | **PWA**, structured log, Saklama A, Web Speech TTS |
+| Dilim | İçerik |
+| --- | --- |
+| A–B | Scaffold, Auth.js, Stripe mock |
+| C | Yerleştirme + Path Home |
+| D | M1 ders kabuğu |
+| E–F | Yöntem 1–2 MediaRecorder + kota |
+| G | M2–M4 omurga, scoreRef, kapı metrikleri |
+| H | **PWA**, structured log, Saklama A, Web Speech TTS |
 
 ## Dilim H notları
 
-- **PWA:** `public/manifest.webmanifest` + light `sw.js` (prod’da register). Tarayıcıdan “Ana ekrana ekle / Install” — offline tam garanti değil.
-- **Gözlem:** `src/lib/logger.ts` — Attempt/Gate/API için tek satır JSON log.
-- **Saklama A:** analiz sonrası ham ses discard (`src/lib/audio-retention.ts`); Attempt’te yalnızca özet kalır.
-- **TTS:** öğretmen balonlarında opsiyonel Web Speech (`Dinle`); ücretli TTS anahtarı yok.
+- **PWA:** `public/manifest.webmanifest` + light `sw.js` (prod’da register). Installable — offline not guaranteed.
+- **Gözlem:** `src/lib/logger.ts` — Attempt/Gate/API JSON lines.
+- **Saklama A:** discard raw audio after analysis; Attempt keeps summary only.
+- **TTS:** optional Web Speech on teacher bubbles; no paid TTS keys.
 
 ## M1–M4
 
@@ -80,11 +95,10 @@ Yöntem 2 (performans) handoff’tan seçilebilir; kota dolunca Y1’e düşer.
 - Zengin kabuk: M1.L1/L2 + M2–M4 L1/L6; diğerleri generic overlay
 - Kapı metrikleri: `src/lib/gate-metrics.ts`
 
-## Sonraki adımlar (kod yazma yok — merge sonrası)
+## Sonraki adımlar
 
-- Gerçek pitch / align analyzer (worker)
-- Stripe live keys + Customer Portal
-- Postgres + S3 lifecycle (Saklama A delete)
-- Opsiyonel bulut TTS cache
+- Paste permanent Vercel URL into the PR / chat once Dashboard Import (or claim) is done
+- Merge PR #1 after production smoke is green (optional order: live first, then merge)
+- Real pitch analyzer · Stripe live keys · Postgres + S3
 
 M5–7 / MIDI: post-MVP.
