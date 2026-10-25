@@ -6,11 +6,13 @@ import type { AuthFormState } from "@/app/signup/actions";
 
 const initial: AuthFormState = {};
 
-export function LoginForm() {
+export function LoginForm({ callbackUrl = "/home" }: { callbackUrl?: string }) {
   const [state, formAction, pending] = useActionState(loginAction, initial);
 
   return (
     <form action={formAction} className="mt-8 flex flex-col gap-4" noValidate>
+      <input type="hidden" name="callbackUrl" value={callbackUrl} />
+
       <label className="flex flex-col gap-1.5 text-sm">
         <span className="font-medium text-foreground">E-posta</span>
         <input

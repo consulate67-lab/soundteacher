@@ -35,6 +35,11 @@ export function PlanPicker({
         setPending(false);
         return;
       }
+      // Relative path → soft nav; absolute (real Stripe) → full navigation.
+      if (data.url.startsWith("http")) {
+        window.location.assign(data.url);
+        return;
+      }
       router.push(data.url);
     } catch {
       setError("Bağlantı hatası. Tekrar dene.");

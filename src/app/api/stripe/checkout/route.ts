@@ -29,14 +29,16 @@ export async function POST(request: Request) {
   }
 
   const base = appBaseUrl();
-  const successUrl = `${base}/checkout/success?plan=${plan.id}&session_id={CHECKOUT_SESSION_ID}`;
+  const successPath = `/checkout/success?plan=${plan.id}&session_id={CHECKOUT_SESSION_ID}`;
+  const successUrl = `${base}${successPath}`;
   const cancelUrl = `${base}/plans`;
 
   if (isStripeMockMode()) {
     const mockSessionId = `cs_mock_${plan.id}_${Date.now()}`;
+    // Relative path — App Router `router.push` 404s on absolute same-origin URLs.
     return NextResponse.json({
       mode: "mock",
-      url: `${base}/checkout/success?plan=${plan.id}&session_id=${mockSessionId}`,
+      url: `/checkout/success?plan=${plan.id}&session_id=${mockSessionId}`,
       message:
         "STRIPE_SECRET_KEY yok — mock checkout. Abonelik başarı sayfasında etkinleşir.",
     });

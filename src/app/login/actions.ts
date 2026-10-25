@@ -10,6 +10,11 @@ export async function loginAction(
 ): Promise<AuthFormState> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const rawCallback = String(formData.get("callbackUrl") ?? "/home");
+  const redirectTo =
+    rawCallback.startsWith("/") && !rawCallback.startsWith("//")
+      ? rawCallback
+      : "/home";
 
   if (!email.includes("@") || password.length < 8) {
     return { error: "Geçerli bir e-posta ve şifre gir." };
@@ -20,7 +25,7 @@ export async function loginAction(
       email,
       password,
       mode: "login",
-      redirectTo: "/home",
+      redirectTo,
     });
   } catch (error) {
     if (error instanceof AuthError) {

@@ -7,7 +7,14 @@ export const metadata: Metadata = {
   description: "SoundTeacher hesabına giriş.",
 };
 
-export default function LoginPage() {
+type Props = {
+  searchParams: Promise<{ callbackUrl?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: Props) {
+  const { callbackUrl } = await searchParams;
+  const safeCallback = sanitizeCallback(callbackUrl);
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-12">
       <Link
@@ -24,7 +31,7 @@ export default function LoginPage() {
         Mock Auth.js oturumu — üretim kimlik sağlayıcısı yok.
       </p>
 
-      <LoginForm />
+      <LoginForm callbackUrl={safeCallback} />
 
       <p className="mt-8 text-center text-sm text-muted">
         Hesabın yok mu?{" "}
@@ -34,4 +41,11 @@ export default function LoginPage() {
       </p>
     </main>
   );
+}
+
+/** Only same-origin relative paths — block open redirects. */
+function sanitizeCallback(raw: string | undefined): string {
+  if (!raw) return "/home";
+  if (!raw.startsWith("/") || raw.startsWith("//")) return "/home";
+  return raw;
 }

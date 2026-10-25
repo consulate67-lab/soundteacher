@@ -18,14 +18,18 @@ type Props = {
 
 /** S03 — Ödeme / deneme başarı → yerleştirme veya Path Home. */
 export default async function CheckoutSuccessPage({ searchParams }: Props) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    redirect("/login");
-  }
-
   const params = await searchParams;
   const plan = getPlan(params.plan)?.id as PlanId | undefined;
   const sessionId = params.session_id;
+
+  const session = await auth();
+  if (!session?.user?.id) {
+    const q = new URLSearchParams();
+    if (params.plan) q.set("plan", params.plan);
+    if (params.session_id) q.set("session_id", params.session_id);
+    const returnTo = `/checkout/success?${q.toString()}`;
+    redirect(`/login?callbackUrl=${encodeURIComponent(returnTo)}`);
+  }
 
   if (!plan || !sessionId) {
     redirect("/plans");
