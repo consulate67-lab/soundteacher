@@ -6,13 +6,13 @@
 const STEPS = [
   {
     n: 1,
-    title: "Sandalyede dik otur",
-    body: "Ayaklar yerde, sırt dik, omuzlar düşük. Klavyeye dirsek mesafesi bırak.",
+    title: "Oturuş",
+    body: "Sırt dik, omuzlar düşük, ayaklar yerde. Klavyeye dirsek mesafesi bırak.",
   },
   {
     n: 2,
     title: "El ve bilek",
-    body: "Parmaklar yumuşak kemer; bilek tuşlarla aynı hizada; kol ağırlığı — baskı yok.",
+    body: "Yumuşak parmak kemeri; bilek tuşlarla aynı hizada; kol ağırlığı — baskı yok.",
   },
 ] as const;
 
@@ -42,7 +42,7 @@ export function PostureHandsVisual() {
             <source src="/lessons/posture-hands.mp4" type="video/mp4" />
           </video>
           <p className="absolute bottom-2 left-2 rounded bg-black/45 px-2 py-0.5 text-[0.65rem] text-white">
-            Sessiz döngü · ~11 sn
+            Gerçek görüntü · sessiz döngü · ~12 sn
           </p>
         </div>
 
