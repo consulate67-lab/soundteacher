@@ -20,7 +20,6 @@ export default async function TrialProgramPage() {
     redirect("/placement");
   }
 
-  // Paid users skip deneme programı → Path Home
   if (hasPaidEntitlement(subscription)) {
     redirect("/home");
   }
@@ -31,20 +30,22 @@ export default async function TrialProgramPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-lg flex-col px-6 py-12">
       <Link
         href="/"
-        className="mb-8 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand"
+        className="st-fade-up mb-8 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand"
       >
         SoundTeacher
       </Link>
 
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">
+      <p className="st-fade-up text-xs font-medium uppercase tracking-[0.14em] text-accent">
         {TRIAL_COPY.programEyebrow} · ücretsiz
       </p>
-      <h1 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-medium text-foreground">
+      <h1 className="st-fade-up-delay mt-2 font-[family-name:var(--font-display)] text-3xl font-medium text-foreground sm:text-4xl">
         {program.title}
       </h1>
-      <p className="mt-2 text-sm leading-relaxed text-muted">{program.blurb}</p>
+      <p className="st-fade-up-delay mt-2 text-sm leading-relaxed text-muted">
+        {program.blurb}
+      </p>
 
-      <dl className="mt-6 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
+      <dl className="st-fade-up-delay-2 mt-6 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
         <div>
           <span className="text-muted">Bant </span>
           <span className="font-medium text-foreground">
@@ -63,12 +64,9 @@ export default async function TrialProgramPage() {
         </div>
       </dl>
 
-      <ol className="mt-8 flex flex-col gap-3">
+      <ol className="st-fade-up-delay-2 mt-8 flex flex-col gap-3">
         {program.items.map((item) => (
-          <li
-            key={item.lessonId}
-            className="rounded-md border border-border bg-surface px-4 py-3"
-          >
+          <li key={item.lessonId} className="st-panel px-4 py-3">
             <div className="flex items-baseline justify-between gap-3">
               <p className="font-[family-name:var(--font-display)] text-base font-medium text-foreground">
                 <span className="mr-2 text-sm text-brand">{item.order}.</span>
@@ -91,7 +89,7 @@ export default async function TrialProgramPage() {
 
       <Link
         href={`/lessons/${program.firstLessonId}`}
-        className="mt-6 inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+        className="mt-6 inline-flex h-12 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
       >
         {TRIAL_COPY.ctaFirstLesson}
       </Link>

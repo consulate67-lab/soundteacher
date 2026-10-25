@@ -1,12 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import type { Band } from "@/lib/bands";
+import { savePathLocal } from "@/lib/path-client";
 import { questionsForBand, type AnswerMap } from "@/lib/placement";
+import type { PathRecord } from "@/lib/path-store";
 
 export function SkillsForm({ band }: { band: Band }) {
-  const router = useRouter();
   const questions = useMemo(() => questionsForBand(band), [band]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<AnswerMap>({});
@@ -45,6 +45,7 @@ export function SkillsForm({ band }: { band: Band }) {
         error?: string;
         needsVerification?: boolean;
         result?: { level: string };
+        path?: PathRecord;
       };
       if (!res.ok) {
         setError(data.error ?? "Skorlanamadı");
@@ -52,10 +53,15 @@ export function SkillsForm({ band }: { band: Band }) {
         return;
       }
       if (data.needsVerification) {
-        router.push("/placement/verify");
-      } else {
-        router.push("/placement/result");
+        // Soft nav OK — draft cookie just set; verify will complete Path.
+        window.location.assign("/placement/verify");
+        return;
       }
+      if (data.path) {
+        savePathLocal(data.path);
+      }
+      // Hard navigation so the new JWT cookie is always sent on the next document request.
+      window.location.assign("/trial-program");
     } catch {
       setError("Bağlantı hatası");
       setPending(false);
@@ -84,7 +90,7 @@ export function SkillsForm({ band }: { band: Band }) {
                 } ${
                   active
                     ? "border-brand bg-brand-soft"
-                    : "border-border bg-surface hover:bg-brand-soft/50"
+                    : "border-border bg-surface/80 hover:bg-brand-soft/50"
                 }`}
               >
                 {opt.label}

@@ -55,6 +55,6 @@ export async function consumeFreeQuota(
     method2Used: method === "2" ? current.method2Used + 1 : current.method2Used,
   };
   store().set(userId, next);
-  await writeSignedCookie(COOKIE, next);
+  await writeSignedCookie(COOKIE, next as unknown as Record<string, unknown>);
   return next;
 }

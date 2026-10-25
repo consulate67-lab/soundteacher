@@ -7,6 +7,7 @@ import {
   DRAFT_COOKIE,
   getPath,
   PATH_COOKIE,
+  restorePathFromClient,
   savePlacementDraft,
   toPlacementResult,
   type PathRecord,
@@ -22,21 +23,38 @@ import { isPastDue } from "@/lib/subscription";
 export const dynamic = "force-dynamic";
 
 type Body = {
-  action?: "save_band" | "score" | "complete" | "verify_pass" | "verify_skip";
+  action?:
+    | "save_band"
+    | "score"
+    | "complete"
+    | "verify_pass"
+    | "verify_skip"
+    | "restore";
   band?: string;
   answers?: AnswerMap;
+  path?: unknown;
 };
 
-function jsonWithDraft(data: unknown, draft: PlacementDraft) {
+async function jsonWithDraft(data: unknown, draft: PlacementDraft) {
   const res = NextResponse.json(data);
-  setSignedCookieOnResponse(res, DRAFT_COOKIE, draft);
+  await setSignedCookieOnResponse(
+    res,
+    DRAFT_COOKIE,
+    draft as unknown as Record<string, unknown>,
+  );
   return res;
 }
 
-function jsonWithPath(data: unknown, path: PathRecord) {
+async function jsonWithPath(data: unknown, path: PathRecord) {
   const res = NextResponse.json(data);
-  setSignedCookieOnResponse(res, PATH_COOKIE, path);
+  await setSignedCookieOnResponse(
+    res,
+    PATH_COOKIE,
+    path as unknown as Record<string, unknown>,
+  );
   clearSignedCookieOnResponse(res, DRAFT_COOKIE);
+  clearSignedCookieOnResponse(res, "st_draft_v1");
+  clearSignedCookieOnResponse(res, "st_path_v1");
   return res;
 }
 
@@ -59,7 +77,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Oturum gerekli" }, { status: 401 });
   }
 
-  // Placement is free — no paid entitlement required (deneme önce).
   const sub = getSubscription(session.user.id);
   if (sub && isPastDue(sub.status)) {
     return NextResponse.json({ error: "Ödeme gecikmiş" }, { status: 403 });
@@ -74,6 +91,22 @@ export async function POST(request: Request) {
 
   const userId = session.user.id;
   const action = body.action ?? "score";
+
+  if (action === "restore") {
+    const path = await restorePathFromClient(userId, body.path);
+    if (!path) {
+      return NextResponse.json({ error: "Geçersiz path" }, { status: 400 });
+    }
+    return jsonWithPath(
+      {
+        ok: true,
+        restored: true,
+        result: toPlacementResult(path),
+        path,
+      },
+      path,
+    );
+  }
 
   if (action === "save_band") {
     if (!body.band || !isBand(body.band)) {
@@ -122,7 +155,6 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    // Skip without pass drops one level for A2/B1 candidates (product rule).
     let final = result;
     if (action === "verify_skip" && (result.level === "A2" || result.level === "B1")) {
       const levelOrder = ["A0", "A1", "A2", "B1"] as const;

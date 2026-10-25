@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Source_Sans_3 } from "next/font/google";
+import { Fraunces, Outfit } from "next/font/google";
+import { PlacementRescue } from "@/components/placement-rescue";
 import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 
@@ -9,7 +10,7 @@ const display = Fraunces({
   display: "swap",
 });
 
-const body = Source_Sans_3({
+const body = Outfit({
   variable: "--font-body",
   subsets: ["latin", "latin-ext"],
   display: "swap",
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     template: "%s · SoundTeacher",
   },
   description:
-    "SoundTeacher (SoungTeacher) — çevrim içi piyano öğretmeni. Abonelik, ders yolu ve dinleme geri bildirimi.",
+    "SoundTeacher — çevrim içi piyano öğretmeni. Yerleştirme, deneme programı ve dinleme geri bildirimi.",
   applicationName: "SoundTeacher",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f766e",
+  themeColor: "#0b6e6a",
 };
 
 export default function RootLayout({
@@ -48,6 +49,7 @@ export default function RootLayout({
     <html lang="tr">
       <body className={`${display.variable} ${body.variable} antialiased`}>
         {children}
+        <PlacementRescue />
         <PwaRegister />
       </body>
     </html>

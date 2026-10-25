@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { savePathLocal } from "@/lib/path-client";
+import type { PathRecord } from "@/lib/path-store";
 
 export function VerifyActions() {
-  const router = useRouter();
   const [pending, setPending] = useState<"pass" | "skip" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,13 +18,14 @@ export function VerifyActions() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action }),
       });
-      const data = (await res.json()) as { error?: string };
+      const data = (await res.json()) as { error?: string; path?: PathRecord };
       if (!res.ok) {
         setError(data.error ?? "İşlem başarısız");
         setPending(null);
         return;
       }
-      router.push("/placement/result");
+      if (data.path) savePathLocal(data.path);
+      window.location.assign("/trial-program");
     } catch {
       setError("Bağlantı hatası");
       setPending(null);

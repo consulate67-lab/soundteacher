@@ -10,7 +10,7 @@ export function SignupForm() {
   const [state, formAction, pending] = useActionState(signupAction, initial);
 
   return (
-    <form action={formAction} className="mt-8 flex flex-col gap-4" noValidate>
+    <form action={formAction} className="flex flex-col gap-4" noValidate>
       <label className="flex flex-col gap-1.5 text-sm">
         <span className="font-medium text-foreground">E-posta</span>
         <input

@@ -13,20 +13,22 @@ export default function SignupPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-12">
       <Link
         href="/"
-        className="mb-8 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand"
+        className="st-fade-up mb-8 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand"
       >
         SoundTeacher
       </Link>
 
-      <h1 className="font-[family-name:var(--font-display)] text-3xl font-medium text-foreground">
+      <h1 className="st-fade-up-delay font-[family-name:var(--font-display)] text-3xl font-medium text-foreground">
         Hesap oluştur
       </h1>
-      <p className="mt-2 text-sm leading-relaxed text-muted">
+      <p className="st-fade-up-delay mt-2 text-sm leading-relaxed text-muted">
         E-posta ile başla. İlk dersler ücretsiz deneme — abonelik sonra, istediğin
         zaman.
       </p>
 
-      <SignupForm />
+      <div className="st-fade-up-delay-2 st-panel mt-8 px-5 py-5">
+        <SignupForm />
+      </div>
 
       <p className="mt-6 text-xs leading-relaxed text-muted">
         Verilerin güvenli tutulur. Çocuklar için bir ebeveyn veya bakıcı yardımcı

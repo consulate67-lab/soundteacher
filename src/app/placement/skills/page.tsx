@@ -38,18 +38,18 @@ export default async function PlacementSkillsPage({ searchParams }: Props) {
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-12">
       <Link
         href="/placement"
-        className="mb-8 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand"
+        className="st-fade-up mb-8 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand"
       >
         SoundTeacher
       </Link>
 
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">
+      <p className="st-fade-up text-xs font-medium uppercase tracking-[0.14em] text-accent">
         Yerleştirme · 2/3 · {BAND_SHORT[bandParam]}
       </p>
-      <h1 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-medium text-foreground">
+      <h1 className="st-fade-up-delay mt-2 font-[family-name:var(--font-display)] text-3xl font-medium text-foreground">
         Kısa beceri soruları
       </h1>
-      <p className="mt-2 text-sm leading-relaxed text-muted">{address}</p>
+      <p className="st-fade-up-delay mt-2 text-sm leading-relaxed text-muted">{address}</p>
 
       <SkillsForm band={bandParam} />
     </main>

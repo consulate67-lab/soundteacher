@@ -11,7 +11,7 @@ export async function GET() {
     phase: "dilim-h",
     auth: "authjs-credentials-mock",
     stripeMode: isStripeMockMode() ? "mock" : "stripe-test",
-    placement: "in-memory-path",
+    placement: "jwt-cookie-path-v2",
     lessonShell: "m1-m4-spine",
     listening: "method1-method2-quota",
     modules: "1-4",

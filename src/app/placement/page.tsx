@@ -23,23 +23,25 @@ export default async function PlacementBandPage() {
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-12">
       <Link
         href="/"
-        className="mb-8 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand"
+        className="st-fade-up mb-8 font-[family-name:var(--font-display)] text-2xl font-semibold text-brand"
       >
         SoundTeacher
       </Link>
 
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">
+      <p className="st-fade-up text-xs font-medium uppercase tracking-[0.14em] text-accent">
         Yerleştirme · 1/3 · ücretsiz
       </p>
-      <h1 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-medium text-foreground">
+      <h1 className="st-fade-up-delay mt-2 font-[family-name:var(--font-display)] text-3xl font-medium text-foreground">
         Yaş bandını seç
       </h1>
-      <p className="mt-2 text-sm leading-relaxed text-muted">
+      <p className="st-fade-up-delay mt-2 text-sm leading-relaxed text-muted">
         Dil, oturum süresi ve örnekler buna göre uyarlanır. Yaş tek başına seviyeni
         yükseltmez. {TRIAL_COPY.placementNote}
       </p>
 
-      <BandForm />
+      <div className="st-fade-up-delay-2">
+        <BandForm />
+      </div>
     </main>
   );
 }

@@ -221,7 +221,11 @@ export async function POST(request: Request) {
       quotaConsumed: consume,
     });
     if (freeQuota) {
-      setSignedCookieOnResponse(res, FREE_QUOTA_COOKIE, freeQuota);
+      await setSignedCookieOnResponse(
+        res,
+        FREE_QUOTA_COOKIE,
+        freeQuota as unknown as Record<string, unknown>,
+      );
     }
     return res;
   } catch (err) {

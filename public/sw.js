@@ -1,5 +1,5 @@
 /* SoundTeacher Dilim H — light service worker (installable shell; offline not guaranteed). */
-const CACHE = "soundteacher-shell-v1";
+const CACHE = "soundteacher-shell-v2";
 const PRECACHE = ["/", "/manifest.webmanifest", "/icons/icon-192.png"];
 
 self.addEventListener("install", (event) => {
