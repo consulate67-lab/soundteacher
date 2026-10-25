@@ -3,7 +3,10 @@ import { auth } from "@/auth";
 import { getAudioAnalyzer } from "@/lib/analysis";
 import type { AttemptRecord } from "@/lib/attempt";
 import { discardAudioAfterAnalysis } from "@/lib/audio-retention";
-import { saveAttempt } from "@/lib/attempt-store";
+import {
+  persistLessonSessionOnResponse,
+  saveAttemptInMemory,
+} from "@/lib/attempt-store";
 import { ensureLessonProgress } from "@/lib/lesson-progress-store";
 import { log } from "@/lib/logger";
 import { getPath } from "@/lib/path-store";
@@ -118,7 +121,7 @@ export async function POST(request: Request) {
       durationMs: Number.isFinite(durationMs) ? durationMs : 0,
       quotaConsumed: false,
     };
-    saveAttempt(attempt);
+    await saveAttemptInMemory(attempt);
     log.info("attempt.abandoned", {
       attemptId: attempt.id,
       userId,
@@ -126,13 +129,15 @@ export async function POST(request: Request) {
       method,
       durationMs: attempt.durationMs,
     });
-    return NextResponse.json({
+    const abandonedRes = NextResponse.json({
       ok: true,
       abandoned: true,
       analyzer: "none",
       retention: "saklama-a",
       attempt,
     });
+    await persistLessonSessionOnResponse(abandonedRes, userId);
+    return abandonedRes;
   }
 
   let byteLength = 0;
@@ -142,7 +147,7 @@ export async function POST(request: Request) {
     byteLength = audioBuffer.byteLength;
   }
 
-  const progress = ensureLessonProgress(userId, lessonId);
+  const progress = await ensureLessonProgress(userId, lessonId);
   const attemptIndex = progress.attemptCount;
 
   try {
@@ -199,7 +204,7 @@ export async function POST(request: Request) {
       quotaConsumed: consume,
     };
 
-    saveAttempt(attempt);
+    await saveAttemptInMemory(attempt);
     log.info("attempt.saved", {
       attemptId,
       userId,
@@ -211,6 +216,7 @@ export async function POST(request: Request) {
       quotaConsumed: consume,
       retention: discard.policy,
       formerAudioKey: discard.formerKey,
+      analyzer: analyzer.name,
     });
 
     const res = NextResponse.json({
@@ -220,6 +226,7 @@ export async function POST(request: Request) {
       attempt,
       quotaConsumed: consume,
     });
+    await persistLessonSessionOnResponse(res, userId);
     if (freeQuota) {
       await setSignedCookieOnResponse(
         res,

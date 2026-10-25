@@ -10,6 +10,7 @@ import {
   completeListeningAction,
   registerInvalidAttemptAction,
 } from "@/app/lessons/[lessonId]/actions";
+import { measureBlobEnergy } from "@/lib/client-audio-energy";
 
 type MicUi =
   | "handoff"
@@ -133,6 +134,7 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
 
   async function onStopped() {
     setUi("uploading");
+    setError(null);
     const durationMs = Date.now() - startedAtRef.current;
     const blob = new Blob(chunksRef.current, {
       type: recorderRef.current?.mimeType || "audio/webm",
@@ -141,7 +143,20 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
     chunksRef.current = [];
     cleanupStream();
 
+    if (blob.size < 200 || durationMs < 500) {
+      setInvalidReason("too_short");
+      setUi("invalid");
+      return;
+    }
+
     try {
+      const energy = await measureBlobEnergy(blob);
+      if (!energy.hasSignal) {
+        setInvalidReason("silence");
+        setUi("invalid");
+        return;
+      }
+
       const form = new FormData();
       form.set("lessonId", lessonId);
       form.set("method", "1");
@@ -157,7 +172,7 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
         attempt?: AttemptRecord;
       };
       if (!res.ok || !data.attempt) {
-        setError(data.error ?? "Analiz başarısız");
+        setError(data.error ?? "Analiz başarısız — tekrar dene.");
         setUi("handoff");
         return;
       }
@@ -165,13 +180,21 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
       const attempt = data.attempt;
       if (!attempt.valid) {
         setInvalidReason(attempt.invalidReason);
-        await registerInvalidAttemptAction(lessonId, attempt.id);
+        const reg = await registerInvalidAttemptAction(lessonId, attempt);
+        if (reg && "error" in reg && reg.error) {
+          setError(reg.error);
+        }
         setUi("invalid");
         router.refresh();
         return;
       }
 
-      await completeListeningAction(lessonId, attempt.id);
+      const done = await completeListeningAction(lessonId, attempt);
+      if (done && "error" in done && done.error) {
+        setError(done.error);
+        setUi("handoff");
+        return;
+      }
       router.refresh();
     } catch {
       setError("Yükleme hatası. Tekrar dene.");
@@ -211,7 +234,7 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
             {ui === "permission" ? "İzin isteniyor…" : "İzin ver ve kayda başla"}
           </button>
           <p className="text-xs text-muted">
-            Kısa kayıt (≈{maxSeconds} sn). Analiz stub — ücretli API yok.
+            Kısa kayıt (≈{maxSeconds} sn). Analiz demo (enerji) — ücretli API yok.
           </p>
         </>
       ) : null}
@@ -266,7 +289,7 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
       ) : null}
 
       {ui === "uploading" ? (
-        <p className="text-sm text-muted">Analiz ediliyor… (stub)</p>
+        <p className="text-sm text-muted">Dinleniyor… geri bildirim hazırlanıyor</p>
       ) : null}
 
       {ui === "invalid" && invalidReason ? (

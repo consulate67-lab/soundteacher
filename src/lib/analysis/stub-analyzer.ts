@@ -1,54 +1,44 @@
+import { estimateEnergyFromBytes } from "./demo-energy";
 import type { AnalyzeAudioInput, AnalyzeAudioResult, AudioAnalyzer } from "./types";
+import type { ErrorSpan } from "@/lib/attempt";
 
 /**
- * Server-side analysis stub — no paid APIs, no ML.
- * Uses duration / size heuristics + attempt index for deterministic variety.
- * Method 2 returns a longer ordered error list (end-of-piece report).
+ * Server-side demo analyzer — no paid APIs, no ML.
+ * Uses duration + byte energy heuristics + attempt index for deterministic variety.
+ * Always returns a clear valid/invalid outcome (never empty no-op).
  */
 export class StubAudioAnalyzer implements AudioAnalyzer {
-  readonly name = "stub-v1";
+  readonly name = "demo-energy-v1";
 
   async analyze(input: AnalyzeAudioInput): Promise<AnalyzeAudioResult> {
-    const { durationMs, byteLength, attemptIndex, lessonId, method } = input;
+    const { durationMs, byteLength, attemptIndex, lessonId, method, audioBuffer } =
+      input;
     const objectKey = `temp/${lessonId}/${Date.now()}.webm`;
+    const energy = estimateEnergyFromBytes(audioBuffer, durationMs);
 
-    // S42 — silence / too short
-    if (durationMs < 800 || byteLength < 400) {
-      return {
-        valid: false,
-        invalidReason: "silence",
-        scoreSummary: null,
-        errorSpans: [],
-        audioObjectKey: objectKey,
-      };
+    if (durationMs < 700) {
+      return invalid("too_short", objectKey);
     }
 
-    // S44 — very short / quiet proxy
-    if (durationMs < 1600 && byteLength < 2500) {
-      return {
-        valid: false,
-        invalidReason: "too_quiet",
-        scoreSummary: null,
-        errorSpans: [],
-        audioObjectKey: objectKey,
-      };
+    if (!energy.hasSignal || byteLength < 500) {
+      return invalid("silence", objectKey);
     }
 
-    // S43 — “noise” heuristic
-    if (durationMs < 2500 && byteLength > 80_000) {
-      return {
-        valid: false,
-        invalidReason: "noise",
-        scoreSummary: null,
-        errorSpans: [],
-        audioObjectKey: objectKey,
-      };
+    if (energy.rms < 0.03 && byteLength < 2_000) {
+      return invalid("too_quiet", objectKey);
     }
 
-    const mode = attemptIndex % 3;
+    // High payload + very short → treat as noise burst
+    if (durationMs < 1800 && byteLength > 120_000 && energy.peak > 0.85) {
+      return invalid("noise", objectKey);
+    }
+
+    const mode = (attemptIndex + Math.floor(energy.energyNorm * 10)) % 3;
+    const notesBase = method === "2" ? 18 : 5;
+    const notesDetected = notesBase + Math.round(energy.energyNorm * 6);
 
     if (method === "2") {
-      return method2Result(mode, objectKey);
+      return method2Result(mode, objectKey, notesDetected);
     }
 
     if (mode === 0) {
@@ -59,7 +49,7 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
           bandLabel: "pass",
           pitchOk: true,
           timingOk: true,
-          notesDetected: 6,
+          notesDetected,
         },
         errorSpans: [],
         audioObjectKey: objectKey,
@@ -74,17 +64,10 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
           bandLabel: "soft",
           pitchOk: true,
           timingOk: false,
-          notesDetected: 5,
+          notesDetected,
         },
         errorSpans: [
-          {
-            measure: 2,
-            note: "Re",
-            type: "timing",
-            severity: "low",
-            expected: "grid",
-            heard: "erken",
-          },
+          span(2, "Re", "timing", "low", "grid", "erken"),
         ],
         audioObjectKey: objectKey,
       };
@@ -97,24 +80,43 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
         bandLabel: "fail",
         pitchOk: false,
         timingOk: true,
-        notesDetected: 5,
+        notesDetected,
       },
-      errorSpans: [
-        {
-          measure: 2,
-          note: "Re",
-          type: "pitch",
-          severity: "high",
-          expected: "Re",
-          heard: "Mi",
-        },
-      ],
+      errorSpans: [span(2, "Re", "pitch", "high", "Re", "Mi")],
       audioObjectKey: objectKey,
     };
   }
 }
 
-function method2Result(mode: number, objectKey: string): AnalyzeAudioResult {
+function invalid(
+  reason: NonNullable<AnalyzeAudioResult["invalidReason"]>,
+  objectKey: string,
+): AnalyzeAudioResult {
+  return {
+    valid: false,
+    invalidReason: reason,
+    scoreSummary: null,
+    errorSpans: [],
+    audioObjectKey: objectKey,
+  };
+}
+
+function span(
+  measure: number,
+  note: string,
+  type: ErrorSpan["type"],
+  severity: ErrorSpan["severity"],
+  expected: string,
+  heard: string,
+): ErrorSpan {
+  return { measure, note, type, severity, expected, heard };
+}
+
+function method2Result(
+  mode: number,
+  objectKey: string,
+  notesDetected: number,
+): AnalyzeAudioResult {
   if (mode === 0) {
     return {
       valid: true,
@@ -123,19 +125,9 @@ function method2Result(mode: number, objectKey: string): AnalyzeAudioResult {
         bandLabel: "pass",
         pitchOk: true,
         timingOk: true,
-        notesDetected: 24,
+        notesDetected,
       },
-      // Ordered: pitch first, then timing (product rule)
-      errorSpans: [
-        {
-          measure: 3,
-          note: "Mi",
-          type: "timing",
-          severity: "low",
-          expected: "grid",
-          heard: "geç",
-        },
-      ],
+      errorSpans: [span(3, "Mi", "timing", "low", "grid", "geç")],
       audioObjectKey: objectKey,
     };
   }
@@ -148,33 +140,12 @@ function method2Result(mode: number, objectKey: string): AnalyzeAudioResult {
         bandLabel: "soft",
         pitchOk: false,
         timingOk: false,
-        notesDetected: 22,
+        notesDetected,
       },
       errorSpans: [
-        {
-          measure: 2,
-          note: "Re",
-          type: "pitch",
-          severity: "low",
-          expected: "Re",
-          heard: "şüpheli",
-        },
-        {
-          measure: 4,
-          note: "Sol",
-          type: "timing",
-          severity: "low",
-          expected: "grid",
-          heard: "erken",
-        },
-        {
-          measure: 5,
-          note: "Fa",
-          type: "timing",
-          severity: "low",
-          expected: "grid",
-          heard: "geç",
-        },
+        span(2, "Re", "pitch", "low", "Re", "şüpheli"),
+        span(4, "Sol", "timing", "low", "grid", "erken"),
+        span(5, "Fa", "timing", "low", "grid", "geç"),
       ],
       audioObjectKey: objectKey,
     };
@@ -187,33 +158,12 @@ function method2Result(mode: number, objectKey: string): AnalyzeAudioResult {
       bandLabel: "fail",
       pitchOk: false,
       timingOk: false,
-      notesDetected: 20,
+      notesDetected,
     },
     errorSpans: [
-      {
-        measure: 2,
-        note: "Re",
-        type: "pitch",
-        severity: "high",
-        expected: "Re",
-        heard: "Mi",
-      },
-      {
-        measure: 3,
-        note: "Mi",
-        type: "pitch",
-        severity: "high",
-        expected: "Mi",
-        heard: "Fa",
-      },
-      {
-        measure: 4,
-        note: "Sol",
-        type: "timing",
-        severity: "low",
-        expected: "grid",
-        heard: "erken",
-      },
+      span(2, "Re", "pitch", "high", "Re", "Mi"),
+      span(3, "Mi", "pitch", "high", "Mi", "Fa"),
+      span(4, "Sol", "timing", "low", "grid", "erken"),
     ],
     audioObjectKey: objectKey,
   };

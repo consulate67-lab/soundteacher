@@ -51,7 +51,7 @@ export function ListeningFeedback({ attempt, band, lessonId }: Props) {
         <p className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
           Skor bandı: <strong>{scoreLabel(attempt.scoreSummary.bandLabel, band)}</strong>
           {" · "}
-          {attempt.scoreSummary.notesDetected} nota algısı (stub)
+          {attempt.scoreSummary.notesDetected} nota algısı (demo)
         </p>
       ) : null}
 

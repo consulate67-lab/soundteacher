@@ -3,7 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { getAttempt, saveGateResult } from "@/lib/attempt-store";
+import type { AttemptRecord } from "@/lib/attempt";
+import { getAttempt, saveAttempt, saveGateResult } from "@/lib/attempt-store";
 import { primaryError } from "@/lib/attempt";
 import { evaluateGateFromAttempt } from "@/lib/feedback-copy";
 import { getLesson, isLessonLocked, previousLessonId } from "@/lib/curriculum";
@@ -55,27 +56,26 @@ async function requireLessonAccess(lessonId: string) {
   return { userId: session.user.id, path };
 }
 
-function go(userId: string, lessonId: string, phase: LessonPhase) {
-  ensureLessonProgress(userId, lessonId);
-  setLessonPhase(userId, lessonId, phase);
+async function go(userId: string, lessonId: string, phase: LessonPhase) {
+  await ensureLessonProgress(userId, lessonId);
+  await setLessonPhase(userId, lessonId, phase);
   revalidatePath(`/lessons/${lessonId}`);
   revalidatePath("/home");
 }
 
 export async function advanceToPracticeAction(lessonId: string) {
   const { userId } = await requireLessonAccess(lessonId);
-  go(userId, lessonId, "practice");
+  await go(userId, lessonId, "practice");
 }
 
 export async function advanceToListeningAction(lessonId: string) {
   const { userId } = await requireLessonAccess(lessonId);
   const content = loadLessonContent(lessonId);
   if (content && !isListeningRequired(content)) {
-    // No mic — stay on practice; client should call self-check instead.
-    go(userId, lessonId, "practice");
+    await go(userId, lessonId, "practice");
     return;
   }
-  go(userId, lessonId, "listening");
+  await go(userId, lessonId, "listening");
 }
 
 /** Practice → Kapı when listening is not required (self-confirm). */
@@ -83,11 +83,11 @@ export async function completeSelfCheckAction(lessonId: string) {
   const { userId } = await requireLessonAccess(lessonId);
   const content = loadLessonContent(lessonId);
   if (!content || isListeningRequired(content)) {
-    go(userId, lessonId, "listening");
+    await go(userId, lessonId, "listening");
     return;
   }
   await unlockNextLesson(userId, lessonId);
-  setLessonPhase(userId, lessonId, "unlock", {
+  await setLessonPhase(userId, lessonId, "unlock", {
     status: "passed",
     lastGateResult: "pass",
   });
@@ -102,19 +102,20 @@ export async function completeSelfCheckAction(lessonId: string) {
  */
 export async function goBackPhaseAction(lessonId: string) {
   const { userId } = await requireLessonAccess(lessonId);
-  const progress = getLessonProgress(userId, lessonId) ?? ensureLessonProgress(userId, lessonId);
+  const progress =
+    (await getLessonProgress(userId, lessonId)) ??
+    (await ensureLessonProgress(userId, lessonId));
   const phase = progress.phase;
 
   if (phase === "listening" || phase === "feedback" || phase === "gate_fail") {
-    go(userId, lessonId, "practice");
+    await go(userId, lessonId, "practice");
     return;
   }
   if (phase === "practice") {
-    go(userId, lessonId, "theory");
+    await go(userId, lessonId, "theory");
     return;
   }
 
-  // theory / unlock / gate_pass → leave lesson
   const prev = previousLessonId(lessonId);
   if (prev) {
     redirect(`/lessons/${prev}`);
@@ -122,10 +123,40 @@ export async function goBackPhaseAction(lessonId: string) {
   redirect("/trial-program");
 }
 
-/** After valid Attempt from /api/listening/analyze → S35 feedback. */
-export async function completeListeningAction(lessonId: string, attemptId: string) {
+function assertOwnAttempt(
+  attempt: AttemptRecord,
+  userId: string,
+  lessonId: string,
+): string | null {
+  if (attempt.userId !== userId || attempt.lessonId !== lessonId) {
+    return "Geçersiz Attempt";
+  }
+  if (!attempt.id || typeof attempt.id !== "string") {
+    return "Attempt kimliği yok";
+  }
+  return null;
+}
+
+/**
+ * After valid Attempt from /api/listening/analyze → S35 feedback.
+ * Accepts full Attempt payload so cold starts never lose the analyze result.
+ */
+export async function completeListeningAction(
+  lessonId: string,
+  attemptInput: AttemptRecord | string,
+) {
   const { userId } = await requireLessonAccess(lessonId);
-  const attempt = getAttempt(attemptId);
+
+  let attempt: AttemptRecord | null = null;
+  if (typeof attemptInput === "string") {
+    attempt = await getAttempt(userId, attemptInput, lessonId);
+  } else {
+    const bad = assertOwnAttempt(attemptInput, userId, lessonId);
+    if (bad) return { error: bad };
+    attempt = attemptInput;
+    await saveAttempt(attempt);
+  }
+
   if (!attempt || attempt.userId !== userId || attempt.lessonId !== lessonId) {
     return { error: "Attempt bulunamadı" };
   }
@@ -133,27 +164,43 @@ export async function completeListeningAction(lessonId: string, attemptId: strin
     return { error: "Geçersiz Attempt ile kapıya gidilemez" };
   }
 
-  const progress = ensureLessonProgress(userId, lessonId);
-  setLessonPhase(userId, lessonId, "feedback", {
+  const progress = await ensureLessonProgress(userId, lessonId);
+  await setLessonPhase(userId, lessonId, "feedback", {
     attemptCount: progress.attemptCount + 1,
-    lastAttemptId: attemptId,
+    lastAttemptId: attempt.id,
   });
+  // Re-save so phase + attempt land in the same cookie write
+  await saveAttempt(attempt);
   revalidatePath(`/lessons/${lessonId}`);
   return { ok: true };
 }
 
 /** Count invalid attempts too (for stub rotation) without leaving listening. */
-export async function registerInvalidAttemptAction(lessonId: string, attemptId: string) {
+export async function registerInvalidAttemptAction(
+  lessonId: string,
+  attemptInput: AttemptRecord | string,
+) {
   const { userId } = await requireLessonAccess(lessonId);
-  const attempt = getAttempt(attemptId);
+
+  let attempt: AttemptRecord | null = null;
+  if (typeof attemptInput === "string") {
+    attempt = await getAttempt(userId, attemptInput, lessonId);
+  } else {
+    const bad = assertOwnAttempt(attemptInput, userId, lessonId);
+    if (bad) return { error: bad };
+    attempt = attemptInput;
+    await saveAttempt(attempt);
+  }
+
   if (!attempt || attempt.userId !== userId) {
     return { error: "Attempt bulunamadı" };
   }
-  const progress = ensureLessonProgress(userId, lessonId);
-  setLessonPhase(userId, lessonId, "listening", {
+  const progress = await ensureLessonProgress(userId, lessonId);
+  await setLessonPhase(userId, lessonId, "listening", {
     attemptCount: progress.attemptCount + 1,
-    lastAttemptId: attemptId,
+    lastAttemptId: attempt.id,
   });
+  await saveAttempt(attempt);
   revalidatePath(`/lessons/${lessonId}`);
   return { ok: true };
 }
@@ -161,11 +208,11 @@ export async function registerInvalidAttemptAction(lessonId: string, attemptId: 
 /** S36/S37 from last valid Attempt + GateResult persist. */
 export async function evaluateGateAction(lessonId: string) {
   const { userId } = await requireLessonAccess(lessonId);
-  const progress = ensureLessonProgress(userId, lessonId);
+  const progress = await ensureLessonProgress(userId, lessonId);
   if (!progress.lastAttemptId) {
     return { error: "Önce dinleme denemesi gerekli" };
   }
-  const attempt = getAttempt(progress.lastAttemptId);
+  const attempt = await getAttempt(userId, progress.lastAttemptId, lessonId);
   if (!attempt || !attempt.valid) {
     return { error: "Geçerli Attempt yok" };
   }
@@ -190,7 +237,7 @@ export async function evaluateGateAction(lessonId: string) {
   ).length;
 
   const gateId = `gate_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
-  saveGateResult({
+  await saveGateResult({
     id: gateId,
     attemptId: attempt.id,
     lessonId,
@@ -210,12 +257,12 @@ export async function evaluateGateAction(lessonId: string) {
 
   if (outcome === "pass") {
     await unlockNextLesson(userId, lessonId);
-    setLessonPhase(userId, lessonId, "unlock", {
+    await setLessonPhase(userId, lessonId, "unlock", {
       status: "passed",
       lastGateResult: "pass",
     });
   } else {
-    setLessonPhase(userId, lessonId, "gate_fail", {
+    await setLessonPhase(userId, lessonId, "gate_fail", {
       status: "failed_gate",
       lastGateResult: "fail",
     });
@@ -239,12 +286,12 @@ export async function evaluateGateAction(lessonId: string) {
 
 export async function softRetryAction(lessonId: string) {
   const { userId } = await requireLessonAccess(lessonId);
-  resetLessonToPractice(userId, lessonId);
+  await resetLessonToPractice(userId, lessonId);
   revalidatePath(`/lessons/${lessonId}`);
 }
 
 export async function retryListeningAction(lessonId: string) {
   const { userId } = await requireLessonAccess(lessonId);
-  resetLessonToListening(userId, lessonId);
+  await resetLessonToListening(userId, lessonId);
   revalidatePath(`/lessons/${lessonId}`);
 }

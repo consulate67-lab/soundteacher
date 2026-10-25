@@ -4,7 +4,7 @@ import { ListeningHandoff } from "@/components/listening-handoff";
 import { PostureHandsVisual } from "@/components/posture-hands-visual";
 import { TeacherBubble } from "@/components/teacher-bubble";
 import type { Band } from "@/lib/bands";
-import { getAttempt } from "@/lib/attempt-store";
+import { getAttempt, getLastAttemptForLesson } from "@/lib/attempt-store";
 import { primaryError } from "@/lib/attempt";
 import { nextLessonId } from "@/lib/curriculum";
 import { gateFailBubble, gatePassBubble } from "@/lib/feedback-copy";
@@ -34,7 +34,7 @@ type Props = {
   trialMode?: boolean;
 };
 
-export function LessonSession({
+export async function LessonSession({
   lessonId,
   band,
   title,
@@ -51,8 +51,9 @@ export function LessonSession({
   const phase = progress.phase;
   const nextId = nextLessonId(lessonId);
   const lastAttempt = progress.lastAttemptId
-    ? getAttempt(progress.lastAttemptId)
-    : null;
+    ? (await getAttempt(progress.userId, progress.lastAttemptId, lessonId)) ??
+      (await getLastAttemptForLesson(progress.userId, lessonId))
+    : await getLastAttemptForLesson(progress.userId, lessonId);
   const needsListening = isListeningRequired(content);
   const visual = practiceVisualOf(content);
 

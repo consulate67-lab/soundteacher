@@ -49,7 +49,7 @@ export default async function LessonPage({ params }: Props) {
   }
 
   const title = lessonTitle(lesson, path.band);
-  const progress = ensureLessonProgress(session.user.id, lessonId);
+  const progress = await ensureLessonProgress(session.user.id, lessonId);
   const quota = await resolveQuotaForUser(session.user.id, subscription);
   const content = loadLessonContent(lessonId);
 
