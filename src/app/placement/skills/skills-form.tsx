@@ -16,6 +16,7 @@ export function SkillsForm({ band }: { band: Band }) {
   const current = questions[index];
   const selected = answers[current.id];
   const isLast = index === questions.length - 1;
+  const groupName = `placement-${band}-${current.id}`;
 
   function pick(optionId: string) {
     setAnswers((prev) => ({ ...prev, [current.id]: optionId }));
@@ -53,14 +54,12 @@ export function SkillsForm({ band }: { band: Band }) {
         return;
       }
       if (data.needsVerification) {
-        // Soft nav OK — draft cookie just set; verify will complete Path.
         window.location.assign("/placement/verify");
         return;
       }
       if (data.path) {
         savePathLocal(data.path);
       }
-      // Hard navigation so the new JWT cookie is always sent on the next document request.
       window.location.assign("/trial-program");
     } catch {
       setError("Bağlantı hatası");
@@ -73,34 +72,45 @@ export function SkillsForm({ band }: { band: Band }) {
       <p className="text-xs text-muted">
         Soru {index + 1} / {questions.length}
       </p>
-      <h2 className="font-[family-name:var(--font-display)] text-xl font-medium text-foreground">
+      <h2
+        id={`q-${current.id}`}
+        className="font-[family-name:var(--font-display)] text-xl font-medium text-foreground"
+      >
         {current.prompt}
       </h2>
 
-      <ul className="flex flex-col gap-2">
+      <fieldset className="flex flex-col gap-2 border-0 p-0" aria-labelledby={`q-${current.id}`}>
+        <legend className="sr-only">{current.prompt}</legend>
         {current.options.map((opt) => {
           const active = selected === opt.id;
+          const inputId = `${groupName}-${opt.id}`;
           return (
-            <li key={opt.id}>
-              <button
-                type="button"
-                data-option-id={opt.id}
-                onClick={() => pick(opt.id)}
-                onPointerUp={() => pick(opt.id)}
-                className={`relative z-10 w-full min-h-12 rounded-md border px-4 py-3 text-left text-sm font-medium transition-colors ${
-                  band === "child" ? "min-h-14 text-base" : ""
-                } ${
-                  active
-                    ? "border-brand bg-brand-soft"
-                    : "border-border bg-surface/80 hover:bg-brand-soft/50"
-                }`}
-              >
-                {opt.label}
-              </button>
-            </li>
+            <label
+              key={opt.id}
+              htmlFor={inputId}
+              data-option-id={opt.id}
+              className={`relative z-10 flex w-full min-h-12 cursor-pointer items-center gap-3 rounded-md border px-4 py-3 text-left text-sm font-medium transition-colors ${
+                band === "child" ? "min-h-14 text-base" : ""
+              } ${
+                active
+                  ? "border-brand bg-brand-soft"
+                  : "border-border bg-surface/80 hover:bg-brand-soft/50"
+              }`}
+            >
+              <input
+                id={inputId}
+                type="radio"
+                name={groupName}
+                value={opt.id}
+                checked={active}
+                onChange={() => pick(opt.id)}
+                className="h-4 w-4 shrink-0 accent-[var(--brand)]"
+              />
+              <span>{opt.label}</span>
+            </label>
           );
         })}
-      </ul>
+      </fieldset>
 
       <div className="mt-2 flex gap-3">
         {index > 0 ? (
@@ -116,6 +126,7 @@ export function SkillsForm({ band }: { band: Band }) {
           type="button"
           onClick={goNext}
           disabled={pending}
+          data-action="placement-next"
           className="inline-flex h-11 flex-1 items-center justify-center rounded-md bg-brand px-4 text-sm font-semibold text-white hover:bg-brand-hover disabled:opacity-60"
         >
           {pending ? "Hesaplanıyor…" : isLast ? "Bitir" : "Sonraki"}
