@@ -1,18 +1,16 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useActionState } from "react";
+import { signupAction, type AuthFormState } from "./actions";
 
-/** S01 shell — no real auth; Dilim B will wire Clerk/Auth.js. */
+const initial: AuthFormState = {};
+
+/** S01 — Auth.js Credentials kayıt (mock kullanıcı deposu). */
 export function SignupForm() {
-  const [notice, setNotice] = useState<string | null>(null);
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setNotice("Kayıt henüz bağlanmadı. Dilim B’de kimlik doğrulama ve ödeme eklenecek.");
-  }
+  const [state, formAction, pending] = useActionState(signupAction, initial);
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4" noValidate>
+    <form action={formAction} className="mt-8 flex flex-col gap-4" noValidate>
       <label className="flex flex-col gap-1.5 text-sm">
         <span className="font-medium text-foreground">E-posta</span>
         <input
@@ -51,19 +49,25 @@ export function SignupForm() {
 
       <button
         type="submit"
-        className="mt-2 inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+        disabled={pending}
+        className="mt-2 inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover disabled:opacity-60"
       >
-        Kayıt ol
+        {pending ? "Kaydediliyor…" : "Kayıt ol"}
       </button>
 
-      {notice ? (
+      {state.error ? (
         <p
-          role="status"
-          className="rounded-md border border-border bg-brand-soft px-3 py-2 text-sm text-foreground"
+          role="alert"
+          className="rounded-md border border-border bg-brand-soft px-3 py-2 text-sm text-danger"
         >
-          {notice}
+          {state.error}
         </p>
       ) : null}
+
+      <p className="text-xs text-muted">
+        Mock kimlik doğrulama — gerçek e-posta doğrulaması yok. Şifre yalnızca bu süreç
+        belleğinde tutulur.
+      </p>
     </form>
   );
 }

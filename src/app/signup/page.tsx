@@ -4,10 +4,10 @@ import { SignupForm } from "./signup-form";
 
 export const metadata: Metadata = {
   title: "Kayıt",
-  description: "SoundTeacher hesabı oluştur (S01 iskelet).",
+  description: "SoundTeacher hesabı oluştur (S01).",
 };
 
-/** S01 — Kayıt iskeleti. Gerçek auth Dilim B’de. */
+/** S01 — Kayıt (Auth.js Credentials, mock). */
 export default function SignupPage() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-12">
@@ -22,7 +22,7 @@ export default function SignupPage() {
         Hesap oluştur
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
-        E-posta ile başla. Ödeme ve yerleştirme sonraki adımlarda.
+        E-posta ile başla. Plan ve ödeme sonraki adımda.
       </p>
 
       <SignupForm />
@@ -34,7 +34,9 @@ export default function SignupPage() {
 
       <p className="mt-8 text-center text-sm text-muted">
         Zaten hesabın var mı?{" "}
-        <span className="font-medium text-foreground/70">Giriş yakında</span>
+        <Link href="/login" className="font-medium text-brand hover:underline">
+          Giriş yap
+        </Link>
       </p>
     </main>
   );
