@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { TrialProgramBootstrap } from "@/components/trial-program-bootstrap";
 import { requirePlacementAccess } from "@/lib/access";
 import { BAND_SHORT } from "@/lib/bands";
 import { getPath } from "@/lib/path-store";
@@ -12,16 +13,21 @@ export const metadata: Metadata = {
   description: "Yerleştirmeye göre ücretsiz deneme ders programı.",
 };
 
-/** After placement — show tailored free trial lesson program before first lesson. */
+/**
+ * After placement — free trial lesson program.
+ * If Path cookie is missing, render client bootstrap (restore from localStorage)
+ * instead of redirecting to /placement (that caused the browser loop).
+ */
 export default async function TrialProgramPage() {
   const { session, subscription } = await requirePlacementAccess();
-  const path = await getPath(session.user.id);
-  if (!path?.placementComplete) {
-    redirect("/placement");
-  }
 
   if (hasPaidEntitlement(subscription)) {
     redirect("/home");
+  }
+
+  const path = await getPath(session.user.id);
+  if (!path?.placementComplete) {
+    return <TrialProgramBootstrap />;
   }
 
   const program = buildTrialProgram(path);

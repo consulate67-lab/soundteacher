@@ -2,8 +2,18 @@ import { firstLessonOfModule, nextLessonId } from "./curriculum";
 import type { Band } from "./bands";
 import type { AnswerMap, Level, PlacementResult } from "./placement";
 import {
+  compactClaimsToPath,
+  legacyCookieToPath,
+  PATH_COOKIE,
+  PATH_COOKIE_V1,
+  PATH_COOKIE_V2,
+  pathToCompactClaims,
+  type CompactPathClaims,
+} from "./path-cookie";
+import {
   clearSignedCookie,
   readSignedCookie,
+  sealJwt,
   writeSignedCookie,
 } from "./signed-cookie";
 import {
@@ -34,11 +44,9 @@ export type PlacementDraft = {
   updatedAt: string;
 };
 
-/** v2 JWT cookie — replaces HMAC v1. */
-export const PATH_COOKIE = "st_path_v2";
-export const DRAFT_COOKIE = "st_draft_v2";
-/** Legacy cookie names (read once, migrate). */
-const PATH_COOKIE_V1 = "st_path_v1";
+export { PATH_COOKIE };
+export const DRAFT_COOKIE = "st_draft_v3";
+const DRAFT_COOKIE_V2 = "st_draft_v2";
 const DRAFT_COOKIE_V1 = "st_draft_v1";
 
 type PathStore = Map<string, PathRecord>;
@@ -63,51 +71,77 @@ function drafts(): DraftStore {
   return globalForPath.__soundteacherPlacementDrafts;
 }
 
-function isPathRecord(v: unknown): v is PathRecord {
-  if (!v || typeof v !== "object") return false;
-  const p = v as PathRecord;
-  return (
-    typeof p.userId === "string" &&
-    typeof p.band === "string" &&
-    typeof p.level === "string" &&
-    typeof p.moduleEntry === "number" &&
-    typeof p.openLessonId === "string" &&
-    Array.isArray(p.completedLessonIds) &&
-    typeof p.placementComplete === "boolean"
-  );
-}
-
-function pathToCookieValue(record: PathRecord): Record<string, unknown> {
-  return { ...record };
-}
-
+/** Minimal draft cookie — band + provisional only (no fat answers map). */
 function draftToCookieValue(draft: PlacementDraft): Record<string, unknown> {
-  return { ...draft };
+  return {
+    u: draft.userId,
+    b: draft.band ?? null,
+    r: draft.provisional ?? null,
+    v: draft.verificationPassed ?? null,
+    t: draft.updatedAt,
+  };
+}
+
+function cookieToDraft(
+  raw: Record<string, unknown>,
+  userId: string,
+): PlacementDraft | null {
+  // compact v3
+  if ("u" in raw || "b" in raw) {
+    return {
+      userId,
+      band: (raw.b as Band | undefined) ?? undefined,
+      answers: {},
+      provisional: (raw.r as PlacementResult | undefined) ?? undefined,
+      verificationPassed:
+        typeof raw.v === "boolean" ? raw.v : undefined,
+      updatedAt: typeof raw.t === "string" ? raw.t : new Date().toISOString(),
+    };
+  }
+  // legacy
+  if (typeof raw.userId === "string" || raw.band || raw.provisional) {
+    return {
+      userId,
+      band: raw.band as Band | undefined,
+      answers: (raw.answers as AnswerMap) ?? {},
+      provisional: raw.provisional as PlacementResult | undefined,
+      verificationPassed: raw.verificationPassed as boolean | undefined,
+      updatedAt:
+        typeof raw.updatedAt === "string"
+          ? raw.updatedAt
+          : new Date().toISOString(),
+    };
+  }
+  return null;
+}
+
+async function readPathFromCookies(
+  userId: string,
+): Promise<PathRecord | null> {
+  const v3 = await readSignedCookie<CompactPathClaims>(PATH_COOKIE);
+  if (v3) {
+    const path = compactClaimsToPath(v3, userId);
+    if (path) return path;
+  }
+
+  for (const name of [PATH_COOKIE_V2, PATH_COOKIE_V1]) {
+    const legacy = await readSignedCookie<Record<string, unknown>>(name);
+    if (!legacy) continue;
+    const path = legacyCookieToPath(legacy, userId);
+    if (path) return path;
+  }
+  return null;
 }
 
 /**
- * Durable Path: memory (same invocation) + JWT cookie (survives Vercel cold starts).
- * Relaxes userId match when cookie says placementComplete (id remint / migration).
+ * Durable Path: memory + compact JWT cookie (survives Vercel cold starts).
  */
 export async function getPath(userId: string): Promise<PathRecord | null> {
   const mem = paths().get(userId);
   if (mem) return mem;
 
-  let fromCookie =
-    (await readSignedCookie<PathRecord>(PATH_COOKIE)) ??
-    (await readSignedCookie<PathRecord>(PATH_COOKIE_V1));
-
-  if (!fromCookie || !isPathRecord(fromCookie)) return null;
-  if (!fromCookie.placementComplete) return null;
-
-  if (fromCookie.userId !== userId) {
-    // Re-key orphaned Path onto current session user (stable-id migration).
-    fromCookie = {
-      ...fromCookie,
-      userId,
-      updatedAt: new Date().toISOString(),
-    };
-  }
+  const fromCookie = await readPathFromCookies(userId);
+  if (!fromCookie?.placementComplete) return null;
 
   paths().set(userId, fromCookie);
   return fromCookie;
@@ -119,28 +153,32 @@ export async function getPlacementDraft(
   const mem = drafts().get(userId);
   if (mem) return mem;
 
-  const fromCookie =
-    (await readSignedCookie<PlacementDraft>(DRAFT_COOKIE)) ??
-    (await readSignedCookie<PlacementDraft>(DRAFT_COOKIE_V1));
-
-  if (!fromCookie || typeof fromCookie.userId !== "string") return null;
-
-  const draft: PlacementDraft = {
-    userId,
-    band: fromCookie.band,
-    answers: fromCookie.answers ?? {},
-    provisional: fromCookie.provisional,
-    verificationPassed: fromCookie.verificationPassed,
-    updatedAt: fromCookie.updatedAt ?? new Date().toISOString(),
-  };
-  drafts().set(userId, draft);
-  return draft;
+  for (const name of [DRAFT_COOKIE, DRAFT_COOKIE_V2, DRAFT_COOKIE_V1]) {
+    const raw = await readSignedCookie<Record<string, unknown>>(name);
+    if (!raw) continue;
+    const draft = cookieToDraft(raw, userId);
+    if (draft) {
+      drafts().set(userId, draft);
+      return draft;
+    }
+  }
+  return null;
 }
 
 async function persistPath(record: PathRecord): Promise<PathRecord> {
   paths().set(record.userId, record);
-  await writeSignedCookie(PATH_COOKIE, pathToCookieValue(record));
+  const claims = pathToCompactClaims(record);
+  await writeSignedCookie(PATH_COOKIE, claims as unknown as Record<string, unknown>);
   return record;
+}
+
+/** Seal compact claims and return token + byte length (for Set-Cookie + diagnostics). */
+export async function sealPathCookie(
+  record: PathRecord,
+): Promise<{ token: string; bytes: number; claims: CompactPathClaims }> {
+  const claims = pathToCompactClaims(record);
+  const token = await sealJwt(claims as unknown as Record<string, unknown>);
+  return { token, bytes: token.length, claims };
 }
 
 export async function savePlacementDraft(
@@ -151,6 +189,7 @@ export async function savePlacementDraft(
   const next: PlacementDraft = {
     userId,
     band: patch.band ?? existing?.band,
+    // Keep answers in memory only for this invocation — not in cookie.
     answers: patch.answers ?? existing?.answers ?? {},
     provisional: patch.provisional ?? existing?.provisional,
     verificationPassed: patch.verificationPassed ?? existing?.verificationPassed,
@@ -164,6 +203,7 @@ export async function savePlacementDraft(
 export async function clearPlacementDraft(userId: string): Promise<void> {
   drafts().delete(userId);
   await clearSignedCookie(DRAFT_COOKIE);
+  await clearSignedCookie(DRAFT_COOKIE_V2);
   await clearSignedCookie(DRAFT_COOKIE_V1);
   void userId;
 }
@@ -200,16 +240,20 @@ export async function createPathFromPlacement(
   return record;
 }
 
-/**
- * Re-seal a client-mirrored Path (localStorage backup) onto the JWT cookie.
- * Used when the browser dropped Set-Cookie but still has the completion payload.
- */
 export async function restorePathFromClient(
   userId: string,
   raw: unknown,
 ): Promise<PathRecord | null> {
   if (!raw || typeof raw !== "object") return null;
-  const p = raw as Partial<PathRecord>;
+  const p = raw as Partial<PathRecord> & Partial<CompactPathClaims>;
+
+  // Accept compact or full client mirror
+  if (p.p === 1 && typeof p.b === "string") {
+    const path = compactClaimsToPath(p as CompactPathClaims, userId);
+    if (!path) return null;
+    return persistPath(path);
+  }
+
   if (
     p.placementComplete !== true ||
     typeof p.band !== "string" ||
@@ -230,11 +274,10 @@ export async function restorePathFromClient(
       typeof p.defaultSessionMinutes === "number" ? p.defaultSessionMinutes : 15,
     openLessonId: p.openLessonId,
     completedLessonIds: Array.isArray(p.completedLessonIds)
-      ? p.completedLessonIds.filter((x): x is string => typeof x === "string")
+      ? p.completedLessonIds.filter((x): x is string => typeof x === "string").slice(-8)
       : [],
-    injectedMicroLessons: Array.isArray(p.injectedMicroLessons)
-      ? p.injectedMicroLessons.filter((x): x is string => typeof x === "string")
-      : [],
+    injectedMicroLessons:
+      p.level === "A1" ? ["piano.m1.l2", "piano.m1.l4"] : [],
     placementComplete: true,
     createdAt: typeof p.createdAt === "string" ? p.createdAt : now,
     updatedAt: now,
@@ -251,7 +294,6 @@ export function toPlacementResult(path: PathRecord): PlacementResult {
   };
 }
 
-/** S36→S38: mark lesson complete and open the next lesson (strict sequence). */
 export async function unlockNextLesson(
   userId: string,
   completedLessonId: string,
@@ -261,7 +303,7 @@ export async function unlockNextLesson(
 
   const completed = path.completedLessonIds.includes(completedLessonId)
     ? path.completedLessonIds
-    : [...path.completedLessonIds, completedLessonId];
+    : [...path.completedLessonIds, completedLessonId].slice(-8);
 
   const trialNext = nextTrialProgramLessonId(
     { ...path, completedLessonIds: completed },

@@ -84,9 +84,11 @@ export function SkillsForm({ band }: { band: Band }) {
             <li key={opt.id}>
               <button
                 type="button"
+                data-option-id={opt.id}
                 onClick={() => pick(opt.id)}
-                className={`w-full rounded-md border px-4 py-3 text-left text-sm font-medium transition-colors ${
-                  band === "child" ? "min-h-12 text-base" : ""
+                onPointerUp={() => pick(opt.id)}
+                className={`relative z-10 w-full min-h-12 rounded-md border px-4 py-3 text-left text-sm font-medium transition-colors ${
+                  band === "child" ? "min-h-14 text-base" : ""
                 } ${
                   active
                     ? "border-brand bg-brand-soft"

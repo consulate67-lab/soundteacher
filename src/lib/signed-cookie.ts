@@ -29,7 +29,12 @@ export async function sealJwt(
   value: Record<string, unknown>,
   maxAgeSec = DEFAULT_MAX_AGE,
 ): Promise<string> {
-  return new SignJWT(value)
+  // jose rejects undefined values — strip them for compact cookies
+  const clean: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (v !== undefined) clean[k] = v;
+  }
+  return new SignJWT(clean)
     .setProtectedHeader({ alg: "HS256", typ: "JWT" })
     .setIssuedAt()
     .setExpirationTime(`${maxAgeSec}s`)

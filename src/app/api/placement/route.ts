@@ -9,13 +9,17 @@ import {
   PATH_COOKIE,
   restorePathFromClient,
   savePlacementDraft,
+  sealPathCookie,
   toPlacementResult,
   type PathRecord,
   type PlacementDraft,
 } from "@/lib/path-store";
+import { pathToCompactClaims } from "@/lib/path-cookie";
 import {
   clearSignedCookieOnResponse,
+  sealJwt,
   setSignedCookieOnResponse,
+  signedCookieOptions,
 } from "@/lib/signed-cookie";
 import { getSubscription } from "@/lib/subscription-store";
 import { isPastDue } from "@/lib/subscription";
@@ -37,24 +41,31 @@ type Body = {
 
 async function jsonWithDraft(data: unknown, draft: PlacementDraft) {
   const res = NextResponse.json(data);
-  await setSignedCookieOnResponse(
-    res,
-    DRAFT_COOKIE,
-    draft as unknown as Record<string, unknown>,
-  );
+  await setSignedCookieOnResponse(res, DRAFT_COOKIE, {
+    u: draft.userId,
+    b: draft.band ?? null,
+    r: draft.provisional ?? null,
+    v: draft.verificationPassed ?? null,
+    t: draft.updatedAt,
+  });
   return res;
 }
 
-async function jsonWithPath(data: unknown, path: PathRecord) {
-  const res = NextResponse.json(data);
-  await setSignedCookieOnResponse(
-    res,
-    PATH_COOKIE,
-    path as unknown as Record<string, unknown>,
-  );
+async function jsonWithPath(data: Record<string, unknown>, path: PathRecord) {
+  const { token, bytes, claims } = await sealPathCookie(path);
+  const res = NextResponse.json({
+    ...data,
+    pathCookieBytes: bytes,
+    pathClaims: claims,
+  });
+  res.cookies.set(PATH_COOKIE, token, signedCookieOptions());
+  // Clear legacy fat cookies so browsers don't keep oversized values.
   clearSignedCookieOnResponse(res, DRAFT_COOKIE);
+  clearSignedCookieOnResponse(res, "st_draft_v2");
   clearSignedCookieOnResponse(res, "st_draft_v1");
+  clearSignedCookieOnResponse(res, "st_path_v2");
   clearSignedCookieOnResponse(res, "st_path_v1");
+  res.headers.set("X-St-Path-Cookie-Bytes", String(bytes));
   return res;
 }
 
@@ -64,10 +75,16 @@ export async function GET() {
     return NextResponse.json({ error: "Oturum gerekli" }, { status: 401 });
   }
   const path = await getPath(session.user.id);
+  let pathCookieBytes: number | null = null;
+  if (path) {
+    pathCookieBytes = (await sealJwt(pathToCompactClaims(path) as unknown as Record<string, unknown>))
+      .length;
+  }
   return NextResponse.json({
     path: path ? toPlacementResult(path) : null,
     openLessonId: path?.openLessonId ?? null,
     placementComplete: path?.placementComplete ?? false,
+    pathCookieBytes,
   });
 }
 
