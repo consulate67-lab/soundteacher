@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "lessonId gerekli" }, { status: 400 });
   }
 
-  if (!canAccessLesson(sub, lessonId)) {
+  if (!canAccessLesson(sub, lessonId, path)) {
     log.warn("api.listening.analyze.forbidden", {
       userId,
       lessonId,

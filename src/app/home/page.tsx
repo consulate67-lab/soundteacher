@@ -19,6 +19,10 @@ import {
   shouldPromptSubscribe,
   TRIAL_COPY,
 } from "@/lib/trial-access";
+import {
+  buildTrialProgram,
+  isTrialProgramLessonLocked,
+} from "@/lib/trial-program";
 import { signOutAction, simulatePastDueAction } from "./actions";
 
 export const metadata: Metadata = {
@@ -34,8 +38,9 @@ export default async function HomePage() {
   const quota = resolveQuotaForUser(session.user.id, subscription);
   const open = getLesson(path.openLessonId);
   const openTitle = open ? lessonTitle(open, path.band) : path.openLessonId;
-  const openAllowed = canAccessLesson(subscription, path.openLessonId);
+  const openAllowed = canAccessLesson(subscription, path.openLessonId, path);
   const promptSub = shouldPromptSubscribe(subscription, path);
+  const trialProgram = !paid ? buildTrialProgram(path) : null;
   const visible = lessonsForVisiblePath(path.moduleEntry);
   const modules = moduleMapStatuses(
     path.moduleEntry,
@@ -79,9 +84,21 @@ export default async function HomePage() {
       {!paid ? (
         <p className="mt-4 rounded-md border border-border bg-brand-soft px-3 py-2 text-sm text-foreground">
           {promptSub ? TRIAL_COPY.bannerSubscribe : TRIAL_COPY.bannerHome}{" "}
-          <Link href="/plans" className="font-semibold text-brand underline-offset-2 hover:underline">
-            Plan seç
-          </Link>
+          {!promptSub ? (
+            <Link
+              href="/trial-program"
+              className="font-semibold text-brand underline-offset-2 hover:underline"
+            >
+              Deneme programın
+            </Link>
+          ) : (
+            <Link
+              href="/plans"
+              className="font-semibold text-brand underline-offset-2 hover:underline"
+            >
+              Plan seç
+            </Link>
+          )}
         </p>
       ) : null}
 
@@ -174,17 +191,26 @@ export default async function HomePage() {
         <p className="mt-4 text-sm font-semibold text-foreground">Ders haritası</p>
         <p className="mt-1 text-xs text-muted">
           Giriş modülünden M4’e kadar · kilitli dersler S21
-          {!paid ? " · deneme: M1.L1–L2 ücretsiz" : ""}.
+          {!paid && trialProgram
+            ? ` · deneme: ${trialProgram.items.length} ders ücretsiz`
+            : ""}
+          .
         </p>
         <ul className="mt-4 flex flex-col gap-2">
           {visible.map((lesson) => {
-            const sequenceLocked = isLessonLocked(
-              lesson,
-              path.openLessonId,
-              path.completedLessonIds,
-              path.moduleEntry,
+            const sequenceLocked = paid
+              ? isLessonLocked(
+                  lesson,
+                  path.openLessonId,
+                  path.completedLessonIds,
+                  path.moduleEntry,
+                )
+              : isTrialProgramLessonLocked(lesson.id, path);
+            const entitlementLocked = !canAccessLesson(
+              subscription,
+              lesson.id,
+              path,
             );
-            const entitlementLocked = !canAccessLesson(subscription, lesson.id);
             const locked = sequenceLocked || entitlementLocked;
             const done = path.completedLessonIds.includes(lesson.id);
             const title = lessonTitle(lesson, path.band);

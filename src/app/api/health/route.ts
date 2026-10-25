@@ -15,7 +15,7 @@ export async function GET() {
     lessonShell: "m1-m4-spine",
     listening: "method1-method2-quota",
     modules: "1-4",
-    freeTrial: "m1-l1-l2-no-sub",
+    freeTrial: "trial-program-m1-m2",
     pwa: "manifest+sw-light",
     audioRetention: AUDIO_RETENTION_POLICY,
     tts: "web-speech-optional",

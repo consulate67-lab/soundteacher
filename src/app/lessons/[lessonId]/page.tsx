@@ -7,6 +7,7 @@ import { loadLessonContent } from "@/lib/lesson-content";
 import { ensureLessonProgress } from "@/lib/lesson-progress-store";
 import { resolveQuotaForUser } from "@/lib/resolve-quota";
 import { hasPaidEntitlement, TRIAL_COPY } from "@/lib/trial-access";
+import { isTrialProgramLessonLocked } from "@/lib/trial-program";
 import { LessonSession } from "./lesson-session";
 
 type Props = {
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: lesson ? lesson.titles.adult : lessonId };
 }
 
-/** Dilim D–F — ders kabuğu + Y1/Y2; ücretsiz deneme M1.L1–L2. */
+/** Dilim D–F — ders kabuğu + Y1/Y2; ücretsiz deneme programı. */
 export default async function LessonPage({ params }: Props) {
   const { lessonId } = await params;
   const { session, path, subscription } = await requireLessonEntitlement(lessonId);
@@ -29,9 +30,17 @@ export default async function LessonPage({ params }: Props) {
     redirect("/home");
   }
 
-  if (
-    isLessonLocked(lesson, path.openLessonId, path.completedLessonIds, path.moduleEntry)
-  ) {
+  const paid = hasPaidEntitlement(subscription);
+  const locked = paid
+    ? isLessonLocked(
+        lesson,
+        path.openLessonId,
+        path.completedLessonIds,
+        path.moduleEntry,
+      )
+    : isTrialProgramLessonLocked(lessonId, path);
+
+  if (locked) {
     redirect(`/lessons/${lessonId}/locked`);
   }
 
@@ -43,15 +52,21 @@ export default async function LessonPage({ params }: Props) {
   const progress = ensureLessonProgress(session.user.id, lessonId);
   const quota = resolveQuotaForUser(session.user.id, subscription);
   const content = loadLessonContent(lessonId);
-  const freeMode = !hasPaidEntitlement(subscription);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-lg flex-col px-6 py-12">
-      <Link href="/home" className="text-sm font-medium text-brand hover:underline">
-        ← Path Home
-      </Link>
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <Link href="/home" className="font-medium text-brand hover:underline">
+          ← Path Home
+        </Link>
+        {!paid ? (
+          <Link href="/trial-program" className="text-muted hover:text-foreground">
+            Deneme programı
+          </Link>
+        ) : null}
+      </div>
 
-      {freeMode ? (
+      {!paid ? (
         <p className="mt-4 rounded-md border border-border bg-brand-soft px-3 py-2 text-xs text-foreground">
           {TRIAL_COPY.bannerHome}
         </p>
@@ -65,7 +80,7 @@ export default async function LessonPage({ params }: Props) {
         {lesson.isGate ? " · kapı" : ""} · ~{path.defaultSessionMinutes} dk ·{" "}
         {path.band === "adult" ? "siz" : "sen"} dili · Y2 kota {quota.method2Remaining}/
         {quota.method2Limit}
-        {freeMode ? " · ücretsiz deneme" : ""}
+        {!paid ? " · ücretsiz deneme" : ""}
       </p>
       <p className="mt-1 font-mono text-[0.65rem] text-muted">
         scoreRef: {content?.scoreRef ?? lesson.scoreRef}

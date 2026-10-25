@@ -1,6 +1,10 @@
 import { firstLessonOfModule, nextLessonId } from "./curriculum";
 import type { Band } from "./bands";
 import type { AnswerMap, Level, PlacementResult } from "./placement";
+import {
+  nextTrialProgramLessonId,
+  trialProgramLessonIds,
+} from "./trial-program";
 
 export type PathRecord = {
   userId: string;
@@ -81,7 +85,12 @@ export function createPathFromPlacement(
   result: PlacementResult,
 ): PathRecord {
   const first = firstLessonOfModule(result.module_entry);
-  const openLessonId = first?.id ?? "piano.m1.l1";
+  const trialIds = trialProgramLessonIds({
+    level: result.level,
+    moduleEntry: result.module_entry,
+  });
+  // Free deneme starts at first trial-program lesson (may be M1 micro before entry).
+  const openLessonId = trialIds[0] ?? first?.id ?? "piano.m1.l1";
   const injectedMicroLessons =
     result.level === "A1" ? ["piano.m1.l2", "piano.m1.l4"] : [];
 
@@ -125,7 +134,11 @@ export function unlockNextLesson(
     ? path.completedLessonIds
     : [...path.completedLessonIds, completedLessonId];
 
-  const nextId = nextLessonId(completedLessonId);
+  const trialNext = nextTrialProgramLessonId(
+    { ...path, completedLessonIds: completed },
+    completedLessonId,
+  );
+  const nextId = trialNext ?? nextLessonId(completedLessonId);
   const updated: PathRecord = {
     ...path,
     completedLessonIds: completed,

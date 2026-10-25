@@ -19,7 +19,8 @@ import { log } from "@/lib/logger";
 import { getPath, unlockNextLesson } from "@/lib/path-store";
 import { getSubscription } from "@/lib/subscription-store";
 import { isPastDue } from "@/lib/subscription";
-import { canAccessLesson } from "@/lib/trial-access";
+import { canAccessLesson, hasPaidEntitlement } from "@/lib/trial-access";
+import { isTrialProgramLessonLocked } from "@/lib/trial-program";
 
 async function requireLessonAccess(lessonId: string) {
   const session = await auth();
@@ -27,17 +28,25 @@ async function requireLessonAccess(lessonId: string) {
 
   const sub = getSubscription(session.user.id);
   if (sub && isPastDue(sub.status)) redirect("/billing/past-due");
-  if (!canAccessLesson(sub, lessonId)) redirect(`/lessons/${lessonId}/locked`);
-
   const path = getPath(session.user.id);
   if (!path?.placementComplete) redirect("/placement");
+  if (!canAccessLesson(sub, lessonId, path)) {
+    redirect(`/lessons/${lessonId}/locked`);
+  }
 
   const lesson = getLesson(lessonId);
   if (!lesson) redirect("/home");
 
-  if (
-    isLessonLocked(lesson, path.openLessonId, path.completedLessonIds, path.moduleEntry)
-  ) {
+  const locked = hasPaidEntitlement(sub)
+    ? isLessonLocked(
+        lesson,
+        path.openLessonId,
+        path.completedLessonIds,
+        path.moduleEntry,
+      )
+    : isTrialProgramLessonLocked(lessonId, path);
+
+  if (locked) {
     redirect(`/lessons/${lessonId}/locked`);
   }
 

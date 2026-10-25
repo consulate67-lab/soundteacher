@@ -72,7 +72,7 @@ export async function requirePlacementAccess() {
  */
 export async function requireLessonEntitlement(lessonId: string) {
   const ctx = await requirePath();
-  if (!canAccessLesson(ctx.subscription, lessonId)) {
+  if (!canAccessLesson(ctx.subscription, lessonId, ctx.path)) {
     redirect(`/lessons/${lessonId}/locked`);
   }
   return ctx;

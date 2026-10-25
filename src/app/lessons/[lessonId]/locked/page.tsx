@@ -8,6 +8,7 @@ import {
   hasPaidEntitlement,
   TRIAL_COPY,
 } from "@/lib/trial-access";
+import { isTrialProgramLessonLocked } from "@/lib/trial-program";
 
 export const metadata: Metadata = {
   title: "Ders kilitli",
@@ -28,14 +29,16 @@ export default async function LessonLockedPage({ params }: Props) {
     redirect("/home");
   }
 
-  const sequenceLocked = isLessonLocked(
-    lesson,
-    path.openLessonId,
-    path.completedLessonIds,
-    path.moduleEntry,
-  );
-  const needsSub = !canAccessLesson(subscription, lessonId);
   const paid = hasPaidEntitlement(subscription);
+  const needsSub = !canAccessLesson(subscription, lessonId, path);
+  const sequenceLocked = paid
+    ? isLessonLocked(
+        lesson,
+        path.openLessonId,
+        path.completedLessonIds,
+        path.moduleEntry,
+      )
+    : isTrialProgramLessonLocked(lessonId, path);
 
   if (!sequenceLocked && !needsSub) {
     redirect(`/lessons/${lessonId}`);
@@ -44,11 +47,11 @@ export default async function LessonLockedPage({ params }: Props) {
   const title = lessonTitle(lesson, path.band);
   const reason = needsSub
     ? TRIAL_COPY.lockedSubscribe
-    : lesson.moduleId < path.moduleEntry
+    : lesson.moduleId < path.moduleEntry && paid
       ? "Bu ders yerleştirme girişinin öncesinde — zorunlu değil (mikro fırça ayrı)."
       : "Sıkı sıra: önce açık dersini bitir, sonra bu ders açılır.";
 
-  const openAllowed = canAccessLesson(subscription, path.openLessonId);
+  const openAllowed = canAccessLesson(subscription, path.openLessonId, path);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-12">
@@ -67,12 +70,20 @@ export default async function LessonLockedPage({ params }: Props) {
       </p>
 
       <div className="mt-8 flex flex-col gap-3">
-        {needsSub || !paid ? (
+        {needsSub ? (
           <Link
             href="/plans"
             className="inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-hover"
           >
             Plan seç — devam et
+          </Link>
+        ) : null}
+        {!paid ? (
+          <Link
+            href="/trial-program"
+            className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-surface px-5 text-sm font-medium hover:bg-brand-soft"
+          >
+            Deneme programına dön
           </Link>
         ) : null}
         {openAllowed ? (
