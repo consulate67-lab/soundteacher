@@ -7,9 +7,10 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     service: "soundteacher",
-    phase: "dilim-b",
+    phase: "dilim-c",
     auth: "authjs-credentials-mock",
     stripeMode: isStripeMockMode() ? "mock" : "stripe-test",
+    placement: "in-memory-path",
     timestamp: new Date().toISOString(),
   });
 }

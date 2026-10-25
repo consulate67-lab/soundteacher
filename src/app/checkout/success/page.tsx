@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getPlan, type PlanId } from "@/lib/plans";
+import { getPath } from "@/lib/path-store";
 import { activateFromCheckout, getSubscription } from "@/lib/subscription-store";
 import { statusLabelTr } from "@/lib/subscription";
 
@@ -15,7 +16,7 @@ type Props = {
   searchParams: Promise<{ plan?: string; session_id?: string }>;
 };
 
-/** S03 — Ödeme / deneme başarı (mock veya Stripe return). */
+/** S03 — Ödeme / deneme başarı → yerleştirme veya Path Home. */
 export default async function CheckoutSuccessPage({ searchParams }: Props) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -30,7 +31,6 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
     redirect("/plans");
   }
 
-  // Mock + Stripe return: activate (webhook also updates in real Stripe flow).
   let subscription = getSubscription(session.user.id);
   if (!subscription || subscription.plan !== plan) {
     subscription = activateFromCheckout({
@@ -46,6 +46,10 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
     });
   }
 
+  const path = getPath(session.user.id);
+  const nextHref = path?.placementComplete ? "/home" : "/placement";
+  const nextLabel = path?.placementComplete ? "Path Home’a git" : "Yerleştirmeye başla";
+
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-12">
       <Link
@@ -60,8 +64,8 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
         {plan === "trial"
-          ? "Denemen başladı. Yerleştirme sonraki dilimde gelecek."
-          : "Ödeme alındı (veya mock olarak işaretlendi). Ders yoluna geçebilirsin."}
+          ? "Denemen başladı. Sırada yaş × seviye yerleştirme var."
+          : "Ödeme alındı (veya mock). Sırada yerleştirme — Path bundan sonra açılır."}
       </p>
 
       <dl className="mt-8 space-y-3 rounded-md border border-border bg-surface px-4 py-4 text-sm">
@@ -80,10 +84,10 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
       </dl>
 
       <Link
-        href="/home"
+        href={nextHref}
         className="mt-8 inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
       >
-        Path Home’a git
+        {nextLabel}
       </Link>
     </main>
   );

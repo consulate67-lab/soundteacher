@@ -1,19 +1,36 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { requireSubscribed } from "@/lib/access";
+import { requirePath } from "@/lib/access";
+import { BAND_SHORT } from "@/lib/bands";
+import {
+  getLesson,
+  isLessonLocked,
+  lessonTitle,
+  lessonsForVisiblePath,
+} from "@/lib/curriculum";
 import { getPlan } from "@/lib/plans";
 import { statusLabelTr } from "@/lib/subscription";
 import { signOutAction, simulatePastDueAction } from "./actions";
 
 export const metadata: Metadata = {
   title: "Path Home",
-  description: "SoundTeacher öğrenme yolu (iskelet).",
+  description: "Öğrenme yolu özeti (S20).",
 };
 
-/** Protected Path Home shell — requires trial/active entitlement. */
+/** S20 — Path Home: açık ders + kilitli harita. */
 export default async function HomePage() {
-  const { session, subscription } = await requireSubscribed();
+  const { session, subscription, path } = await requirePath();
   const plan = getPlan(subscription.plan);
+  const open = getLesson(path.openLessonId);
+  const openTitle = open ? lessonTitle(open, path.band) : path.openLessonId;
+  const visible = lessonsForVisiblePath(path.moduleEntry);
+
+  const progressHint =
+    path.band === "child"
+      ? "Küçük adımlarla ilerliyorsun — her ders bir zafer."
+      : path.band === "teen"
+        ? "İlerleme sade: açık dersi bitir, sıradaki açılsın."
+        : "Checklist: açık dersi tamamla, sonraki kapı açılsın.";
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-6 py-12">
@@ -38,45 +55,96 @@ export default async function HomePage() {
         Path Home
       </h1>
       <p className="mt-2 max-w-lg text-sm leading-relaxed text-muted">
-        Merhaba{session.user.name ? `, ${session.user.name}` : ""}. Aboneliğin geçerli —
-        yerleştirme ve dersler Dilim C’de gelecek. Şimdilik bu kabuk entitlement
-        kontrolünü gösterir.
+        Merhaba{session.user.name ? `, ${session.user.name}` : ""}. {progressHint}
       </p>
 
       <section className="mt-8 rounded-md border border-border bg-surface px-4 py-4 text-sm">
-        <h2 className="font-semibold text-foreground">Abonelik</h2>
-        <dl className="mt-3 space-y-2">
-          <div className="flex justify-between gap-4">
-            <dt className="text-muted">Plan</dt>
-            <dd className="font-medium">{plan?.name ?? subscription.plan}</dd>
+        <h2 className="font-semibold text-foreground">Yolun</h2>
+        <dl className="mt-3 grid gap-2 sm:grid-cols-2">
+          <div className="flex justify-between gap-2 sm:block">
+            <dt className="text-muted">Bant / seviye</dt>
+            <dd className="font-medium">
+              {BAND_SHORT[path.band]} · {path.level}
+            </dd>
           </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-muted">Durum</dt>
-            <dd className="font-medium">{statusLabelTr(subscription.status)}</dd>
+          <div className="flex justify-between gap-2 sm:block">
+            <dt className="text-muted">Modül girişi</dt>
+            <dd className="font-medium">M{path.moduleEntry}</dd>
           </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-muted">Enstrüman</dt>
-            <dd className="font-medium">{subscription.entitlement.instrumentAccess}</dd>
+          <div className="flex justify-between gap-2 sm:block">
+            <dt className="text-muted">Oturum</dt>
+            <dd className="font-medium">~{path.defaultSessionMinutes} dk</dd>
           </div>
-          <div className="flex justify-between gap-4">
-            <dt className="text-muted">Yöntem 2 kota</dt>
-            <dd className="font-medium">{subscription.entitlement.quotaMethod2Limit}</dd>
+          <div className="flex justify-between gap-2 sm:block">
+            <dt className="text-muted">Abonelik</dt>
+            <dd className="font-medium">
+              {plan?.name} · {statusLabelTr(subscription.status)}
+            </dd>
           </div>
         </dl>
       </section>
 
-      <section className="mt-6">
-        <p className="text-sm text-muted">Açık ders (iskelet)</p>
+      <section className="mt-8">
+        <p className="text-sm text-muted">Açık ders</p>
         <p className="mt-2 font-[family-name:var(--font-display)] text-xl text-foreground">
-          Yerleştirme sonrası ilk ders
+          {openTitle}
         </p>
-        <button
-          type="button"
-          disabled
-          className="mt-4 inline-flex h-11 cursor-not-allowed items-center justify-center rounded-md bg-brand/40 px-5 text-sm font-semibold text-white"
+        <Link
+          href={`/lessons/${path.openLessonId}`}
+          className="mt-4 inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
         >
-          Devam et (Dilim C)
-        </button>
+          {path.completedLessonIds.length === 0 ? "İlk ders" : "Devam et"}
+        </Link>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-sm font-semibold text-foreground">Modül haritası</h2>
+        <p className="mt-1 text-xs text-muted">
+          Sıkı sıra: kilitli dersler görünür, tıklanınca S21.
+        </p>
+        <ul className="mt-4 flex flex-col gap-2">
+          {visible.map((lesson) => {
+            const locked = isLessonLocked(
+              lesson,
+              path.openLessonId,
+              path.completedLessonIds,
+              path.moduleEntry,
+            );
+            const done = path.completedLessonIds.includes(lesson.id);
+            const title = lessonTitle(lesson, path.band);
+            const href = locked
+              ? `/lessons/${lesson.id}/locked`
+              : `/lessons/${lesson.id}`;
+
+            return (
+              <li key={lesson.id}>
+                {locked ? (
+                  <Link
+                    href={href}
+                    className="flex items-center justify-between gap-3 rounded-md border border-border bg-surface/60 px-3 py-3 text-sm text-muted"
+                  >
+                    <span>
+                      M{lesson.moduleId}.{lesson.order} · {title}
+                    </span>
+                    <span className="text-xs">Kilitli</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href={href}
+                    className="flex items-center justify-between gap-3 rounded-md border border-brand bg-brand-soft px-3 py-3 text-sm text-foreground"
+                  >
+                    <span>
+                      M{lesson.moduleId}.{lesson.order} · {title}
+                    </span>
+                    <span className="text-xs font-medium text-brand">
+                      {done ? "Tamam" : "Açık"}
+                    </span>
+                  </Link>
+                )}
+              </li>
+            );
+          })}
+        </ul>
       </section>
 
       <form action={simulatePastDueAction} className="mt-12 border-t border-border pt-6">

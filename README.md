@@ -4,7 +4,7 @@
 
 Ürün adı: **SoundTeacher** · proje / marka notu: **SoungTeacher**.
 
-Bu depo **Faz 1 / Dilim A + B** iskeletidir.
+Bu depo **Faz 1 / Dilim A + B + C** iskeletidir.
 
 ## Yerel çalıştırma
 
@@ -33,30 +33,35 @@ Tarayıcı: [http://localhost:3000](http://localhost:3000)
 | `STRIPE_SECRET_KEY` boş | **Mock mode** — checkout başarı URL’sine yönlendirir; webhook JSON stub |
 | Test anahtarları dolu   | Checkout Session + imzalı webhook yolu                                  |
 
-Abonelik durumu (`trial` / `active` / `past_due` / `canceled`) + entitlement şu an **in-memory** store’da (`src/lib/subscription-store.ts`). Şema taslağı: `db/schema.sql`.
+Abonelik + Path şu an **in-memory** (`subscription-store`, `path-store`). Şema taslağı: `db/schema.sql`.
 
-Mock webhook örneği:
+## Yerleştirme + Path (Dilim C)
 
-```bash
-curl -X POST http://localhost:3000/api/stripe/webhook \
-  -H 'Content-Type: application/json' \
-  -d '{"type":"invoice.payment_failed","data":{"userId":"usr_…"}}'
-```
+Akış: **S10** bant → **S11** beceri soruları → (A2/B1 ise **S12** mock doğrulama) → **S13** sonuç → **S20** Path Home.
+
+`POST /api/placement` skor stub’ı `{ band, level, module_entry, default_session_minutes }` üretir ve Path kaydeder.
 
 ## Rotalar
 
-| Yol                    | Ekran            | Not                                    |
-| ---------------------- | ---------------- | -------------------------------------- |
-| `/`                    | Landing          |                                        |
-| `/signup`              | **S01**          | Kayıt → `/plans`                       |
-| `/login`               | Giriş            | → `/home` (entitlement yoksa `/plans`) |
-| `/plans`               | **S02**          | Plan seçimi + checkout stub            |
-| `/checkout/success`    | **S03**          | Mock/Stripe dönüş; abonelik etkin      |
-| `/billing/past-due`    | **S04**          | `past_due` duvarı                      |
-| `/home`                | Path Home kabuğu | `trial`/`active` gerekir               |
-| `/api/health`          | Healthcheck      |                                        |
-| `/api/stripe/checkout` | Checkout stub    |                                        |
-| `/api/stripe/webhook`  | Webhook stub     |                                        |
+| Yol                     | Ekran              | Not                         |
+| ----------------------- | ------------------ | --------------------------- |
+| `/`                     | Landing            |                             |
+| `/signup`               | **S01**            | → `/plans`                  |
+| `/login`                | Giriş              | → `/home`                   |
+| `/plans`                | **S02**            | Plan + checkout             |
+| `/checkout/success`     | **S03**            | → `/placement` (Path yoksa) |
+| `/billing/past-due`     | **S04**            |                             |
+| `/placement`            | **S10**            | Yaş bandı                   |
+| `/placement/skills`     | **S11**            | Bantlı sorular              |
+| `/placement/verify`     | **S12**            | Mock doğrulama              |
+| `/placement/result`     | **S13**            | Path özeti                  |
+| `/placement/incomplete` | **S14**            | Yarım hatırlatma            |
+| `/home`                 | **S20**            | Kilitli/açık ders haritası  |
+| `/lessons/[id]/locked`  | **S21**            | Kilit mesajı                |
+| `/lessons/[id]`         | Ders kabuğu        | Dilim D hazırlığı           |
+| `/api/health`           | Healthcheck        |                             |
+| `/api/placement`        | Placement stub     |                             |
+| `/api/stripe/*`         | Checkout / webhook |                             |
 
 ## Scriptler
 
@@ -69,9 +74,10 @@ npm start
 
 ## Dilim özeti
 
-- **A:** Next.js App Router + TS, lint/format/CI, env, şema taslağı, healthcheck, S01 kabuğu
-- **B:** Auth.js, Stripe mock/test wiring, S02–S04, entitlement korumalı `/home`
+- **A:** Next.js iskelet, CI, env, şema, healthcheck, S01
+- **B:** Auth.js, Stripe mock, S02–S04, entitlement `/home` kapısı
+- **C:** Yerleştirme S10–S14, Path Home S20–S21, M1/M2 mock müfredat
 
-Sonraki (**C**): Yerleştirme + Path.
+Sonraki (**D**): Ders kabuğu M1 (S30–S31, S38).
 
-Mimari: proje store `mvp-teknik-mimari.md` §8–10 · abonelik: `abonelik-iskeleti.md`.
+Mimari: `mvp-teknik-mimari.md` §8 · yerleştirme: `yerlestirme-ve-modul-1-2.md`.
