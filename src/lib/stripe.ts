@@ -13,12 +13,18 @@ export function getStripe(): Stripe | null {
   });
 }
 
-export function priceIdForPlan(plan: "trial" | "monthly" | "yearly"): string | undefined {
+export function priceIdForPlan(
+  plan: "trial" | "monthly" | "quarterly" | "semiannual" | "yearly",
+): string | undefined {
   switch (plan) {
     case "trial":
       return process.env.STRIPE_PRICE_TRIAL || undefined;
     case "monthly":
       return process.env.STRIPE_PRICE_MONTHLY || undefined;
+    case "quarterly":
+      return process.env.STRIPE_PRICE_QUARTERLY || undefined;
+    case "semiannual":
+      return process.env.STRIPE_PRICE_SEMIANNUAL || undefined;
     case "yearly":
       return process.env.STRIPE_PRICE_YEARLY || undefined;
   }

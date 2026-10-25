@@ -32,6 +32,14 @@ function periodEndFor(plan: PlanId, from: Date): string | null {
     end.setMonth(end.getMonth() + 1);
     return end.toISOString();
   }
+  if (plan === "quarterly") {
+    end.setMonth(end.getMonth() + 3);
+    return end.toISOString();
+  }
+  if (plan === "semiannual") {
+    end.setMonth(end.getMonth() + 6);
+    return end.toISOString();
+  }
   if (plan === "yearly") {
     end.setFullYear(end.getFullYear() + 1);
     return end.toISOString();

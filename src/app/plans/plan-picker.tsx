@@ -12,7 +12,11 @@ export function PlanPicker({
   mockMode: boolean;
 }) {
   const router = useRouter();
-  const [selected, setSelected] = useState<string>(plans[1]?.id ?? plans[0]?.id);
+  const [selected, setSelected] = useState<string>(
+    plans.find((p) => p.id === "quarterly")?.id ??
+      plans.find((p) => p.id === "monthly")?.id ??
+      plans[0]?.id,
+  );
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
