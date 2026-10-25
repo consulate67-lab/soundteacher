@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+:root {
+  /* SoundTeacher design tokens (Dilim A — minimal) */
+  --background: #f3f6f8;
+  --background-accent: #e4eef2;
+  --foreground: #142028;
+  --muted: #5a6b76;
+  --surface: #ffffff;
+  --border: #c9d5dc;
+  --brand: #0f6b6a;
+  --brand-hover: #0c5756;
+  --brand-soft: #d7eceb;
+  --focus: #1a8a88;
+  --danger: #9b3b3b;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-background-accent: var(--background-accent);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-focus: var(--focus);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 10% -10%, var(--brand-soft), transparent 55%),
+    linear-gradient(165deg, var(--background) 0%, var(--background-accent) 100%);
+  color: var(--foreground);
+  min-height: 100vh;
+  font-family: var(--font-body), ui-sans-serif, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
