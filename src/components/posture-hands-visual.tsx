@@ -6,13 +6,18 @@
 const STEPS = [
   {
     n: 1,
-    title: "Oturuş",
-    body: "Sırt dik, omuzlar düşük, ayaklar yerde. Klavyeye dirsek mesafesi bırak.",
+    title: "Mesafe",
+    body: "Sandalyeyi ayarla: ayaklar yerde, öne biraz otur, klavyeye dirsek mesafesi.",
   },
   {
     n: 2,
-    title: "El ve bilek",
-    body: "Yumuşak parmak kemeri; bilek tuşlarla aynı hizada; kol ağırlığı — baskı yok.",
+    title: "Dik otur",
+    body: "Sırt dik, boyun serbest, omuzlar rahat — gerginlik yok.",
+  },
+  {
+    n: 3,
+    title: "Önkol & bilek",
+    body: "Önkol tuş yüksekliğinde; bilek nötr (kırılmasın); baskı yok.",
   },
 ] as const;
 
@@ -42,7 +47,7 @@ export function PostureHandsVisual() {
             <source src="/lessons/posture-hands.mp4" type="video/mp4" />
           </video>
           <p className="absolute bottom-2 left-2 rounded bg-black/45 px-2 py-0.5 text-[0.65rem] text-white">
-            Gerçek görüntü · sessiz döngü · ~12 sn
+            Oturuş eğitimi · sessiz · ~21 sn
           </p>
         </div>
 
