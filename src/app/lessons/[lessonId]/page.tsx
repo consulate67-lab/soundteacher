@@ -5,6 +5,7 @@ import { requirePath } from "@/lib/access";
 import { getLesson, isLessonLocked, lessonTitle } from "@/lib/curriculum";
 import { loadLessonContent } from "@/lib/lesson-content";
 import { ensureLessonProgress } from "@/lib/lesson-progress-store";
+import { quotaSnapshot } from "@/lib/quota";
 import { LessonSession } from "./lesson-session";
 
 type Props = {
@@ -17,9 +18,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: lesson ? lesson.titles.adult : lessonId };
 }
 
-/** Dilim D — M1 ders kabuğu: teori → pratik → dinleme stub → gate. */
+/** Dilim D–F — M1 ders kabuğu + Y1/Y2 dinleme + kota. */
 export default async function LessonPage({ params }: Props) {
-  const { session, path } = await requirePath();
+  const { session, path, subscription } = await requirePath();
   const { lessonId } = await params;
   const lesson = getLesson(lessonId);
 
@@ -39,6 +40,7 @@ export default async function LessonPage({ params }: Props) {
 
   const title = lessonTitle(lesson, path.band);
   const progress = ensureLessonProgress(session.user.id, lessonId);
+  const quota = quotaSnapshot(subscription);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-lg flex-col px-6 py-12">
@@ -51,7 +53,8 @@ export default async function LessonPage({ params }: Props) {
       </h1>
       <p className="mt-2 text-sm text-muted">
         M{lesson.moduleId}.{lesson.order} · ~{path.defaultSessionMinutes} dk ·{" "}
-        {path.band === "adult" ? "siz" : "sen"} dili
+        {path.band === "adult" ? "siz" : "sen"} dili · Y2 kota {quota.method2Remaining}/
+        {quota.method2Limit}
       </p>
 
       <LessonSession
@@ -60,6 +63,7 @@ export default async function LessonPage({ params }: Props) {
         title={title}
         sessionMinutes={path.defaultSessionMinutes}
         progress={progress}
+        quota={quota}
       />
     </main>
   );

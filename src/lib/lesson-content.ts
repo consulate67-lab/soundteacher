@@ -12,6 +12,8 @@ export type LessonContent = {
   practiceSteps: BandedText[];
   practiceBubbles: BandedText[];
   recommendedMethod: ListeningMethod;
+  /** Dilim F — methods member may choose (quota still applies). */
+  allowedMethods: ListeningMethod[];
   listeningPrep: BandedText;
   /** Mock feedback line after placeholder listening (Dilim E replaces with Attempt). */
   mockFeedback: BandedText;
@@ -62,6 +64,7 @@ const M1_L1: LessonContent = {
     },
   ],
   recommendedMethod: "1",
+  allowedMethods: ["1", "2"],
   listeningPrep: {
     child: "Yakın otur. … Ortam sessiz olsun. [kısa durak] Bakıcı mic’e yardım edebilir.",
     teen: "Yakın otur. … Ortamı mümkün olduğunca sessiz tut.",
@@ -139,6 +142,7 @@ const M1_L2: LessonContent = {
     },
   ],
   recommendedMethod: "1",
+  allowedMethods: ["1", "2"],
   listeningPrep: {
     child:
       "Orta Do’ya dokunurken kaydedeceğiz. … Sessiz ortam. [kısa durak] Bakıcı yardım edebilir.",
@@ -216,6 +220,7 @@ export function loadLessonContent(lessonId: string): LessonContent | null {
       },
     ],
     recommendedMethod: def.order >= 6 ? "2" : "1",
+    allowedMethods: def.order >= 6 ? ["1", "2"] : ["1", "2"],
     listeningPrep: {
       child: "Yakın otur. … Sessiz ortam. [kısa durak] Bakıcı yardım edebilir.",
       teen: "Yakın otur. … Ortamı sessiz tut.",

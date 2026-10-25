@@ -7,12 +7,12 @@ export async function GET() {
   return NextResponse.json({
     ok: true,
     service: "soundteacher",
-    phase: "dilim-e",
+    phase: "dilim-f",
     auth: "authjs-credentials-mock",
     stripeMode: isStripeMockMode() ? "mock" : "stripe-test",
     placement: "in-memory-path",
     lessonShell: "m1-phase-machine",
-    listening: "method1-mediarecorder-stub-analyzer",
+    listening: "method1-method2-quota",
     timestamp: new Date().toISOString(),
   });
 }

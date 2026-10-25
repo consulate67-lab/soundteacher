@@ -3,13 +3,13 @@ import type { AnalyzeAudioInput, AnalyzeAudioResult, AudioAnalyzer } from "./typ
 /**
  * Server-side analysis stub — no paid APIs, no ML.
  * Uses duration / size heuristics + attempt index for deterministic variety.
- * Replace with real pitch/align worker via getAudioAnalyzer().
+ * Method 2 returns a longer ordered error list (end-of-piece report).
  */
 export class StubAudioAnalyzer implements AudioAnalyzer {
   readonly name = "stub-v1";
 
   async analyze(input: AnalyzeAudioInput): Promise<AnalyzeAudioResult> {
-    const { durationMs, byteLength, attemptIndex, lessonId } = input;
+    const { durationMs, byteLength, attemptIndex, lessonId, method } = input;
     const objectKey = `temp/${lessonId}/${Date.now()}.webm`;
 
     // S42 — silence / too short
@@ -34,7 +34,7 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
       };
     }
 
-    // S43 — “noise” heuristic: very large blob for short duration (speech-ish)
+    // S43 — “noise” heuristic
     if (durationMs < 2500 && byteLength > 80_000) {
       return {
         valid: false,
@@ -45,11 +45,13 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
       };
     }
 
-    // Valid attempt — rotate pass / soft / fail by attempt index
     const mode = attemptIndex % 3;
 
+    if (method === "2") {
+      return method2Result(mode, objectKey);
+    }
+
     if (mode === 0) {
-      // Clean pass
       return {
         valid: true,
         invalidReason: null,
@@ -65,7 +67,6 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
     }
 
     if (mode === 1) {
-      // Soft: one low timing error — still gate-passable
       return {
         valid: true,
         invalidReason: null,
@@ -89,7 +90,6 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
       };
     }
 
-    // Fail candidate: high pitch error
     return {
       valid: true,
       invalidReason: null,
@@ -112,4 +112,109 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
       audioObjectKey: objectKey,
     };
   }
+}
+
+function method2Result(mode: number, objectKey: string): AnalyzeAudioResult {
+  if (mode === 0) {
+    return {
+      valid: true,
+      invalidReason: null,
+      scoreSummary: {
+        bandLabel: "pass",
+        pitchOk: true,
+        timingOk: true,
+        notesDetected: 24,
+      },
+      // Ordered: pitch first, then timing (product rule)
+      errorSpans: [
+        {
+          measure: 3,
+          note: "Mi",
+          type: "timing",
+          severity: "low",
+          expected: "grid",
+          heard: "geç",
+        },
+      ],
+      audioObjectKey: objectKey,
+    };
+  }
+
+  if (mode === 1) {
+    return {
+      valid: true,
+      invalidReason: null,
+      scoreSummary: {
+        bandLabel: "soft",
+        pitchOk: false,
+        timingOk: false,
+        notesDetected: 22,
+      },
+      errorSpans: [
+        {
+          measure: 2,
+          note: "Re",
+          type: "pitch",
+          severity: "low",
+          expected: "Re",
+          heard: "şüpheli",
+        },
+        {
+          measure: 4,
+          note: "Sol",
+          type: "timing",
+          severity: "low",
+          expected: "grid",
+          heard: "erken",
+        },
+        {
+          measure: 5,
+          note: "Fa",
+          type: "timing",
+          severity: "low",
+          expected: "grid",
+          heard: "geç",
+        },
+      ],
+      audioObjectKey: objectKey,
+    };
+  }
+
+  return {
+    valid: true,
+    invalidReason: null,
+    scoreSummary: {
+      bandLabel: "fail",
+      pitchOk: false,
+      timingOk: false,
+      notesDetected: 20,
+    },
+    errorSpans: [
+      {
+        measure: 2,
+        note: "Re",
+        type: "pitch",
+        severity: "high",
+        expected: "Re",
+        heard: "Mi",
+      },
+      {
+        measure: 3,
+        note: "Mi",
+        type: "pitch",
+        severity: "high",
+        expected: "Mi",
+        heard: "Fa",
+      },
+      {
+        measure: 4,
+        note: "Sol",
+        type: "timing",
+        severity: "low",
+        expected: "grid",
+        heard: "erken",
+      },
+    ],
+    audioObjectKey: objectKey,
+  };
 }

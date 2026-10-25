@@ -73,9 +73,33 @@ export function invalidBubble(
       return "Kayıt çok kısa. … [kısa durak] Biraz daha uzun çalalım.";
     case "denied_mic":
       return "Mikrofon izni yok. … [kısa durak] Dinleme bekliyor.";
+    case "abandoned":
+      return band === "adult"
+        ? "Kayıt yarıda kaldı. … [kısa durak] Kota düşmedi. Hazır olunca yeniden başlayın."
+        : "Kayıt yarıda kaldı. … [kısa durak] Kota düşmedi. Hazır olunca yeniden başlayalım.";
     default:
       return "Bu deneme geçerli değil. … [kısa durak] Yeniden deneyelim.";
   }
+}
+
+export function performanceIntroBubble(band: Band): string {
+  if (band === "child") {
+    return "Parçanı baştan sona çalacağız. … [kısa durak] Ben kayıtta susacağım.";
+  }
+  if (band === "teen") {
+    return "Performans kaydı. … [kısa durak] Bitişte özet gelir — canlı hata listesi yok.";
+  }
+  return "Performans kaydı. … [kısa durak] Analiz bitişte; kayıt sırasında sessiz kalırım.";
+}
+
+export function quotaExhaustedBubble(band: Band): string {
+  if (band === "child") {
+    return "Performans kotan doldu. … [kısa durak] Ortam kaydıyla devam edebilirsin.";
+  }
+  if (band === "teen") {
+    return "Yöntem 2 kotası doldu. … [kısa durak] Ortam kaydına geçebilirsin — ders açık.";
+  }
+  return "Yöntem 2 kotası doldu. … [kısa durak] Ortam kaydına düşebilirsiniz; ders kilitli değil.";
 }
 
 export function gateFailBubble(band: Band, err: ErrorSpan | null): string {

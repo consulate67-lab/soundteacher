@@ -15,14 +15,19 @@ type Props = {
   lessonId: string;
 };
 
-/** S35 — one primary error at a time; list stays visible. */
+/**
+ * S35 — one primary correction spoken; full ordered list visible (esp. Y2 end report).
+ * Order: pitch errors first, then timing (product preference).
+ */
 export function ListeningFeedback({ attempt, band, lessonId }: Props) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bubbles = feedbackBubblesForAttempt(attempt, band);
-  const primary = primaryError(attempt.errorSpans);
-  const rest = attempt.errorSpans.filter((e) => e !== primary);
+  const ordered = orderErrors(attempt.errorSpans);
+  const primary = primaryError(ordered);
+  const rest = ordered.filter((e) => e !== primary);
+  const isY2 = attempt.method === "2";
 
   async function goGate() {
     setPending(true);
@@ -39,8 +44,16 @@ export function ListeningFeedback({ attempt, band, lessonId }: Props) {
   return (
     <section className="flex flex-col gap-4">
       <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
-        Geri bildirim
+        {isY2 ? "Performans raporu" : "Geri bildirim"}
       </h2>
+
+      {isY2 && attempt.scoreSummary ? (
+        <p className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
+          Skor bandı: <strong>{scoreLabel(attempt.scoreSummary.bandLabel, band)}</strong>
+          {" · "}
+          {attempt.scoreSummary.notesDetected} nota algısı (stub)
+        </p>
+      ) : null}
 
       {bubbles.map((text, i) => (
         <TeacherBubble key={i} text={text} />
@@ -49,7 +62,7 @@ export function ListeningFeedback({ attempt, band, lessonId }: Props) {
       {primary ? (
         <div className="rounded-md border border-brand bg-brand-soft px-3 py-3 text-sm">
           <p className="text-xs font-semibold uppercase tracking-wide text-brand">
-            Bu turda düzelt
+            Bu turda düzelt (tek)
           </p>
           <p className="mt-1 font-medium">{formatSpan(primary, band)}</p>
         </div>
@@ -60,17 +73,20 @@ export function ListeningFeedback({ attempt, band, lessonId }: Props) {
       )}
 
       {rest.length > 0 ? (
-        <ul className="space-y-1 text-xs text-muted">
-          <li className="font-medium text-foreground/70">Diğer notlar (sessiz)</li>
+        <ol className="list-decimal space-y-1 pl-5 text-xs text-muted">
+          <li className="list-none font-medium text-foreground/70 -ml-5">
+            Sıralı hata listesi (ekran)
+          </li>
           {rest.map((e, i) => (
             <li key={i}>{formatSpan(e, band)}</li>
           ))}
-        </ul>
+        </ol>
       ) : null}
 
       <p className="text-xs text-muted">
         Attempt {attempt.id.slice(0, 12)}… · {attempt.durationMs} ms · yöntem{" "}
         {attempt.method}
+        {attempt.quotaConsumed ? " · kota −1" : " · kota yok"}
       </p>
 
       <button
@@ -89,6 +105,30 @@ export function ListeningFeedback({ attempt, band, lessonId }: Props) {
       ) : null}
     </section>
   );
+}
+
+function orderErrors(spans: ErrorSpan[]): ErrorSpan[] {
+  return [...spans].sort((a, b) => {
+    if (a.type !== b.type) return a.type === "pitch" ? -1 : 1;
+    if (a.severity !== b.severity) return a.severity === "high" ? -1 : 1;
+    return a.measure - b.measure;
+  });
+}
+
+function scoreLabel(label: "pass" | "soft" | "fail", band: Band): string {
+  if (band === "child") {
+    if (label === "pass") return "Güzel";
+    if (label === "soft") return "Neredeyse";
+    return "Bir tur daha";
+  }
+  if (band === "teen") {
+    if (label === "pass") return "Geçti";
+    if (label === "soft") return "İyi / küçük düzeltme";
+    return "Eşik altı";
+  }
+  if (label === "pass") return "Geçer";
+  if (label === "soft") return "Kabul / ince ayar";
+  return "Eşik tutmadı";
 }
 
 function formatSpan(span: ErrorSpan, band: Band): string {

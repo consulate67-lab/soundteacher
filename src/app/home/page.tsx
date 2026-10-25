@@ -9,6 +9,7 @@ import {
   lessonsForVisiblePath,
 } from "@/lib/curriculum";
 import { getPlan } from "@/lib/plans";
+import { quotaSnapshot } from "@/lib/quota";
 import { statusLabelTr } from "@/lib/subscription";
 import { signOutAction, simulatePastDueAction } from "./actions";
 
@@ -21,6 +22,7 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   const { session, subscription, path } = await requirePath();
   const plan = getPlan(subscription.plan);
+  const quota = quotaSnapshot(subscription);
   const open = getLesson(path.openLessonId);
   const openTitle = open ? lessonTitle(open, path.band) : path.openLessonId;
   const visible = lessonsForVisiblePath(path.moduleEntry);
@@ -79,6 +81,13 @@ export default async function HomePage() {
             <dt className="text-muted">Abonelik</dt>
             <dd className="font-medium">
               {plan?.name} · {statusLabelTr(subscription.status)}
+            </dd>
+          </div>
+          <div className="flex justify-between gap-2 sm:block">
+            <dt className="text-muted">Dinleme kotası</dt>
+            <dd className="font-medium">
+              Y1 {quota.method1Used}/{quota.method1Limit} · Y2 {quota.method2Used}/
+              {quota.method2Limit}
             </dd>
           </div>
         </dl>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ListeningFeedback } from "@/components/listening-feedback";
-import { Method1Recorder } from "@/components/method1-recorder";
+import { ListeningHandoff } from "@/components/listening-handoff";
 import { TeacherBubble } from "@/components/teacher-bubble";
 import type { Band } from "@/lib/bands";
 import { getAttempt } from "@/lib/attempt-store";
@@ -9,6 +9,7 @@ import { nextLessonId } from "@/lib/curriculum";
 import { gateFailBubble, gatePassBubble } from "@/lib/feedback-copy";
 import { loadLessonContent, pickBand } from "@/lib/lesson-content";
 import type { LessonProgressRecord } from "@/lib/lesson-progress-store";
+import type { QuotaSnapshot } from "@/lib/quota";
 import {
   advanceToListeningAction,
   advanceToPracticeAction,
@@ -21,6 +22,7 @@ type Props = {
   title: string;
   sessionMinutes: number;
   progress: LessonProgressRecord;
+  quota: QuotaSnapshot;
 };
 
 export function LessonSession({
@@ -29,6 +31,7 @@ export function LessonSession({
   title,
   sessionMinutes,
   progress,
+  quota,
 }: Props) {
   const content = loadLessonContent(lessonId);
   if (!content) {
@@ -89,16 +92,14 @@ export function LessonSession({
       ) : null}
 
       {phase === "listening" ? (
-        <section className="flex flex-col gap-4">
-          <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
-            Dinleme — Yöntem 1
-          </h2>
-          <Method1Recorder
-            lessonId={lessonId}
-            band={band}
-            prepText={pickBand(content.listeningPrep, band)}
-          />
-        </section>
+        <ListeningHandoff
+          lessonId={lessonId}
+          band={band}
+          prepText={pickBand(content.listeningPrep, band)}
+          recommendedMethod={content.recommendedMethod}
+          allowedMethods={content.allowedMethods}
+          quota={quota}
+        />
       ) : null}
 
       {phase === "feedback" && lastAttempt ? (

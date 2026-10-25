@@ -4,7 +4,7 @@
 
 Ürün adı: **SoundTeacher** · proje / marka notu: **SoungTeacher**.
 
-Bu depo **Faz 1 / Dilim A–E** iskeletidir.
+Bu depo **Faz 1 / Dilim A–F** iskeletidir.
 
 ## Yerel çalıştırma
 
@@ -14,24 +14,7 @@ cp .env.example .env.local
 npm run dev
 ```
 
-HTTPS veya `localhost` gerekir (mikrofon). `npm run build` ücretli API / DB olmadan yeşil.
-
-## Auth / Stripe / Path
-
-- **Auth.js** Credentials mock · Stripe mock checkout · in-memory Path/Subscription
-
-## Ders + Dinleme Yöntem 1 (Dilim D–E)
-
-`/lessons/[id]` fazları:
-
-1. Teori (S30) → Pratik (S31)
-2. **Yöntem 1** (S32–S33): izin (S40) → geri sayım → MediaRecorder → upload stub
-3. Analiz: pluggable `AudioAnalyzer` (`src/lib/analysis/`) — **stub** (süre/boyut + attempt indeksi); gerçek worker sonra takılır
-4. Geçersiz: S42–S44 (sessizlik / gürültü / düşük ses) — kapı yazılmaz
-5. S35: tek birincil hata + öğretmen baloncukları (`…` / durak)
-6. S36/S37: GateResult from Attempt → unlock veya soft retry
-
-`POST /api/listening/analyze` — multipart audio, Attempt bellekte.
+Mikrofon için `localhost` / HTTPS. `npm run build` ücretli API / DB olmadan yeşil.
 
 ## Dilim özeti
 
@@ -42,7 +25,23 @@ HTTPS veya `localhost` gerekir (mikrofon). `npm run build` ücretli API / DB olm
 | C     | Yerleştirme + Path Home                    |
 | D     | M1 ders kabuğu                             |
 | E     | Yöntem 1 MediaRecorder + Attempt/Gate stub |
+| F     | Yöntem 2 performans + kota (S22/S34/S45)   |
 
-Sonraki (**F**): Yöntem 2 + kota.
+## Dinleme + kota (E–F)
 
-Mimari: `mvp-teknik-mimari.md` §5 · dinleme: `dinleme-ve-ogretmen-konusmasi.md`.
+- **Y1:** kısa ortam kaydı · yüksek kota
+- **Y2:** uzun performans · bitiş raporu · düşük kota · kayıtta AI sus / canlı hata yok
+- Pluggable `AudioAnalyzer` stub (`src/lib/analysis/`)
+- Handoff’ta yöntem seçimi; Y2 dolunca **S22** → Y1’e düşür (ders kilitlenmez)
+
+### Kota kuralları (`src/lib/quota.ts`)
+
+1. Geçerli tamamlanmış Attempt → 1 birim (yönteme göre)
+2. Geçersiz (sessizlik / gürültü / düşük ses) → **kota yok**
+3. **Abandoned (S45):** Y2 &lt; 5 sn veya “Yarıda bırak” → Attempt `abandoned`, **kota yok**, kapı yok
+
+## Sonraki
+
+Dilim G içerik genişletme · H sertleştirme · MIDI post-MVP.
+
+Mimari: `mvp-teknik-mimari.md` · dinleme: `dinleme-ve-ogretmen-konusmasi.md`.

@@ -40,7 +40,8 @@ function periodEndFor(plan: PlanId, from: Date): string | null {
 }
 
 export function getSubscription(userId: string): SubscriptionRecord | null {
-  return store().get(userId) ?? null;
+  const sub = store().get(userId);
+  return sub ? normalizeSub(sub) : null;
 }
 
 export function upsertSubscription(input: {
@@ -51,6 +52,7 @@ export function upsertSubscription(input: {
   stripeSubId?: string | null;
 }): SubscriptionRecord {
   const now = new Date();
+  const existing = store().get(input.userId);
   const record: SubscriptionRecord = {
     userId: input.userId,
     plan: input.plan,
@@ -60,10 +62,43 @@ export function upsertSubscription(input: {
     stripeCustomerId: input.stripeCustomerId ?? null,
     stripeSubId: input.stripeSubId ?? null,
     entitlement: entitlementFor(input.plan, input.status),
+    quotaMethod1Used: existing?.quotaMethod1Used ?? 0,
+    quotaMethod2Used: existing?.quotaMethod2Used ?? 0,
     updatedAt: now.toISOString(),
   };
   store().set(input.userId, record);
   return record;
+}
+
+export function consumeQuota(
+  userId: string,
+  method: "1" | "2",
+): SubscriptionRecord | null {
+  const existing = store().get(userId);
+  if (!existing) return null;
+  const updated: SubscriptionRecord = {
+    ...normalizeSub(existing),
+    quotaMethod1Used:
+      method === "1"
+        ? (existing.quotaMethod1Used ?? 0) + 1
+        : (existing.quotaMethod1Used ?? 0),
+    quotaMethod2Used:
+      method === "2"
+        ? (existing.quotaMethod2Used ?? 0) + 1
+        : (existing.quotaMethod2Used ?? 0),
+    updatedAt: new Date().toISOString(),
+  };
+  store().set(userId, updated);
+  return updated;
+}
+
+/** Ensure older in-memory records have usage fields. */
+export function normalizeSub(sub: SubscriptionRecord): SubscriptionRecord {
+  return {
+    ...sub,
+    quotaMethod1Used: sub.quotaMethod1Used ?? 0,
+    quotaMethod2Used: sub.quotaMethod2Used ?? 0,
+  };
 }
 
 export function setSubscriptionStatus(
@@ -72,8 +107,9 @@ export function setSubscriptionStatus(
 ): SubscriptionRecord | null {
   const existing = store().get(userId);
   if (!existing) return null;
+  const base = normalizeSub(existing);
   const updated: SubscriptionRecord = {
-    ...existing,
+    ...base,
     status,
     entitlement: entitlementFor(existing.plan, status),
     updatedAt: new Date().toISOString(),

@@ -19,6 +19,9 @@ export type SubscriptionRecord = {
   stripeCustomerId: string | null;
   stripeSubId: string | null;
   entitlement: Entitlement;
+  /** Dilim F — in-memory usage counters for the current period. */
+  quotaMethod1Used: number;
+  quotaMethod2Used: number;
   updatedAt: string;
 };
 
