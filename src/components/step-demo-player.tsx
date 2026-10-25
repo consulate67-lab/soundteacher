@@ -8,7 +8,7 @@ type Props = {
   variant?: "full" | "inline";
 };
 
-/** Real-human hand demo for a teaching step (muted loop). */
+/** Real-human hand demo for a teaching step (overhead + piano audio when notes are taught). */
 export function StepDemoPlayer({ demoId, variant = "full" }: Props) {
   const meta = demoMeta(demoId);
   if (!meta) return null;
@@ -24,10 +24,9 @@ export function StepDemoPlayer({ demoId, variant = "full" }: Props) {
     >
       <video
         className="aspect-video w-full object-cover"
-        autoPlay
-        muted
-        loop
+        controls
         playsInline
+        loop
         preload="metadata"
         poster={`${meta.base}-poster.jpg`}
       >
@@ -35,7 +34,7 @@ export function StepDemoPlayer({ demoId, variant = "full" }: Props) {
         <source src={`${meta.base}.mp4`} type="video/mp4" />
       </video>
       <figcaption className="border-t border-border/60 px-3 py-1.5 text-[0.7rem] text-muted">
-        {meta.titleTr} · gerçek eller · sessiz
+        {meta.titleTr} · üstten · gerçek eller
       </figcaption>
     </figure>
   );
