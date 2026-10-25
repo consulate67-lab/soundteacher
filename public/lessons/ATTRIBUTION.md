@@ -57,4 +57,5 @@ Licenses: [Pexels License](https://www.pexels.com/license/), [Mixkit License](ht
 ### Notes
 
 - Stock piano video is typically **silent**; acoustic notes are layered so the taught pitch is audible while TR captions keep the landing target explicit.
+- **A/V sync:** note-ons are locked to motion peaks on the final cut (`peak − ~1 frame`). Clips are one teaching take (no looping montage). If stock shows fewer clear presses than the full phrase, audio is retargeted to the visible presses only.
 - Exact single-finger stop on a labeled “Do” key remains approximate when the source clip doesn’t isolate that key — captions + overhead framing + matching pitch teach the intent for MVP.
