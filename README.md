@@ -8,7 +8,9 @@ Bu depo **Faz 1 / Dilim A–H** MVP iskeletidir (sertleştirme dahil).
 
 ## Preferred: production on Vercel
 
-**Use the permanent `*.vercel.app` URL for testing** — not `npm run dev` / localhost, unless you are editing code locally.
+**Production URL:** https://soundteacher-consulate67-gmailcoms-projects.vercel.app  
+
+**Use that URL for testing** — not `npm run dev` / localhost, unless you are editing code locally.
 
 App is standard **Next.js** App Router (`vercel.json`). In-memory stores reset on serverless cold starts (MVP OK; Postgres later).
 
