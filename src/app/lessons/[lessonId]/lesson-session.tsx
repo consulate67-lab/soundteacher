@@ -1,18 +1,26 @@
 import Link from "next/link";
 import { ListeningFeedback } from "@/components/listening-feedback";
 import { ListeningHandoff } from "@/components/listening-handoff";
+import { PostureHandsVisual } from "@/components/posture-hands-visual";
 import { TeacherBubble } from "@/components/teacher-bubble";
 import type { Band } from "@/lib/bands";
 import { getAttempt } from "@/lib/attempt-store";
 import { primaryError } from "@/lib/attempt";
 import { nextLessonId } from "@/lib/curriculum";
 import { gateFailBubble, gatePassBubble } from "@/lib/feedback-copy";
-import { loadLessonContent, pickBand } from "@/lib/lesson-content";
+import {
+  isListeningRequired,
+  loadLessonContent,
+  pickBand,
+  practiceVisualOf,
+} from "@/lib/lesson-content";
 import type { LessonProgressRecord } from "@/lib/lesson-progress-store";
 import type { QuotaSnapshot } from "@/lib/quota";
 import {
   advanceToListeningAction,
   advanceToPracticeAction,
+  completeSelfCheckAction,
+  goBackPhaseAction,
   softRetryAction,
 } from "./actions";
 
@@ -23,6 +31,7 @@ type Props = {
   sessionMinutes: number;
   progress: LessonProgressRecord;
   quota: QuotaSnapshot;
+  trialMode?: boolean;
 };
 
 export function LessonSession({
@@ -32,6 +41,7 @@ export function LessonSession({
   sessionMinutes,
   progress,
   quota,
+  trialMode = false,
 }: Props) {
   const content = loadLessonContent(lessonId);
   if (!content) {
@@ -40,11 +50,25 @@ export function LessonSession({
 
   const phase = progress.phase;
   const nextId = nextLessonId(lessonId);
-  const lastAttempt = progress.lastAttemptId ? getAttempt(progress.lastAttemptId) : null;
+  const lastAttempt = progress.lastAttemptId
+    ? getAttempt(progress.lastAttemptId)
+    : null;
+  const needsListening = isListeningRequired(content);
+  const visual = practiceVisualOf(content);
 
   return (
     <div className="mt-8 flex flex-col gap-6">
-      <PhaseRail phase={phase} />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <PhaseRail phase={phase} showListening={needsListening} />
+        <form action={goBackPhaseAction.bind(null, lessonId)}>
+          <button
+            type="submit"
+            className="inline-flex h-9 items-center justify-center rounded-md border border-border bg-surface px-3 text-sm font-medium text-foreground hover:bg-brand-soft"
+          >
+            ← Geri
+          </button>
+        </form>
+      </div>
 
       {phase === "theory" ? (
         <section className="flex flex-col gap-4">
@@ -60,6 +84,18 @@ export function LessonSession({
               autoSpeak={i === 0}
             />
           ))}
+          {content.theorySteps && content.theorySteps.length > 0 ? (
+            <div className="st-panel px-4 py-3">
+              <p className="text-xs font-medium uppercase tracking-[0.12em] text-accent">
+                Ne yapacaksın
+              </p>
+              <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm leading-relaxed">
+                {content.theorySteps.map((step, i) => (
+                  <li key={i}>{pickBand(step, band)}</li>
+                ))}
+              </ol>
+            </div>
+          ) : null}
           <form action={advanceToPracticeAction.bind(null, lessonId)}>
             <button
               type="submit"
@@ -76,27 +112,55 @@ export function LessonSession({
           <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
             Pratik
           </h2>
-          <ol className="list-decimal space-y-2 pl-5 text-sm">
-            {content.practiceSteps.map((step, i) => (
-              <li key={i}>{pickBand(step, band)}</li>
-            ))}
-          </ol>
+          {visual === "posture-hands" ? <PostureHandsVisual /> : null}
+          <div className="st-panel px-4 py-3">
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-accent">
+              Adım adım
+            </p>
+            <ol className="mt-2 list-decimal space-y-2.5 pl-5 text-sm leading-relaxed">
+              {content.practiceSteps.map((step, i) => (
+                <li key={i}>{pickBand(step, band)}</li>
+              ))}
+            </ol>
+          </div>
           {content.practiceBubbles.map((b, i) => (
             <TeacherBubble key={i} text={pickBand(b, band)} band={band} />
           ))}
-          <p className="text-xs text-muted">Tempo: yavaş · ~{sessionMinutes} dk oturum</p>
-          <form action={advanceToListeningAction.bind(null, lessonId)}>
-            <button
-              type="submit"
-              className="inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-hover"
-            >
-              Dinlemeye hazırım
-            </button>
-          </form>
+          <p className="text-xs text-muted">
+            Tempo: yavaş · ~{sessionMinutes} dk oturum
+            {!needsListening ? " · dinleme kaydı yok" : ""}
+          </p>
+
+          {needsListening ? (
+            <form action={advanceToListeningAction.bind(null, lessonId)}>
+              <button
+                type="submit"
+                className="inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-hover"
+              >
+                Dinlemeye hazırım
+              </button>
+            </form>
+          ) : (
+            <div className="flex flex-col gap-3 rounded-md border border-border bg-surface px-4 py-3">
+              <p className="text-sm leading-relaxed text-foreground">
+                {content.selfCheckPrompt
+                  ? pickBand(content.selfCheckPrompt, band)
+                  : "Pratiği tamamladın mı? Onaylarsan kapı açılır."}
+              </p>
+              <form action={completeSelfCheckAction.bind(null, lessonId)}>
+                <button
+                  type="submit"
+                  className="inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-hover"
+                >
+                  Evet — pozisyonum hazır
+                </button>
+              </form>
+            </div>
+          )}
         </section>
       ) : null}
 
-      {phase === "listening" ? (
+      {phase === "listening" && needsListening ? (
         <ListeningHandoff
           lessonId={lessonId}
           band={band}
@@ -105,6 +169,22 @@ export function LessonSession({
           allowedMethods={content.allowedMethods}
           quota={quota}
         />
+      ) : null}
+
+      {phase === "listening" && !needsListening ? (
+        <section className="flex flex-col gap-3">
+          <p className="text-sm text-muted">
+            Bu derste dinleme kaydı yok. Pratiğe dönüp öz onayı kullan.
+          </p>
+          <form action={goBackPhaseAction.bind(null, lessonId)}>
+            <button
+              type="submit"
+              className="inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-hover"
+            >
+              Pratiğe dön
+            </button>
+          </form>
+        </section>
       ) : null}
 
       {phase === "feedback" && lastAttempt ? (
@@ -166,10 +246,10 @@ export function LessonSession({
               </Link>
             ) : null}
             <Link
-              href="/home"
+              href={trialMode ? "/trial-program" : "/home"}
               className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-surface px-5 text-sm font-medium hover:bg-brand-soft"
             >
-              Path Home
+              {trialMode ? "Deneme programı" : "Path Home"}
             </Link>
           </div>
         </section>
@@ -178,11 +258,24 @@ export function LessonSession({
   );
 }
 
-function PhaseRail({ phase }: { phase: LessonProgressRecord["phase"] }) {
+function PhaseRail({
+  phase,
+  showListening,
+}: {
+  phase: LessonProgressRecord["phase"];
+  showListening: boolean;
+}) {
   const steps: { id: LessonProgressRecord["phase"][]; label: string }[] = [
     { id: ["theory"], label: "Teori" },
     { id: ["practice"], label: "Pratik" },
-    { id: ["listening", "feedback"], label: "Dinleme" },
+    ...(showListening
+      ? [
+          {
+            id: ["listening", "feedback"] as LessonProgressRecord["phase"][],
+            label: "Dinleme",
+          },
+        ]
+      : []),
     { id: ["gate_pass", "gate_fail", "unlock"], label: "Kapı" },
   ];
 

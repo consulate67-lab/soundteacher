@@ -57,7 +57,7 @@ export default async function LessonPage({ params }: Props) {
     <main className="mx-auto flex min-h-screen w-full max-w-lg flex-col px-6 py-12">
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <Link href="/home" className="font-medium text-brand hover:underline">
-          ← Path Home
+          Path Home
         </Link>
         {!paid ? (
           <Link href="/trial-program" className="text-muted hover:text-foreground">
@@ -93,6 +93,7 @@ export default async function LessonPage({ params }: Props) {
         sessionMinutes={path.defaultSessionMinutes}
         progress={progress}
         quota={quota}
+        trialMode={!paid}
       />
     </main>
   );

@@ -4,11 +4,19 @@ import { gateMetricsForModule } from "./gate-metrics";
 import { M2M4_CONTENT } from "./lesson-content-m2m4";
 import type { LessonContent } from "./lesson-content-types";
 
-export type { BandedText, LessonContent, ListeningMethod } from "./lesson-content-types";
+export type {
+  BandedText,
+  LessonContent,
+  ListeningMethod,
+  PracticeVisual,
+} from "./lesson-content-types";
+export { isListeningRequired, practiceVisualOf } from "./lesson-content-types";
 
 const M1_L1: LessonContent = {
   id: "piano.m1.l1",
   scoreRef: "score.piano.m1.l1.v0",
+  listeningRequired: false,
+  practiceVisual: "posture-hands",
   goals: {
     child: "Piyanoya oturuşu ve el pozisyonunu güvenli öğrenirsin.",
     teen: "Doğru oturuş ve el yüksekliğini kurarsın.",
@@ -28,26 +36,60 @@ const M1_L1: LessonContent = {
         "Omuzlar düşük, bilek nötr. … Mesafe: dirsek doğal açı. [kısa durak] Bir dakika sessiz tutuş yeter.",
     },
   ],
-  practiceSteps: [
+  theorySteps: [
     {
-      child: "Ellerini tuşların üstüne koy; 10 saniye dur.",
-      teen: "Pozisyonu ayarla; 4 ölçü boyunca tut.",
-      adult: "Ayarları sabitleyin; 1 dakika sessiz tutuş.",
+      child: "Sandalyeyi piyanoya yaklaştır — dirseğin rahat açılsın.",
+      teen: "Sandalyeyi ayarla: dirsek doğal açı, ayaklar yerde.",
+      adult: "Sandalyeyi ayarlayın: ayaklar yerde, dirsek doğal açı.",
     },
     {
-      child: "Omuzunu yukarı çekip bırak — yumuşak olsun.",
-      teen: "Omuzları bilerek bırak; iki nefes tut.",
-      adult: "Omuzları bilinçli bırakın; iki nefes boyunca kontrol edin.",
+      child: "Omuzlarını düşür; bileğini düz tut.",
+      teen: "Omuzları bırak; bileği nötr tut.",
+      adult: "Omuzları bilinçli bırakın; bileği nötr hizada tutun.",
+    },
+    {
+      child: "Parmaklarını yumuşak kıvrımla tuşların üstüne koy — henüz basma.",
+      teen: "Parmakları yumuşak kemerle tuşlara koy; baskı yok.",
+      adult: "Parmakları yumuşak kemerle tuşlara yerleştirin; henüz ses yok.",
+    },
+  ],
+  practiceSteps: [
+    {
+      child: "1) Otur: ayaklar yerde, sırt dik ama sert değil.",
+      teen: "1) Oturuş: ayaklar yerde, omurga uzun, omuzlar düşük.",
+      adult: "1) Oturuşu sabitleyin: ayaklar yerde, omuzlar düşük, mesafe dirsek rahat.",
+    },
+    {
+      child: "2) Ellerini tuşların üstüne koy; 10 saniye hiç basmadan dur.",
+      teen: "2) Elleri tuşlara koy; 4 ölçü boyunca basmadan tut.",
+      adult: "2) Elleri tuşlara koyun; ~30–60 sn sessiz tutuş (basmadan).",
+    },
+    {
+      child: "3) Omuzunu yukarı çekip bırak — yumuşak olsun. Tekrar et.",
+      teen: "3) Omuzları bilerek kaldır-bırak; iki nefes tut. Kontrol et.",
+      adult:
+        "3) Omuzları bilinçli kaldırıp bırakın; iki nefes boyunca bilek nötr kalsın.",
+    },
+    {
+      child: "4) Aynaya veya bakıcıya sor: omuz düşük mü, bilek düz mü?",
+      teen: "4) Kısa kontrol: omuz düşük, bilek düz, mesafe rahat mı?",
+      adult: "4) Öz kontrol: omuz, bilek, mesafe — üçü de rahat mı?",
     },
   ],
   practiceBubbles: [
     {
       child: "Çok güzel. … Yavaş ve sakin. [kısa durak] Eller yerinde mi?",
-      teen: "İyi. … Tempo yok; sadece pozisyon. [kısa durak] Devam.",
+      teen: "İyi. … Tempo yok; sadece pozisyon. [kısa durak] Hazır olunca onayla.",
       adult:
-        "Tamam. … Tempo yok; yalnızca duruş. [kısa durak] Hazır olduğunuzda dinlemeye geçelim.",
+        "Tamam. … Tempo yok; yalnızca duruş. [kısa durak] Hazır olduğunuzda öz onaya geçin — mikrofon gerekmez.",
     },
   ],
+  selfCheckPrompt: {
+    child: "Omuzların düşük ve ellerin tuşların üstünde mi? Evet dersen kapı açılır.",
+    teen: "Oturuş + el pozisyonu oturdu mu? Onaylarsan bu dersi geçersin (kayıt yok).",
+    adult:
+      "Oturuş ve el pozisyonunu bilinçli kurdunuz mu? Onaylarsanız kapı açılır — dinleme kaydı gerekmez.",
+  },
   recommendedMethod: "1",
   allowedMethods: ["1", "2"],
   listeningPrep: {
@@ -117,6 +159,20 @@ const M1_L2: LessonContent = {
       child: "Ellerini kaldır, yine bul — yavaş.",
       teen: "Elleri kaldırıp yeniden bul; tempo yok.",
       adult: "Elleri kaldırıp yeniden bulun; acele etmeyin.",
+    },
+  ],
+  listeningRequired: true,
+  practiceVisual: "none",
+  theorySteps: [
+    {
+      child: "İki siyahlı grubu bul.",
+      teen: "İki siyahlı grubu bul; sağına bak.",
+      adult: "İki siyahlı grubu bulun; sağındaki beyaz tuş orta Do’dur.",
+    },
+    {
+      child: "Yanındaki beyaz tuşa parmağınla dokun — o orta Do.",
+      teen: "Sağındaki beyaz tuşa dokun; adını söyle: orta Do.",
+      adult: "Sağındaki beyaz tuşa dokunun; referansı beş kez tekrarlayın.",
     },
   ],
   practiceBubbles: [

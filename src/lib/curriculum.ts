@@ -234,3 +234,16 @@ export function nextLessonId(currentId: string): string | null {
   if (current.moduleId >= MAX_MVP_MODULE) return null;
   return firstLessonOfModule(current.moduleId + 1)?.id ?? null;
 }
+
+export function previousLessonId(currentId: string): string | null {
+  const current = getLesson(currentId);
+  if (!current) return null;
+  const sameModule = lessonsInModule(current.moduleId);
+  const idx = sameModule.findIndex((l) => l.id === currentId);
+  if (idx > 0) {
+    return sameModule[idx - 1].id;
+  }
+  if (current.moduleId <= 1) return null;
+  const prevModule = lessonsInModule(current.moduleId - 1);
+  return prevModule[prevModule.length - 1]?.id ?? null;
+}

@@ -6,10 +6,12 @@ import { auth } from "@/auth";
 import { getAttempt, saveGateResult } from "@/lib/attempt-store";
 import { primaryError } from "@/lib/attempt";
 import { evaluateGateFromAttempt } from "@/lib/feedback-copy";
-import { getLesson, isLessonLocked } from "@/lib/curriculum";
+import { getLesson, isLessonLocked, previousLessonId } from "@/lib/curriculum";
 import { gateMetricsForModule } from "@/lib/gate-metrics";
+import { isListeningRequired, loadLessonContent } from "@/lib/lesson-content";
 import {
   ensureLessonProgress,
+  getLessonProgress,
   resetLessonToListening,
   resetLessonToPractice,
   setLessonPhase,
@@ -67,7 +69,57 @@ export async function advanceToPracticeAction(lessonId: string) {
 
 export async function advanceToListeningAction(lessonId: string) {
   const { userId } = await requireLessonAccess(lessonId);
+  const content = loadLessonContent(lessonId);
+  if (content && !isListeningRequired(content)) {
+    // No mic — stay on practice; client should call self-check instead.
+    go(userId, lessonId, "practice");
+    return;
+  }
   go(userId, lessonId, "listening");
+}
+
+/** Practice → Kapı when listening is not required (self-confirm). */
+export async function completeSelfCheckAction(lessonId: string) {
+  const { userId } = await requireLessonAccess(lessonId);
+  const content = loadLessonContent(lessonId);
+  if (!content || isListeningRequired(content)) {
+    go(userId, lessonId, "listening");
+    return;
+  }
+  await unlockNextLesson(userId, lessonId);
+  setLessonPhase(userId, lessonId, "unlock", {
+    status: "passed",
+    lastGateResult: "pass",
+  });
+  log.info("gate.self_check_pass", { userId, lessonId });
+  revalidatePath(`/lessons/${lessonId}`);
+  revalidatePath("/home");
+}
+
+/**
+ * Phase back: listening/feedback → practice → theory.
+ * On theory: previous lesson or trial-program / home.
+ */
+export async function goBackPhaseAction(lessonId: string) {
+  const { userId } = await requireLessonAccess(lessonId);
+  const progress = getLessonProgress(userId, lessonId) ?? ensureLessonProgress(userId, lessonId);
+  const phase = progress.phase;
+
+  if (phase === "listening" || phase === "feedback" || phase === "gate_fail") {
+    go(userId, lessonId, "practice");
+    return;
+  }
+  if (phase === "practice") {
+    go(userId, lessonId, "theory");
+    return;
+  }
+
+  // theory / unlock / gate_pass → leave lesson
+  const prev = previousLessonId(lessonId);
+  if (prev) {
+    redirect(`/lessons/${prev}`);
+  }
+  redirect("/trial-program");
 }
 
 /** After valid Attempt from /api/listening/analyze → S35 feedback. */
