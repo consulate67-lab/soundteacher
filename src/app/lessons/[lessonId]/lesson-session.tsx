@@ -1,15 +1,17 @@
 import Link from "next/link";
+import { ListeningFeedback } from "@/components/listening-feedback";
+import { Method1Recorder } from "@/components/method1-recorder";
 import { TeacherBubble } from "@/components/teacher-bubble";
 import type { Band } from "@/lib/bands";
+import { getAttempt } from "@/lib/attempt-store";
+import { primaryError } from "@/lib/attempt";
 import { nextLessonId } from "@/lib/curriculum";
+import { gateFailBubble, gatePassBubble } from "@/lib/feedback-copy";
 import { loadLessonContent, pickBand } from "@/lib/lesson-content";
 import type { LessonProgressRecord } from "@/lib/lesson-progress-store";
 import {
   advanceToListeningAction,
   advanceToPracticeAction,
-  finishMockListeningAction,
-  mockGateFailAction,
-  mockGatePassAction,
   softRetryAction,
 } from "./actions";
 
@@ -35,6 +37,7 @@ export function LessonSession({
 
   const phase = progress.phase;
   const nextId = nextLessonId(lessonId);
+  const lastAttempt = progress.lastAttemptId ? getAttempt(progress.lastAttemptId) : null;
 
   return (
     <div className="mt-8 flex flex-col gap-6">
@@ -88,68 +91,24 @@ export function LessonSession({
       {phase === "listening" ? (
         <section className="flex flex-col gap-4">
           <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
-            Dinleme handoff
+            Dinleme — Yöntem 1
           </h2>
-          <TeacherBubble
-            text={
-              band === "adult"
-                ? "Kayda hazır mısınız? … [kısa durak] Ben kayıt sırasında susacağım."
-                : "Kayda hazır mısın? … [kısa durak] Ben kayıt sırasında susacağım."
-            }
+          <Method1Recorder
+            lessonId={lessonId}
+            band={band}
+            prepText={pickBand(content.listeningPrep, band)}
           />
-          <p className="text-sm text-muted">{pickBand(content.listeningPrep, band)}</p>
-          <p className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
-            Önerilen yöntem:{" "}
-            <strong>
-              {content.recommendedMethod === "1"
-                ? "Ortam kaydı (Yöntem 1)"
-                : "Performans kaydı (Yöntem 2)"}
-            </strong>
-          </p>
-          {/* TODO(Dilim E): MediaRecorder + getUserMedia + Attempt upload */}
-          <p className="text-xs text-muted">
-            Dilim D mock — gerçek mikrofon kaydı Dilim E’de. Aşağıdaki buton Attempt
-            stub’ı üretir.
-          </p>
-          <form action={finishMockListeningAction.bind(null, lessonId)}>
-            <button
-              type="submit"
-              className="inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-hover"
-            >
-              Kaydı bitir (mock)
-            </button>
-          </form>
         </section>
       ) : null}
 
-      {phase === "feedback" ? (
-        <section className="flex flex-col gap-4">
-          <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
-            Geri bildirim
-          </h2>
-          <TeacherBubble text={pickBand(content.mockFeedback, band)} />
-          <p className="text-xs text-muted">
-            Deneme #{progress.attemptCount} · gerçek hata listesi Dilim E
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <form action={mockGatePassAction.bind(null, lessonId)}>
-              <button
-                type="submit"
-                className="inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white hover:bg-brand-hover"
-              >
-                Kapıya git (mock geç)
-              </button>
-            </form>
-            <form action={mockGateFailAction.bind(null, lessonId)}>
-              <button
-                type="submit"
-                className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-surface px-5 text-sm font-medium hover:bg-brand-soft"
-              >
-                Mock başarısız
-              </button>
-            </form>
-          </div>
-        </section>
+      {phase === "feedback" && lastAttempt ? (
+        <ListeningFeedback attempt={lastAttempt} band={band} lessonId={lessonId} />
+      ) : null}
+
+      {phase === "feedback" && !lastAttempt ? (
+        <p className="text-sm text-danger">
+          Attempt bulunamadı. Dinlemeyi yeniden başlat.
+        </p>
       ) : null}
 
       {phase === "gate_fail" ? (
@@ -157,9 +116,12 @@ export function LessonSession({
           <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
             Kapı — soft retry
           </h2>
-          {content.gateFailBubbles.map((b, i) => (
-            <TeacherBubble key={i} text={pickBand(b, band)} />
-          ))}
+          <TeacherBubble
+            text={gateFailBubble(
+              band,
+              lastAttempt ? primaryError(lastAttempt.errorSpans) : null,
+            )}
+          />
           <p className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
             Mikro hedef: {pickBand(content.failMicroTarget, band)}
           </p>
@@ -182,9 +144,7 @@ export function LessonSession({
           <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
             Kapı geçildi · unlock
           </h2>
-          {content.gatePassBubbles.map((b, i) => (
-            <TeacherBubble key={i} text={pickBand(b, band)} />
-          ))}
+          <TeacherBubble text={gatePassBubble(band)} />
           <p className="text-sm text-muted">
             {title} tamamlandı. Path güncellendi (S38).
           </p>

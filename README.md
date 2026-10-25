@@ -4,62 +4,45 @@
 
 Ürün adı: **SoundTeacher** · proje / marka notu: **SoungTeacher**.
 
-Bu depo **Faz 1 / Dilim A–D** iskeletidir.
+Bu depo **Faz 1 / Dilim A–E** iskeletidir.
 
 ## Yerel çalıştırma
 
 ```bash
 npm install
-cp .env.example .env.local   # AUTH_SECRET yeter; Stripe anahtarı zorunlu değil
+cp .env.example .env.local
 npm run dev
 ```
 
-Tarayıcı: [http://localhost:3000](http://localhost:3000)
+HTTPS veya `localhost` gerekir (mikrofon). `npm run build` ücretli API / DB olmadan yeşil.
 
-`npm run build` Stripe / DB / mic olmadan yeşil kalır (mock mode).
+## Auth / Stripe / Path
 
-## Auth seçimi (Dilim B)
+- **Auth.js** Credentials mock · Stripe mock checkout · in-memory Path/Subscription
 
-**Auth.js** (`next-auth` v5) + **Credentials** sağlayıcısı (mock in-memory). Clerk bağlanmadı.
+## Ders + Dinleme Yöntem 1 (Dilim D–E)
 
-## Stripe / abonelik
+`/lessons/[id]` fazları:
 
-`STRIPE_SECRET_KEY` boşsa **mock checkout/webhook**. Abonelik + Path + ders ilerlemesi in-memory.
+1. Teori (S30) → Pratik (S31)
+2. **Yöntem 1** (S32–S33): izin (S40) → geri sayım → MediaRecorder → upload stub
+3. Analiz: pluggable `AudioAnalyzer` (`src/lib/analysis/`) — **stub** (süre/boyut + attempt indeksi); gerçek worker sonra takılır
+4. Geçersiz: S42–S44 (sessizlik / gürültü / düşük ses) — kapı yazılmaz
+5. S35: tek birincil hata + öğretmen baloncukları (`…` / durak)
+6. S36/S37: GateResult from Attempt → unlock veya soft retry
 
-## Yerleştirme + Path (Dilim C)
-
-S10–S14 → Path `{ band, level, module_entry, default_session_minutes }` → S20/S21.
-
-## Ders kabuğu M1 (Dilim D)
-
-`/lessons/[id]` faz makinesi:
-
-1. **S30 Teori** — bantlı hedefler + öğretmen baloncukları (`…` / `[kısa durak]` / `[nefes]`)
-2. **S31 Pratik** — adım listesi
-3. **S32 Dinleme handoff** — yöntem önerisi; **mock kayıt** (MediaRecorder Dilim E)
-4. **S35–S38** — mock gate pass → unlock sonraki ders; mock fail → soft retry
-
-İçerik: `src/lib/lesson-content.ts` (M1.L1 / M1.L2 dolu; diğerleri generic shell).
-
-## Rotalar (özet)
-
-| Yol                             | Ekran              |
-| ------------------------------- | ------------------ |
-| `/signup` … `/billing/past-due` | S01–S04            |
-| `/placement/*`                  | S10–S14            |
-| `/home`                         | S20                |
-| `/lessons/[id]/locked`          | S21                |
-| `/lessons/[id]`                 | S30–S38 kabuğu     |
-| `/api/placement`                | Placement stub     |
-| `/api/stripe/*`                 | Checkout / webhook |
+`POST /api/listening/analyze` — multipart audio, Attempt bellekte.
 
 ## Dilim özeti
 
-- **A:** Scaffold + CI + şema + S01
-- **B:** Auth.js + Stripe mock + S02–S04
-- **C:** Yerleştirme + Path Home
-- **D:** M1 ders kabuğu + gate unlock
+| Dilim | İçerik                                     |
+| ----- | ------------------------------------------ |
+| A     | Next.js scaffold, CI, şema                 |
+| B     | Auth.js + Stripe mock, S01–S04             |
+| C     | Yerleştirme + Path Home                    |
+| D     | M1 ders kabuğu                             |
+| E     | Yöntem 1 MediaRecorder + Attempt/Gate stub |
 
-Sonraki (**E**): MediaRecorder, Attempt, gerçek gate metrikleri, TTS.
+Sonraki (**F**): Yöntem 2 + kota.
 
-Mimari: `mvp-teknik-mimari.md` §8.
+Mimari: `mvp-teknik-mimari.md` §5 · dinleme: `dinleme-ve-ogretmen-konusmasi.md`.
