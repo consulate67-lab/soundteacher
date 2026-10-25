@@ -18,14 +18,16 @@ import {
 import { log } from "@/lib/logger";
 import { getPath, unlockNextLesson } from "@/lib/path-store";
 import { getSubscription } from "@/lib/subscription-store";
-import { hasLessonAccess } from "@/lib/subscription";
+import { isPastDue } from "@/lib/subscription";
+import { canAccessLesson } from "@/lib/trial-access";
 
 async function requireLessonAccess(lessonId: string) {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
   const sub = getSubscription(session.user.id);
-  if (!sub || !hasLessonAccess(sub.status)) redirect("/plans");
+  if (sub && isPastDue(sub.status)) redirect("/billing/past-due");
+  if (!canAccessLesson(sub, lessonId)) redirect(`/lessons/${lessonId}/locked`);
 
   const path = getPath(session.user.id);
   if (!path?.placementComplete) redirect("/placement");

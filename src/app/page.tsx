@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { isStripeMockMode } from "@/lib/stripe";
+import { TRIAL_COPY } from "@/lib/trial-access";
 
 export default async function HomePage() {
   const session = await auth();
@@ -16,8 +17,7 @@ export default async function HomePage() {
         Piyano için çevrim içi öğretmen
       </h1>
       <p className="mt-4 max-w-lg text-base leading-relaxed text-muted">
-        Abonelik, yaş × seviye öğrenme yolu ve çaldığını dinleyen geri bildirim. Faz 1
-        Dilim A–H: Auth.js, Path, M1–M4, Y1–Y2 dinleme, PWA ve Saklama A.
+        {TRIAL_COPY.landingBlurb}
       </p>
 
       <div className="mt-10 flex flex-wrap gap-3">
@@ -33,14 +33,14 @@ export default async function HomePage() {
             href="/signup"
             className="inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
           >
-            Hesap oluştur
+            {TRIAL_COPY.ctaStart}
           </Link>
         )}
         <Link
           href="/plans"
           className="inline-flex h-11 items-center justify-center rounded-md border border-border bg-surface px-5 text-sm font-medium text-foreground transition-colors hover:bg-brand-soft"
         >
-          Planlar (S02)
+          {TRIAL_COPY.ctaPlans}
         </Link>
         <a
           href="/api/health"

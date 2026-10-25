@@ -25,7 +25,7 @@ export async function signupAction(
       password,
       displayName,
       mode: "signup",
-      redirectTo: "/plans",
+      redirectTo: "/placement",
     });
   } catch (error) {
     if (error instanceof AuthError) {

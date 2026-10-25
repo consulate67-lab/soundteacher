@@ -22,7 +22,8 @@ export default function SignupPage() {
         Hesap oluştur
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
-        E-posta ile başla. Plan ve ödeme sonraki adımda.
+        E-posta ile başla. İlk dersler ücretsiz deneme — abonelik sonra, istediğin
+        zaman.
       </p>
 
       <SignupForm />

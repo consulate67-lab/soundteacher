@@ -2,7 +2,11 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { getPath, getPlacementDraft } from "@/lib/path-store";
 import { getSubscription } from "@/lib/subscription-store";
-import { hasLessonAccess, isPastDue } from "@/lib/subscription";
+import { isPastDue, type SubscriptionRecord } from "@/lib/subscription";
+import {
+  canAccessLesson,
+  hasPaidEntitlement,
+} from "@/lib/trial-access";
 
 export async function requireSession() {
   const session = await auth();
@@ -12,28 +16,36 @@ export async function requireSession() {
   return session;
 }
 
-/** Gate for Path Home / lesson surfaces — trial/active entitlement. */
+/** Gate for paid Path / full catalog — Stripe trial or active only. */
 export async function requireSubscribed() {
   const session = await requireSession();
   const sub = getSubscription(session.user.id);
 
-  if (!sub) {
+  if (!sub || !hasPaidEntitlement(sub)) {
     redirect("/plans");
   }
   if (isPastDue(sub.status)) {
-    redirect("/billing/past-due");
-  }
-  if (!hasLessonAccess(sub.status)) {
     redirect("/billing/past-due");
   }
   return { session, subscription: sub };
 }
 
 /**
- * Subscribed + completed Path. Incomplete placement → S14; none → S10.
+ * Account + completed Path. Subscription optional for free deneme.
+ * past_due still blocks.
  */
-export async function requirePath() {
-  const { session, subscription } = await requireSubscribed();
+export async function requirePath(): Promise<{
+  session: Awaited<ReturnType<typeof requireSession>>;
+  subscription: SubscriptionRecord | null;
+  path: NonNullable<ReturnType<typeof getPath>>;
+}> {
+  const session = await requireSession();
+  const subscription = getSubscription(session.user.id);
+
+  if (subscription && isPastDue(subscription.status)) {
+    redirect("/billing/past-due");
+  }
+
   const path = getPath(session.user.id);
   if (path?.placementComplete) {
     return { session, subscription, path };
@@ -43,4 +55,25 @@ export async function requirePath() {
     redirect("/placement/incomplete");
   }
   redirect("/placement");
+}
+
+/** Placement funnel — session only; no paid entitlement required. */
+export async function requirePlacementAccess() {
+  const session = await requireSession();
+  const subscription = getSubscription(session.user.id);
+  if (subscription && isPastDue(subscription.status)) {
+    redirect("/billing/past-due");
+  }
+  return { session, subscription };
+}
+
+/**
+ * Lesson surface: paid entitlement OR free deneme lesson (M1.L1–L2).
+ */
+export async function requireLessonEntitlement(lessonId: string) {
+  const ctx = await requirePath();
+  if (!canAccessLesson(ctx.subscription, lessonId)) {
+    redirect(`/lessons/${lessonId}/locked`);
+  }
+  return ctx;
 }

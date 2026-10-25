@@ -11,8 +11,14 @@ import {
 } from "@/lib/curriculum";
 import { gateMetricsForModule } from "@/lib/gate-metrics";
 import { getPlan } from "@/lib/plans";
-import { quotaSnapshot } from "@/lib/quota";
+import { resolveQuotaForUser } from "@/lib/resolve-quota";
 import { statusLabelTr } from "@/lib/subscription";
+import {
+  canAccessLesson,
+  hasPaidEntitlement,
+  shouldPromptSubscribe,
+  TRIAL_COPY,
+} from "@/lib/trial-access";
 import { signOutAction, simulatePastDueAction } from "./actions";
 
 export const metadata: Metadata = {
@@ -20,13 +26,16 @@ export const metadata: Metadata = {
   description: "Öğrenme yolu özeti (S20).",
 };
 
-/** S20 — Path Home: açık ders + kilitli harita. */
+/** S20 — Path Home: açık ders + kilitli harita (+ ücretsiz deneme). */
 export default async function HomePage() {
   const { session, subscription, path } = await requirePath();
-  const plan = getPlan(subscription.plan);
-  const quota = quotaSnapshot(subscription);
+  const paid = hasPaidEntitlement(subscription);
+  const plan = subscription ? getPlan(subscription.plan) : null;
+  const quota = resolveQuotaForUser(session.user.id, subscription);
   const open = getLesson(path.openLessonId);
   const openTitle = open ? lessonTitle(open, path.band) : path.openLessonId;
+  const openAllowed = canAccessLesson(subscription, path.openLessonId);
+  const promptSub = shouldPromptSubscribe(subscription, path);
   const visible = lessonsForVisiblePath(path.moduleEntry);
   const modules = moduleMapStatuses(
     path.moduleEntry,
@@ -67,6 +76,15 @@ export default async function HomePage() {
         Merhaba{session.user.name ? `, ${session.user.name}` : ""}. {progressHint}
       </p>
 
+      {!paid ? (
+        <p className="mt-4 rounded-md border border-border bg-brand-soft px-3 py-2 text-sm text-foreground">
+          {promptSub ? TRIAL_COPY.bannerSubscribe : TRIAL_COPY.bannerHome}{" "}
+          <Link href="/plans" className="font-semibold text-brand underline-offset-2 hover:underline">
+            Plan seç
+          </Link>
+        </p>
+      ) : null}
+
       <section className="mt-8 rounded-md border border-border bg-surface px-4 py-4 text-sm">
         <h2 className="font-semibold text-foreground">Yolun</h2>
         <dl className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -87,7 +105,9 @@ export default async function HomePage() {
           <div className="flex justify-between gap-2 sm:block">
             <dt className="text-muted">Abonelik</dt>
             <dd className="font-medium">
-              {plan?.name} · {statusLabelTr(subscription.status)}
+              {paid
+                ? `${plan?.name} · ${statusLabelTr(subscription!.status)}`
+                : "Ücretsiz deneme"}
             </dd>
           </div>
           <div className="flex justify-between gap-2 sm:block">
@@ -105,12 +125,21 @@ export default async function HomePage() {
         <p className="mt-2 font-[family-name:var(--font-display)] text-xl text-foreground">
           {openTitle}
         </p>
-        <Link
-          href={`/lessons/${path.openLessonId}`}
-          className="mt-4 inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
-        >
-          {path.completedLessonIds.length === 0 ? "İlk ders" : "Devam et"}
-        </Link>
+        {openAllowed ? (
+          <Link
+            href={`/lessons/${path.openLessonId}`}
+            className="mt-4 inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+          >
+            {path.completedLessonIds.length === 0 ? "İlk ders" : "Devam et"}
+          </Link>
+        ) : (
+          <Link
+            href="/plans"
+            className="mt-4 inline-flex h-11 items-center justify-center rounded-md bg-brand px-5 text-sm font-semibold text-white transition-colors hover:bg-brand-hover"
+          >
+            Abone ol — devam et
+          </Link>
+        )}
       </section>
 
       <section className="mt-10">
@@ -144,16 +173,19 @@ export default async function HomePage() {
         </ul>
         <p className="mt-4 text-sm font-semibold text-foreground">Ders haritası</p>
         <p className="mt-1 text-xs text-muted">
-          Giriş modülünden M4’e kadar · kilitli dersler S21.
+          Giriş modülünden M4’e kadar · kilitli dersler S21
+          {!paid ? " · deneme: M1.L1–L2 ücretsiz" : ""}.
         </p>
         <ul className="mt-4 flex flex-col gap-2">
           {visible.map((lesson) => {
-            const locked = isLessonLocked(
+            const sequenceLocked = isLessonLocked(
               lesson,
               path.openLessonId,
               path.completedLessonIds,
               path.moduleEntry,
             );
+            const entitlementLocked = !canAccessLesson(subscription, lesson.id);
+            const locked = sequenceLocked || entitlementLocked;
             const done = path.completedLessonIds.includes(lesson.id);
             const title = lessonTitle(lesson, path.band);
             const href = locked
@@ -162,43 +194,43 @@ export default async function HomePage() {
 
             return (
               <li key={lesson.id}>
-                {locked ? (
-                  <Link
-                    href={href}
-                    className="flex items-center justify-between gap-3 rounded-md border border-border bg-surface/60 px-3 py-3 text-sm text-muted"
-                  >
-                    <span>
-                      M{lesson.moduleId}.{lesson.order} · {title}
-                    </span>
-                    <span className="text-xs">Kilitli</span>
-                  </Link>
-                ) : (
-                  <Link
-                    href={href}
-                    className="flex items-center justify-between gap-3 rounded-md border border-brand bg-brand-soft px-3 py-3 text-sm text-foreground"
-                  >
-                    <span>
-                      M{lesson.moduleId}.{lesson.order} · {title}
-                    </span>
-                    <span className="text-xs font-medium text-brand">
-                      {done ? "Tamam" : "Açık"}
-                    </span>
-                  </Link>
-                )}
+                <Link
+                  href={href}
+                  className={`flex items-center justify-between gap-3 rounded-md border px-3 py-3 text-sm ${
+                    locked
+                      ? "border-border bg-surface/60 text-muted"
+                      : "border-brand bg-brand-soft text-foreground"
+                  }`}
+                >
+                  <span>
+                    M{lesson.moduleId}.{lesson.order} · {title}
+                  </span>
+                  <span className="text-xs font-medium">
+                    {done
+                      ? "Tamam"
+                      : entitlementLocked && !sequenceLocked
+                        ? "Abonelik"
+                        : locked
+                          ? "Kilitli"
+                          : "Açık"}
+                  </span>
+                </Link>
               </li>
             );
           })}
         </ul>
       </section>
 
-      <form action={simulatePastDueAction} className="mt-12 border-t border-border pt-6">
-        <button
-          type="submit"
-          className="text-sm font-medium text-muted underline-offset-2 hover:text-foreground hover:underline"
-        >
-          Geliştirici: past_due simüle et → S04
-        </button>
-      </form>
+      {paid ? (
+        <form action={simulatePastDueAction} className="mt-12 border-t border-border pt-6">
+          <button
+            type="submit"
+            className="text-sm font-medium text-muted underline-offset-2 hover:text-foreground hover:underline"
+          >
+            Geliştirici: past_due simüle et → S04
+          </button>
+        </form>
+      ) : null}
     </main>
   );
 }

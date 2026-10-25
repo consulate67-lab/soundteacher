@@ -38,8 +38,15 @@ export default async function PlansPage() {
         Planını seç
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
-        Tüm yaşlar aynı planda. Fiyatlar yer tutucu — gerçek faturalama test
-        anahtarlarıyla bağlanır.
+        Deneme dersleri ücretsiz; abonelik tam Path ve daha yüksek dinleme kotası
+        için. Tüm yaşlar aynı planda. Fiyatlar yer tutucu — mock ödeme de olur.
+      </p>
+      <p className="mt-3 text-xs text-muted">
+        Henüz denemediysen{" "}
+        <Link href="/placement" className="font-medium text-brand hover:underline">
+          ücretsiz yerleştirmeye
+        </Link>{" "}
+        de gidebilirsin.
       </p>
 
       <PlanPicker plans={PLANS} mockMode={isStripeMockMode()} />

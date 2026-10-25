@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { requireSubscribed } from "@/lib/access";
+import { requirePlacementAccess } from "@/lib/access";
 import { getPath } from "@/lib/path-store";
+import { TRIAL_COPY } from "@/lib/trial-access";
 import { BandForm } from "./band-form";
 
 export const metadata: Metadata = {
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 
 /** S10 — Yaş / bant. */
 export default async function PlacementBandPage() {
-  const { session } = await requireSubscribed();
+  const { session } = await requirePlacementAccess();
   const path = getPath(session.user.id);
   if (path?.placementComplete) {
     redirect("/home");
@@ -28,14 +29,14 @@ export default async function PlacementBandPage() {
       </Link>
 
       <p className="text-xs font-medium uppercase tracking-wide text-muted">
-        Yerleştirme · 1/3
+        Yerleştirme · 1/3 · ücretsiz
       </p>
       <h1 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-medium text-foreground">
         Yaş bandını seç
       </h1>
       <p className="mt-2 text-sm leading-relaxed text-muted">
         Dil, oturum süresi ve örnekler buna göre uyarlanır. Yaş tek başına seviyeni
-        yükseltmez.
+        yükseltmez. {TRIAL_COPY.placementNote}
       </p>
 
       <BandForm />

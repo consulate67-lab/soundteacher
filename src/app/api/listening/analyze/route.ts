@@ -7,14 +7,21 @@ import { saveAttempt } from "@/lib/attempt-store";
 import { ensureLessonProgress } from "@/lib/lesson-progress-store";
 import { log } from "@/lib/logger";
 import { getPath } from "@/lib/path-store";
-import { canUseMethod, isAbandonedTake, shouldConsumeQuota } from "@/lib/quota";
+import { consumeFreeQuota } from "@/lib/free-quota-store";
+import { isAbandonedTake, shouldConsumeQuota } from "@/lib/quota";
+import { resolveQuotaForUser } from "@/lib/resolve-quota";
 import { consumeQuota, getSubscription } from "@/lib/subscription-store";
-import { hasLessonAccess } from "@/lib/subscription";
+import { isPastDue } from "@/lib/subscription";
+import {
+  canAccessLesson,
+  hasPaidEntitlement,
+} from "@/lib/trial-access";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Upload stub + analysis (Dilim E/F/H).
+ * Free deneme: M1.L1–L2 without paid entitlement.
  * Quota: only valid non-abandoned takes consume units (see src/lib/quota.ts).
  * Saklama A: raw audio discarded after analysis — Attempt keeps summary only.
  */
@@ -27,9 +34,8 @@ export async function POST(request: Request) {
 
   const userId = session.user.id;
   const sub = getSubscription(userId);
-  if (!sub || !hasLessonAccess(sub.status)) {
-    log.warn("api.listening.analyze.forbidden", { userId, reason: "subscription" });
-    return NextResponse.json({ error: "Abonelik gerekli" }, { status: 403 });
+  if (sub && isPastDue(sub.status)) {
+    return NextResponse.json({ error: "Ödeme gecikmiş" }, { status: 403 });
   }
 
   const path = getPath(userId);
@@ -56,7 +62,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "lessonId gerekli" }, { status: 400 });
   }
 
-  if (!canUseMethod(sub, method)) {
+  if (!canAccessLesson(sub, lessonId)) {
+    log.warn("api.listening.analyze.forbidden", {
+      userId,
+      lessonId,
+      reason: "trial_scope",
+    });
+    return NextResponse.json(
+      { error: "Bu ders abonelik ister", code: "SUBSCRIBE_REQUIRED" },
+      { status: 403 },
+    );
+  }
+
+  const quota = resolveQuotaForUser(userId, sub);
+  const methodAvailable =
+    method === "1" ? quota.method1Available : quota.method2Available;
+  if (!methodAvailable) {
     log.warn("api.listening.analyze.quota", { userId, lessonId, method });
     return NextResponse.json(
       {
@@ -148,7 +169,11 @@ export async function POST(request: Request) {
     });
 
     if (consume) {
-      consumeQuota(userId, method);
+      if (hasPaidEntitlement(sub)) {
+        consumeQuota(userId, method);
+      } else {
+        consumeFreeQuota(userId, method);
+      }
     }
 
     const attemptId = `att_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;

@@ -9,7 +9,7 @@ import {
   toPlacementResult,
 } from "@/lib/path-store";
 import { getSubscription } from "@/lib/subscription-store";
-import { hasLessonAccess } from "@/lib/subscription";
+import { isPastDue } from "@/lib/subscription";
 
 export const dynamic = "force-dynamic";
 
@@ -38,9 +38,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Oturum gerekli" }, { status: 401 });
   }
 
+  // Placement is free — no paid entitlement required (deneme önce).
   const sub = getSubscription(session.user.id);
-  if (!sub || !hasLessonAccess(sub.status)) {
-    return NextResponse.json({ error: "Abonelik gerekli" }, { status: 403 });
+  if (sub && isPastDue(sub.status)) {
+    return NextResponse.json({ error: "Ödeme gecikmiş" }, { status: 403 });
   }
 
   let body: Body;

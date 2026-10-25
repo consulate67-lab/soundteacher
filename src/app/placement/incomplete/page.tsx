@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { requireSubscribed } from "@/lib/access";
+import { requirePlacementAccess } from "@/lib/access";
 import { getPath, getPlacementDraft } from "@/lib/path-store";
 
 export const metadata: Metadata = {
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 /** S14 — Yerleştirme yarım. */
 export default async function PlacementIncompletePage() {
-  const { session } = await requireSubscribed();
+  const { session } = await requirePlacementAccess();
   if (getPath(session.user.id)?.placementComplete) {
     redirect("/home");
   }

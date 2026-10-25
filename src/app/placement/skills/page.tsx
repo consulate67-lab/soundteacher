@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { requireSubscribed } from "@/lib/access";
+import { requirePlacementAccess } from "@/lib/access";
 import { isBand, BAND_SHORT } from "@/lib/bands";
 import { getPath, getPlacementDraft } from "@/lib/path-store";
 import { SkillsForm } from "./skills-form";
@@ -17,7 +17,7 @@ type Props = {
 
 /** S11 — Beceri soruları (bantlı metin). */
 export default async function PlacementSkillsPage({ searchParams }: Props) {
-  const { session } = await requireSubscribed();
+  const { session } = await requirePlacementAccess();
   if (getPath(session.user.id)?.placementComplete) {
     redirect("/home");
   }

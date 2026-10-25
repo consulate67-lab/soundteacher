@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { requireSubscribed } from "@/lib/access";
+import { requirePlacementAccess } from "@/lib/access";
 import { getPath, getPlacementDraft } from "@/lib/path-store";
 import { needsVerification } from "@/lib/placement";
 import { VerifyActions } from "./verify-actions";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 /** S12 — Doğrulama kaydı (A2/B1 adayı); ses yok, mock. */
 export default async function PlacementVerifyPage() {
-  const { session } = await requireSubscribed();
+  const { session } = await requirePlacementAccess();
   if (getPath(session.user.id)?.placementComplete) {
     redirect("/placement/result");
   }

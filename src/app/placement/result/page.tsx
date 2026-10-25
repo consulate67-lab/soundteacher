@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { requireSubscribed } from "@/lib/access";
+import { requirePlacementAccess } from "@/lib/access";
 import { BAND_SHORT } from "@/lib/bands";
 import { getLesson, lessonTitle } from "@/lib/curriculum";
 import { getPath } from "@/lib/path-store";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 /** S13 — Yerleştirme sonucu. */
 export default async function PlacementResultPage() {
-  const { session } = await requireSubscribed();
+  const { session } = await requirePlacementAccess();
   const path = getPath(session.user.id);
   if (!path?.placementComplete) {
     redirect("/placement");
