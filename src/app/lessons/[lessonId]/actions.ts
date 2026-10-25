@@ -15,6 +15,7 @@ import {
   setLessonPhase,
   type LessonPhase,
 } from "@/lib/lesson-progress-store";
+import { log } from "@/lib/logger";
 import { getPath, unlockNextLesson } from "@/lib/path-store";
 import { getSubscription } from "@/lib/subscription-store";
 import { hasLessonAccess } from "@/lib/subscription";
@@ -108,6 +109,11 @@ export async function evaluateGateAction(lessonId: string) {
 
   const outcome = evaluateGateFromAttempt(attempt);
   if (outcome === "invalid") {
+    log.warn("gate.invalid_attempt", {
+      userId,
+      lessonId,
+      attemptId: attempt.id,
+    });
     return { error: "Geçersiz Attempt" };
   }
 
@@ -120,8 +126,9 @@ export async function evaluateGateAction(lessonId: string) {
     (s) => s.type === "timing" && s.severity === "high",
   ).length;
 
+  const gateId = `gate_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`;
   saveGateResult({
-    id: `gate_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`,
+    id: gateId,
     attemptId: attempt.id,
     lessonId,
     userId,
@@ -150,6 +157,17 @@ export async function evaluateGateAction(lessonId: string) {
       lastGateResult: "fail",
     });
   }
+
+  log.info("gate.evaluated", {
+    gateId,
+    attemptId: attempt.id,
+    userId,
+    lessonId,
+    result: outcome,
+    highPitch,
+    highTiming,
+    moduleId: lesson?.moduleId ?? null,
+  });
 
   revalidatePath(`/lessons/${lessonId}`);
   revalidatePath("/home");

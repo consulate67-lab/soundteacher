@@ -53,7 +53,12 @@ export function LessonSession({
           </h2>
           <p className="text-sm text-muted">{pickBand(content.goals, band)}</p>
           {content.theoryBubbles.map((b, i) => (
-            <TeacherBubble key={i} text={pickBand(b, band)} />
+            <TeacherBubble
+              key={i}
+              text={pickBand(b, band)}
+              band={band}
+              autoSpeak={i === 0}
+            />
           ))}
           <form action={advanceToPracticeAction.bind(null, lessonId)}>
             <button
@@ -77,7 +82,7 @@ export function LessonSession({
             ))}
           </ol>
           {content.practiceBubbles.map((b, i) => (
-            <TeacherBubble key={i} text={pickBand(b, band)} />
+            <TeacherBubble key={i} text={pickBand(b, band)} band={band} />
           ))}
           <p className="text-xs text-muted">Tempo: yavaş · ~{sessionMinutes} dk oturum</p>
           <form action={advanceToListeningAction.bind(null, lessonId)}>
@@ -122,6 +127,8 @@ export function LessonSession({
               band,
               lastAttempt ? primaryError(lastAttempt.errorSpans) : null,
             )}
+            band={band}
+            autoSpeak
           />
           <p className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
             Mikro hedef: {pickBand(content.failMicroTarget, band)}
@@ -145,7 +152,7 @@ export function LessonSession({
           <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
             Kapı geçildi · unlock
           </h2>
-          <TeacherBubble text={gatePassBubble(band)} />
+          <TeacherBubble text={gatePassBubble(band)} band={band} autoSpeak />
           <p className="text-sm text-muted">
             {title} tamamlandı. Path güncellendi (S38).
           </p>

@@ -17,7 +17,7 @@ export default async function HomePage() {
       </h1>
       <p className="mt-4 max-w-lg text-base leading-relaxed text-muted">
         Abonelik, yaş × seviye öğrenme yolu ve çaldığını dinleyen geri bildirim. Faz 1
-        Dilim A–G: Auth.js, Path, M1–M4 omurga, Yöntem 1–2 dinleme ve kota.
+        Dilim A–H: Auth.js, Path, M1–M4, Y1–Y2 dinleme, PWA ve Saklama A.
       </p>
 
       <div className="mt-10 flex flex-wrap gap-3">

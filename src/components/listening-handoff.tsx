@@ -66,7 +66,7 @@ export function ListeningHandoff({
         <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
           Kota dolu
         </h2>
-        <TeacherBubble text={quotaExhaustedBubble(band)} />
+        <TeacherBubble text={quotaExhaustedBubble(band)} band={band} />
         <p className="text-sm text-muted">
           Yöntem 2: {quota.method2Used}/{quota.method2Limit} · Yöntem 1:{" "}
           {quota.method1Used}/{quota.method1Limit}. Ders açık kalır — yalnızca dinleme
@@ -150,6 +150,7 @@ export function ListeningHandoff({
             ? "Kayda hazır mısınız? … [kısa durak] Yöntemi seçin."
             : "Kayda hazır mısın? … [kısa durak] Yöntemi seç."
         }
+        band={band}
       />
       <p className="text-sm text-muted">{prepText}</p>
       <p className="text-xs text-muted">

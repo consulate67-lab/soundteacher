@@ -137,6 +137,8 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
     const blob = new Blob(chunksRef.current, {
       type: recorderRef.current?.mimeType || "audio/webm",
     });
+    // Saklama A (client) — drop local chunks after forming upload blob
+    chunksRef.current = [];
     cleanupStream();
 
     try {
@@ -189,6 +191,7 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
                 ? "Kayda hazır mısınız? … [kısa durak] Ben kayıt sırasında susacağım."
                 : "Kayda hazır mısın? … [kısa durak] Ben kayıt sırasında susacağım."
             }
+            band={band}
           />
           <p className="text-sm text-muted">{prepText}</p>
           <p className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
@@ -218,7 +221,7 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
           <h3 className="font-[family-name:var(--font-display)] text-lg font-medium">
             Mikrofon reddedildi
           </h3>
-          <TeacherBubble text={invalidBubble("denied_mic", band)} />
+          <TeacherBubble text={invalidBubble("denied_mic", band)} band={band} />
           <p className="text-sm text-muted">
             Dinleme bekliyor. Tarayıcı ayarlarından mikrofon iznini açıp yeniden dene.
             Kapı bu turda yazılmaz.
@@ -271,7 +274,7 @@ export function Method1Recorder({ lessonId, band, prepText, maxSeconds = 12 }: P
           <h3 className="font-[family-name:var(--font-display)] text-lg font-medium">
             {invalidTitle(invalidReason)}
           </h3>
-          <TeacherBubble text={invalidBubble(invalidReason, band)} />
+          <TeacherBubble text={invalidBubble(invalidReason, band)} band={band} />
           <p className="text-sm text-muted">
             Geçersiz deneme — kapı yazılmadı. Yeniden kaydedebilirsin.
           </p>

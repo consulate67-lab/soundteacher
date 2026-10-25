@@ -1,15 +1,64 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import type { Band } from "@/lib/bands";
+import {
+  cancelSpeech,
+  rateForBand,
+  speakTeacherText,
+  speechSupported,
+} from "@/lib/tts-client";
+
 /**
- * Text-only teacher AI bubble (Dilim D).
- * Renders `…` / `[kısa durak]` / `[nefes]` with pause styling — no TTS yet.
+ * Teacher AI bubble — pause styling + optional Web Speech TTS (Dilim H).
+ * Graceful fallback: text always visible; speak only when supported / unmuted.
  */
 
 type Props = {
   text: string;
   className?: string;
+  /** Band rate for Web Speech (child slower). Dinle button always available. */
+  band?: Band;
+  /** Speak once on mount — use sparingly (one bubble per view). */
+  autoSpeak?: boolean;
 };
 
-export function TeacherBubble({ text, className = "" }: Props) {
+export function TeacherBubble({ text, className = "", band, autoSpeak = false }: Props) {
   const parts = tokenize(text);
+  const [supported, setSupported] = useState(false);
+  const [speaking, setSpeaking] = useState(false);
+
+  useEffect(() => {
+    setSupported(speechSupported());
+  }, []);
+
+  useEffect(() => {
+    if (!autoSpeak) return;
+    if (!speechSupported()) return;
+    setSpeaking(true);
+    speakTeacherText(text, {
+      rate: rateForBand(band ?? "adult"),
+      onEnd: () => setSpeaking(false),
+    });
+    return () => {
+      cancelSpeech();
+      setSpeaking(false);
+    };
+  }, [text, band, autoSpeak]);
+
+  function toggleSpeak() {
+    if (!supported) return;
+    if (speaking) {
+      cancelSpeech();
+      setSpeaking(false);
+      return;
+    }
+    setSpeaking(true);
+    speakTeacherText(text, {
+      rate: rateForBand(band ?? "adult"),
+      onEnd: () => setSpeaking(false),
+    });
+  }
 
   return (
     <div
@@ -17,9 +66,25 @@ export function TeacherBubble({ text, className = "" }: Props) {
       role="status"
       aria-label="Öğretmen"
     >
-      <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-wide text-brand">
-        Öğretmen
-      </p>
+      <div className="mb-1 flex items-center justify-between gap-2">
+        <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-brand">
+          Öğretmen
+        </p>
+        {supported ? (
+          <button
+            type="button"
+            onClick={toggleSpeak}
+            className="text-[0.65rem] font-medium text-brand underline-offset-2 hover:underline"
+            aria-pressed={speaking}
+          >
+            {speaking ? "Durdur" : "Dinle"}
+          </button>
+        ) : (
+          <span className="text-[0.65rem] text-muted" title="Web Speech yok">
+            Metin
+          </span>
+        )}
+      </div>
       <p>
         {parts.map((part, i) => {
           if (part.type === "pause") {

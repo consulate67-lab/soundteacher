@@ -152,6 +152,8 @@ export function Method2Recorder({
     const blob = new Blob(chunksRef.current, {
       type: recorderRef.current?.mimeType || "audio/webm",
     });
+    // Saklama A (client) — drop local chunks after forming upload blob
+    chunksRef.current = [];
     cleanupStream();
 
     try {
@@ -216,7 +218,7 @@ export function Method2Recorder({
     <div className="flex flex-col gap-4">
       {ui === "ready" || ui === "permission" ? (
         <>
-          <TeacherBubble text={performanceIntroBubble(band)} />
+          <TeacherBubble text={performanceIntroBubble(band)} band={band} />
           <p className="text-sm text-muted">{prepText}</p>
           <p className="rounded-md border border-border bg-surface px-3 py-2 text-sm">
             Yöntem 2 · performans · en fazla ~{maxSeconds} sn · bitişte rapor
@@ -246,7 +248,7 @@ export function Method2Recorder({
           <h3 className="font-[family-name:var(--font-display)] text-lg font-medium">
             Mikrofon reddedildi
           </h3>
-          <TeacherBubble text={invalidBubble("denied_mic", band)} />
+          <TeacherBubble text={invalidBubble("denied_mic", band)} band={band} />
           <button
             type="button"
             onClick={requestMic}
@@ -307,7 +309,7 @@ export function Method2Recorder({
           <h3 className="font-[family-name:var(--font-display)] text-lg font-medium">
             Yarıda bırakıldı
           </h3>
-          <TeacherBubble text={invalidBubble("abandoned", band)} />
+          <TeacherBubble text={invalidBubble("abandoned", band)} band={band} />
           <p className="text-sm text-muted">
             Kapı yazılmadı · kota düşmedi. Yeniden başlayabilirsin.
           </p>
@@ -323,7 +325,7 @@ export function Method2Recorder({
 
       {ui === "invalid" && invalidReason ? (
         <section className="flex flex-col gap-3">
-          <TeacherBubble text={invalidBubble(invalidReason, band)} />
+          <TeacherBubble text={invalidBubble(invalidReason, band)} band={band} />
           <button
             type="button"
             onClick={() => {

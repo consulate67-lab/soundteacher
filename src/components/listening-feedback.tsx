@@ -56,7 +56,7 @@ export function ListeningFeedback({ attempt, band, lessonId }: Props) {
       ) : null}
 
       {bubbles.map((text, i) => (
-        <TeacherBubble key={i} text={text} />
+        <TeacherBubble key={i} text={text} band={band} autoSpeak={i === 0} />
       ))}
 
       {primary ? (
