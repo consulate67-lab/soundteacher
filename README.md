@@ -16,6 +16,35 @@ npm run dev
 
 Aç: [http://localhost:3000](http://localhost:3000)
 
+## Vercel deploy
+
+App is a standard **Next.js** App Router project (`vercel.json` sets framework). In-memory stores (users/Path/Attempt) reset across serverless cold starts — fine for MVP demo; Postgres later.
+
+### Dashboard (recommended)
+
+1. Open [vercel.com/new](https://vercel.com/new) → **Import** GitHub repo `consulate67-lab/soundteacher`
+2. Branch: `cursor/mvp-scaffold-a-f7f9` (or `main` after merge)
+3. Framework: **Next.js** (auto) → Deploy
+4. **Environment Variables** (Settings → Environment Variables), then Redeploy:
+
+| Name | Required? | Value |
+| --- | --- | --- |
+| `AUTH_SECRET` | **Yes** | `openssl rand -base64 32` output |
+| `AUTH_URL` | Optional | `https://YOUR-PROJECT.vercel.app` |
+| `STRIPE_*` | No | leave empty → mock billing |
+| `DATABASE_URL` / `S3_*` / `TTS_*` | No | unused in MVP mock |
+
+### CLI
+
+```bash
+npx vercel login
+npx vercel link   # pick team + project
+npx vercel env add AUTH_SECRET
+npx vercel --prod
+```
+
+Anonymous / claimable preview (no account): `npx vercel deploy --temporary` — expires quickly; claim via the printed URL.
+
 ## Kritik yol (signup → Y1)
 
 1. **Kayıt** — `/signup` (e-posta + şifre; Auth.js Credentials mock)
