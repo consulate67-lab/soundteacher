@@ -26,62 +26,62 @@ function L(moduleId: number, order: number, titles: Record<Band, string>): Lesso
 
 /** M1–M4 spine (Dilim G). Shared IDs; band titles overlay. */
 export const LESSONS: LessonDef[] = [
-  // —— Module 1 ——
+  // —— Module 1 —— (Caner-inspired: oturuş → tuşlar → serbest el → orta Do → 5 parmak)
   L(1, 1, {
     child: "Sandalyede rahat otur",
     teen: "Oturuş ve el",
     adult: "Oturuş ve ergonomi",
   }),
   L(1, 2, {
+    child: "Siyah tuş grupları",
+    teen: "Tuşlar: 2’li ve 3’lü",
+    adult: "Klavye coğrafyası — siyah gruplar",
+  }),
+  L(1, 3, {
+    child: "Serbest el dokunuşu",
+    teen: "Serbest el + siyah tuş",
+    adult: "Serbest el ve siyah tuş dokunuşu",
+  }),
+  L(1, 4, {
     child: "Orta Do’yu bul",
     teen: "Orta Do haritası",
     adult: "Orta Do referansı",
   }),
-  L(1, 3, {
-    child: "Beyaz ve siyah tuşlar",
-    teen: "Siyah tuş grupları",
-    adult: "Klavye coğrafyası",
-  }),
-  L(1, 4, {
-    child: "Sağ el 5 parmak",
-    teen: "Sağ el 5 parmak",
-    adult: "Sağ el 5 parmak",
-  }),
   L(1, 5, {
-    child: "Do–Re–Mi mini şarkı",
-    teen: "Do–Re–Mi–Fa–Sol",
-    adult: "Do’dan Sol’a",
+    child: "Do’da 5 parmak",
+    teen: "Do pozisyonu / 5 parmak",
+    adult: "Do pozisyonu — sağ el 5 parmak",
   }),
   L(1, 6, {
     child: "Modül 1 gösterisi",
     teen: "Modül 1 kapı parçası",
     adult: "Modül 1 performans",
   }),
-  // —— Module 2 ——
+  // —— Module 2 —— (Caner-inspired: teori → Do+süre → Re/Si → Mi/La → Fa/Sol)
   L(2, 1, {
     child: "Sol anahtarı nedir?",
-    teen: "Sol anahtarı ve porte",
-    adult: "Sol anahtarı temeli",
+    teen: "Teori: sol anahtarı ve porte",
+    adult: "Teori — sol anahtarı temeli",
   }),
   L(2, 2, {
-    child: "Do–Re–Mi notada",
-    teen: "Do–Sol okuma",
-    adult: "Do–Sol okuma drili",
+    child: "Orta Do ve süreler",
+    teen: "Orta Do notada + süre",
+    adult: "Orta Do okuma ve süre değerleri",
   }),
   L(2, 3, {
-    child: "Fa ve Sol",
-    teen: "Dörtlük / ikilik",
-    adult: "Süreler: dörtlük, ikilik, birlik",
+    child: "Re ve Si",
+    teen: "Re / Si okuma",
+    adult: "Re ve Si — okuma ve çalma",
   }),
   L(2, 4, {
-    child: "Dörtlük ve ikilik",
-    teen: "Birlik ve bağlama",
-    adult: "4/4 ölçü hissi",
+    child: "Mi ve La",
+    teen: "Mi / La + 1–3",
+    adult: "Mi ve La — 1. ve 3. parmak",
   }),
   L(2, 5, {
-    child: "Birlik ve 4/4",
-    teen: "Basit ezgi notadan",
-    adult: "Ezgi okuma",
+    child: "Fa ve Sol",
+    teen: "Fa / Sol + tekrar",
+    adult: "Fa ve Sol — röpriz tadı",
   }),
   L(2, 6, {
     child: "Modül 2 kapısı",

@@ -73,7 +73,9 @@ http://localhost:3000 — only when iterating on code.
 
 Yöntem 2 (performans) handoff’tan seçilebilir; kota dolunca Y1’e düşer.
 
-**Yöntem 3 (MIDI / USB klavye):** Web MIDI API (Chrome/Edge). Nota-on/off + zamanlama → aynı Attempt / S35 / Kapı yolu. Mic yok. Kota Yöntem 1 ile paylaşılır. Erken M1 mic-first kalır; MIDI önerisi: **`piano.m1.l5`**, **`piano.m2.l2`**. Destek yoksa net TR uyarı + Y1/Y2 fallback.
+**Yöntem 3 (MIDI / USB klavye):** Web MIDI API (Chrome/Edge). Nota-on/off + zamanlama → aynı Attempt / S35 / Kapı yolu. Mic yok. Kota Yöntem 1 ile paylaşılır. Erken M1 mic-first / öz-onay kalır; MIDI önerisi: **`piano.m1.l5`**, **`piano.m2.l2`**, **`piano.m2.l3`**. Destek yoksa net TR uyarı + Y1/Y2 fallback.
+
+**Müfredat esinlenmesi:** M1–M2 ders sırası Caner Başbuğa’nın herkese açık başlangıç serisindeki konu ilerlemesinden uyarlanmıştır (tuşlar → serbest el → orta Do → teori → Re/Si…). YouTube videoları indirilmez / gömülmez; SoundTeacher kendi öğretmen sesi ve dinleme yığınıyla çalışır.
 
 ## Dilim özeti
 
@@ -97,7 +99,7 @@ Yöntem 2 (performans) handoff’tan seçilebilir; kota dolunca Y1’e düşer.
 ## M1–M4
 
 - Spine: `piano.m{1–4}.l{1–6}` (24 ders) · bant başlıkları overlay
-- Zengin kabuk: M1.L1/L2 + M2–M4 L1/L6; diğerleri generic overlay
+- Zengin kabuk: M1.L1–L6 + M2.L1–L6 + M3/M4 L1/L6; diğerleri generic overlay (Caner-aligned M1–M2 sırası)
 - Kapı metrikleri: `src/lib/gate-metrics.ts`
 
 ## Sonraki adımlar

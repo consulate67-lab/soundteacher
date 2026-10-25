@@ -45,8 +45,8 @@ export function trialProgramLessonIds(input: {
   }
 
   if (entry === 2 || input.level === "A1") {
-    // A1: M1 mikro fırça + M2 giriş
-    return ["piano.m1.l1", "piano.m1.l2", "piano.m2.l1", "piano.m2.l2"];
+    // A1: tuş/orta Do fırçası + M2 teori girişi (Caner-aligned micros)
+    return ["piano.m1.l2", "piano.m1.l4", "piano.m2.l1", "piano.m2.l2"];
   }
 
   // A2+ (giriş M4+): kısa M1 hatırlatma + giriş modülünden 2 ders tadı
