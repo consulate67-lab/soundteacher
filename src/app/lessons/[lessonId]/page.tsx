@@ -41,6 +41,7 @@ export default async function LessonPage({ params }: Props) {
   const title = lessonTitle(lesson, path.band);
   const progress = ensureLessonProgress(session.user.id, lessonId);
   const quota = quotaSnapshot(subscription);
+  const content = loadLessonContent(lessonId);
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-lg flex-col px-6 py-12">
@@ -52,9 +53,13 @@ export default async function LessonPage({ params }: Props) {
         {title}
       </h1>
       <p className="mt-2 text-sm text-muted">
-        M{lesson.moduleId}.{lesson.order} · ~{path.defaultSessionMinutes} dk ·{" "}
+        M{lesson.moduleId}.{lesson.order}
+        {lesson.isGate ? " · kapı" : ""} · ~{path.defaultSessionMinutes} dk ·{" "}
         {path.band === "adult" ? "siz" : "sen"} dili · Y2 kota {quota.method2Remaining}/
         {quota.method2Limit}
+      </p>
+      <p className="mt-1 font-mono text-[0.65rem] text-muted">
+        scoreRef: {content?.scoreRef ?? lesson.scoreRef}
       </p>
 
       <LessonSession

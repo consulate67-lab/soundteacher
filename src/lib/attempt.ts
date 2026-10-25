@@ -47,6 +47,12 @@ export type GateResultRecord = {
   tolerances: {
     pitchErrorsHigh: number;
     timingErrorsHigh: number;
+    /** Dilim G — module metric snapshot */
+    pitchToleranceCents?: number;
+    timingToleranceMs?: number;
+    maxHighPitchErrors?: number;
+    maxHighTimingErrors?: number;
+    scoreRef?: string;
   };
   createdAt: string;
 };

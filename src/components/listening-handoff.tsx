@@ -5,7 +5,7 @@ import { Method1Recorder } from "@/components/method1-recorder";
 import { Method2Recorder } from "@/components/method2-recorder";
 import { TeacherBubble } from "@/components/teacher-bubble";
 import type { Band } from "@/lib/bands";
-import type { ListeningMethod } from "@/lib/lesson-content";
+import type { ListeningMethod } from "@/lib/lesson-content-types";
 import { quotaExhaustedBubble } from "@/lib/feedback-copy";
 import type { QuotaSnapshot } from "@/lib/quota";
 import { Y1_MAX_SECONDS, Y2_MAX_SECONDS } from "@/lib/quota";

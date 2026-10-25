@@ -1,6 +1,8 @@
 import type { Band } from "./bands";
 import type { AttemptRecord, ErrorSpan } from "./attempt";
 import { primaryError } from "./attempt";
+import { getLesson } from "./curriculum";
+import { gateMetricsForModule } from "./gate-metrics";
 
 /** S35 — one correction at a time; short sentences + pause marks. */
 export function feedbackBubblesForAttempt(attempt: AttemptRecord, band: Band): string[] {
@@ -128,13 +130,29 @@ export function gatePassBubble(band: Band): string {
   return "Tebrikler. … Kapı standardı sağlandı. [kısa durak] Sonraki derse geçebilirsiniz.";
 }
 
-/** Gate from valid Attempt: high pitch/timing errors → fail; else pass. */
+/**
+ * Gate from valid Attempt using per-module metric placeholders (Dilim G).
+ * High-severity counts vs maxHigh* — stub until real pitch/align worker.
+ */
 export function evaluateGateFromAttempt(
   attempt: AttemptRecord,
 ): "pass" | "fail" | "invalid" {
   if (!attempt.valid) return "invalid";
-  const high = attempt.errorSpans.filter((s) => s.severity === "high");
-  if (high.length > 0) return "fail";
-  if (attempt.scoreSummary?.bandLabel === "fail") return "fail";
+
+  const lesson = getLesson(attempt.lessonId);
+  const metrics = gateMetricsForModule(lesson?.moduleId ?? 1);
+
+  const highPitch = attempt.errorSpans.filter(
+    (s) => s.type === "pitch" && s.severity === "high",
+  ).length;
+  const highTiming = attempt.errorSpans.filter(
+    (s) => s.type === "timing" && s.severity === "high",
+  ).length;
+
+  if (highPitch > metrics.maxHighPitchErrors) return "fail";
+  if (highTiming > metrics.maxHighTimingErrors) return "fail";
+  if (attempt.scoreSummary?.bandLabel === "fail" && highPitch + highTiming > 0) {
+    return "fail";
+  }
   return "pass";
 }

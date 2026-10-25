@@ -1,29 +1,14 @@
 import type { Band } from "./bands";
 import { getLesson, lessonTitle } from "./curriculum";
+import { gateMetricsForModule } from "./gate-metrics";
+import { M2M4_CONTENT } from "./lesson-content-m2m4";
+import type { LessonContent } from "./lesson-content-types";
 
-export type ListeningMethod = "1" | "2";
-
-export type BandedText = Record<Band, string>;
-
-export type LessonContent = {
-  id: string;
-  goals: BandedText;
-  theoryBubbles: BandedText[];
-  practiceSteps: BandedText[];
-  practiceBubbles: BandedText[];
-  recommendedMethod: ListeningMethod;
-  /** Dilim F — methods member may choose (quota still applies). */
-  allowedMethods: ListeningMethod[];
-  listeningPrep: BandedText;
-  /** Mock feedback line after placeholder listening (Dilim E replaces with Attempt). */
-  mockFeedback: BandedText;
-  gatePassBubbles: BandedText[];
-  gateFailBubbles: BandedText[];
-  failMicroTarget: BandedText;
-};
+export type { BandedText, LessonContent, ListeningMethod } from "./lesson-content-types";
 
 const M1_L1: LessonContent = {
   id: "piano.m1.l1",
+  scoreRef: "score.piano.m1.l1.v0",
   goals: {
     child: "Piyanoya oturuşu ve el pozisyonunu güvenli öğrenirsin.",
     teen: "Doğru oturuş ve el yüksekliğini kurarsın.",
@@ -101,6 +86,7 @@ const M1_L1: LessonContent = {
 
 const M1_L2: LessonContent = {
   id: "piano.m1.l2",
+  scoreRef: "score.piano.m1.l2.v0",
   goals: {
     child: "Orta Do’yu klavyede bulup parmağınla gösterirsin.",
     teen: "Orta Do’yu ve çevresindeki referans tuşları bulursun.",
@@ -180,9 +166,10 @@ const M1_L2: LessonContent = {
 const CONTENT: Record<string, LessonContent> = {
   [M1_L1.id]: M1_L1,
   [M1_L2.id]: M1_L2,
+  ...M2M4_CONTENT,
 };
 
-/** Load band-aware M1 shell content; generic fallback for other catalog IDs. */
+/** Load band-aware shell; rich M1–M4 subset + generic overlay for remaining spine. */
 export function loadLessonContent(lessonId: string): LessonContent | null {
   if (CONTENT[lessonId]) return CONTENT[lessonId];
 
@@ -191,10 +178,12 @@ export function loadLessonContent(lessonId: string): LessonContent | null {
 
   const title = (band: Band) => lessonTitle(def, band);
 
+  const metrics = gateMetricsForModule(def.moduleId);
   return {
     id: lessonId,
+    scoreRef: def.scoreRef,
     goals: {
-      child: `${title("child")} hedefini öğrenirsin.`,
+      child: `${title("child")} — M${def.moduleId} omurgası. ${metrics.labelTr}.`,
       teen: `${title("teen")} hedefini netleştirirsin.`,
       adult: `${title("adult")} hedefini bilinçli uygularsınız.`,
     },

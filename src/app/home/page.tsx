@@ -7,7 +7,9 @@ import {
   isLessonLocked,
   lessonTitle,
   lessonsForVisiblePath,
+  moduleMapStatuses,
 } from "@/lib/curriculum";
+import { gateMetricsForModule } from "@/lib/gate-metrics";
 import { getPlan } from "@/lib/plans";
 import { quotaSnapshot } from "@/lib/quota";
 import { statusLabelTr } from "@/lib/subscription";
@@ -26,6 +28,11 @@ export default async function HomePage() {
   const open = getLesson(path.openLessonId);
   const openTitle = open ? lessonTitle(open, path.band) : path.openLessonId;
   const visible = lessonsForVisiblePath(path.moduleEntry);
+  const modules = moduleMapStatuses(
+    path.moduleEntry,
+    path.openLessonId,
+    path.completedLessonIds,
+  );
 
   const progressHint =
     path.band === "child"
@@ -107,9 +114,37 @@ export default async function HomePage() {
       </section>
 
       <section className="mt-10">
-        <h2 className="text-sm font-semibold text-foreground">Modül haritası</h2>
+        <h2 className="text-sm font-semibold text-foreground">M1–M4 omurga</h2>
+        <ul className="mt-3 flex flex-wrap gap-2">
+          {modules.map((m) => {
+            const label =
+              m.state === "skipped"
+                ? "atlandı"
+                : m.state === "done"
+                  ? "bitti"
+                  : m.state === "current"
+                    ? "açık"
+                    : "kilitli";
+            return (
+              <li
+                key={m.moduleId}
+                className={`rounded-md px-3 py-1.5 text-xs font-medium ${
+                  m.state === "current"
+                    ? "bg-brand text-white"
+                    : m.state === "done"
+                      ? "bg-brand-soft text-foreground"
+                      : "border border-border bg-surface text-muted"
+                }`}
+                title={gateMetricsForModule(m.moduleId).labelTr}
+              >
+                M{m.moduleId} · {label}
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-4 text-sm font-semibold text-foreground">Ders haritası</p>
         <p className="mt-1 text-xs text-muted">
-          Sıkı sıra: kilitli dersler görünür, tıklanınca S21.
+          Giriş modülünden M4’e kadar · kilitli dersler S21.
         </p>
         <ul className="mt-4 flex flex-col gap-2">
           {visible.map((lesson) => {

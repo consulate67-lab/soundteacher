@@ -7,6 +7,7 @@ import { getAttempt, saveGateResult } from "@/lib/attempt-store";
 import { primaryError } from "@/lib/attempt";
 import { evaluateGateFromAttempt } from "@/lib/feedback-copy";
 import { getLesson, isLessonLocked } from "@/lib/curriculum";
+import { gateMetricsForModule } from "@/lib/gate-metrics";
 import {
   ensureLessonProgress,
   resetLessonToListening,
@@ -110,6 +111,8 @@ export async function evaluateGateAction(lessonId: string) {
     return { error: "Geçersiz Attempt" };
   }
 
+  const lesson = getLesson(lessonId);
+  const metrics = gateMetricsForModule(lesson?.moduleId ?? 1);
   const highPitch = attempt.errorSpans.filter(
     (s) => s.type === "pitch" && s.severity === "high",
   ).length;
@@ -126,6 +129,11 @@ export async function evaluateGateAction(lessonId: string) {
     tolerances: {
       pitchErrorsHigh: highPitch,
       timingErrorsHigh: highTiming,
+      pitchToleranceCents: metrics.pitchToleranceCents,
+      timingToleranceMs: metrics.timingToleranceMs,
+      maxHighPitchErrors: metrics.maxHighPitchErrors,
+      maxHighTimingErrors: metrics.maxHighTimingErrors,
+      scoreRef: lesson?.scoreRef ?? metrics.defaultScoreRef,
     },
     createdAt: new Date().toISOString(),
   });

@@ -4,7 +4,7 @@
 
 Ürün adı: **SoundTeacher** · proje / marka notu: **SoungTeacher**.
 
-Bu depo **Faz 1 / Dilim A–F** iskeletidir.
+Bu depo **Faz 1 / Dilim A–G** iskeletidir.
 
 ## Yerel çalıştırma
 
@@ -14,34 +14,25 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Mikrofon için `localhost` / HTTPS. `npm run build` ücretli API / DB olmadan yeşil.
-
 ## Dilim özeti
 
-| Dilim | İçerik                                     |
-| ----- | ------------------------------------------ |
-| A     | Next.js scaffold, CI, şema                 |
-| B     | Auth.js + Stripe mock, S01–S04             |
-| C     | Yerleştirme + Path Home                    |
-| D     | M1 ders kabuğu                             |
-| E     | Yöntem 1 MediaRecorder + Attempt/Gate stub |
-| F     | Yöntem 2 performans + kota (S22/S34/S45)   |
+| Dilim | İçerik                                                 |
+| ----- | ------------------------------------------------------ |
+| A–B   | Scaffold, Auth.js, Stripe mock                         |
+| C     | Yerleştirme + Path Home                                |
+| D     | M1 ders kabuğu                                         |
+| E–F   | Yöntem 1–2 MediaRecorder + kota                        |
+| G     | **M2–M4 omurga genişletme**, scoreRef, kapı metrikleri |
 
-## Dinleme + kota (E–F)
+## M1–M4 (Dilim G)
 
-- **Y1:** kısa ortam kaydı · yüksek kota
-- **Y2:** uzun performans · bitiş raporu · düşük kota · kayıtta AI sus / canlı hata yok
-- Pluggable `AudioAnalyzer` stub (`src/lib/analysis/`)
-- Handoff’ta yöntem seçimi; Y2 dolunca **S22** → Y1’e düşür (ders kilitlenmez)
+- Ortak spine: `piano.m{1–4}.l{1–6}` (24 ders) · bant başlıkları overlay
+- Zengin kabuk: M1.L1/L2 + M2.L1/L6 + M3.L1/L6 + M4.L1/L6; diğerleri modül-bilinçli generic
+- `scoreRef` stub her derste; kapı derslerinde `score.piano.mN.gate.v0`
+- Kapı metrikleri: `src/lib/gate-metrics.ts` (tunable placeholders)
+- Path Home: M1–M4 durum şeridi + giriş→M4 ders haritası
+- Dinleme Y1/Y2 yeni derslerde aynı akışla çalışır
 
-### Kota kuralları (`src/lib/quota.ts`)
+M5–7 / MIDI: post-MVP.
 
-1. Geçerli tamamlanmış Attempt → 1 birim (yönteme göre)
-2. Geçersiz (sessizlik / gürültü / düşük ses) → **kota yok**
-3. **Abandoned (S45):** Y2 &lt; 5 sn veya “Yarıda bırak” → Attempt `abandoned`, **kota yok**, kapı yok
-
-## Sonraki
-
-Dilim G içerik genişletme · H sertleştirme · MIDI post-MVP.
-
-Mimari: `mvp-teknik-mimari.md` · dinleme: `dinleme-ve-ogretmen-konusmasi.md`.
+Mimari: `mvp-teknik-mimari.md` · M3–4: `modul-3-4.md`.
