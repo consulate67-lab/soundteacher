@@ -1,4 +1,4 @@
-import { firstLessonOfModule } from "./curriculum";
+import { firstLessonOfModule, nextLessonId } from "./curriculum";
 import type { Band } from "./bands";
 import type { AnswerMap, Level, PlacementResult } from "./placement";
 
@@ -111,4 +111,27 @@ export function toPlacementResult(path: PathRecord): PlacementResult {
     module_entry: path.moduleEntry,
     default_session_minutes: path.defaultSessionMinutes,
   };
+}
+
+/** S36→S38: mark lesson complete and open the next lesson (strict sequence). */
+export function unlockNextLesson(
+  userId: string,
+  completedLessonId: string,
+): PathRecord | null {
+  const path = paths().get(userId);
+  if (!path) return null;
+
+  const completed = path.completedLessonIds.includes(completedLessonId)
+    ? path.completedLessonIds
+    : [...path.completedLessonIds, completedLessonId];
+
+  const nextId = nextLessonId(completedLessonId);
+  const updated: PathRecord = {
+    ...path,
+    completedLessonIds: completed,
+    openLessonId: nextId ?? path.openLessonId,
+    updatedAt: new Date().toISOString(),
+  };
+  paths().set(userId, updated);
+  return updated;
 }

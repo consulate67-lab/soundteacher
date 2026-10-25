@@ -176,3 +176,18 @@ export function isLessonLocked(
   if (completedLessonIds.includes(lesson.id)) return false;
   return lesson.id !== openLessonId;
 }
+
+/** Next lesson in catalog order within same module, else first of next module. */
+export function nextLessonId(currentId: string): string | null {
+  const current = getLesson(currentId);
+  if (!current) return null;
+  const sameModule = LESSONS.filter((l) => l.moduleId === current.moduleId).sort(
+    (a, b) => a.order - b.order,
+  );
+  const idx = sameModule.findIndex((l) => l.id === currentId);
+  if (idx >= 0 && idx < sameModule.length - 1) {
+    return sameModule[idx + 1].id;
+  }
+  const nextMod = firstLessonOfModule(current.moduleId + 1);
+  return nextMod?.id ?? null;
+}

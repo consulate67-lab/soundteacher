@@ -17,7 +17,7 @@ export default async function HomePage() {
       </h1>
       <p className="mt-4 max-w-lg text-base leading-relaxed text-muted">
         Abonelik, yaş × seviye öğrenme yolu ve çaldığını dinleyen geri bildirim. Faz 1
-        Dilim A–C: Auth.js, Stripe mock billing, yerleştirme ve Path Home.
+        Dilim A–D: Auth.js, Stripe mock, yerleştirme, Path Home ve M1 ders kabuğu.
       </p>
 
       <div className="mt-10 flex flex-wrap gap-3">
