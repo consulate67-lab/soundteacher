@@ -37,7 +37,7 @@ export async function requireSubscribed() {
 export async function requirePath(): Promise<{
   session: Awaited<ReturnType<typeof requireSession>>;
   subscription: SubscriptionRecord | null;
-  path: NonNullable<ReturnType<typeof getPath>>;
+  path: NonNullable<Awaited<ReturnType<typeof getPath>>>;
 }> {
   const session = await requireSession();
   const subscription = getSubscription(session.user.id);
@@ -46,11 +46,11 @@ export async function requirePath(): Promise<{
     redirect("/billing/past-due");
   }
 
-  const path = getPath(session.user.id);
+  const path = await getPath(session.user.id);
   if (path?.placementComplete) {
     return { session, subscription, path };
   }
-  const draft = getPlacementDraft(session.user.id);
+  const draft = await getPlacementDraft(session.user.id);
   if (draft?.band) {
     redirect("/placement/incomplete");
   }
@@ -68,7 +68,7 @@ export async function requirePlacementAccess() {
 }
 
 /**
- * Lesson surface: paid entitlement OR free deneme lesson (M1.L1–L2).
+ * Lesson surface: paid entitlement OR free deneme lesson (program pack).
  */
 export async function requireLessonEntitlement(lessonId: string) {
   const ctx = await requirePath();

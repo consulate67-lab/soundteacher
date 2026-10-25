@@ -14,6 +14,7 @@ export function VerifyActions() {
     try {
       const res = await fetch("/api/placement", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action }),
       });

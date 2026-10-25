@@ -2,6 +2,11 @@ import { firstLessonOfModule, nextLessonId } from "./curriculum";
 import type { Band } from "./bands";
 import type { AnswerMap, Level, PlacementResult } from "./placement";
 import {
+  clearSignedCookie,
+  readSignedCookie,
+  writeSignedCookie,
+} from "./signed-cookie";
+import {
   nextTrialProgramLessonId,
   trialProgramLessonIds,
 } from "./trial-program";
@@ -29,6 +34,9 @@ export type PlacementDraft = {
   updatedAt: string;
 };
 
+export const PATH_COOKIE = "st_path_v1";
+export const DRAFT_COOKIE = "st_draft_v1";
+
 type PathStore = Map<string, PathRecord>;
 type DraftStore = Map<string, PlacementDraft>;
 
@@ -51,19 +59,60 @@ function drafts(): DraftStore {
   return globalForPath.__soundteacherPlacementDrafts;
 }
 
-export function getPath(userId: string): PathRecord | null {
-  return paths().get(userId) ?? null;
+function isPathRecord(v: unknown): v is PathRecord {
+  if (!v || typeof v !== "object") return false;
+  const p = v as PathRecord;
+  return (
+    typeof p.userId === "string" &&
+    typeof p.band === "string" &&
+    typeof p.level === "string" &&
+    typeof p.moduleEntry === "number" &&
+    typeof p.openLessonId === "string" &&
+    Array.isArray(p.completedLessonIds) &&
+    typeof p.placementComplete === "boolean"
+  );
 }
 
-export function getPlacementDraft(userId: string): PlacementDraft | null {
-  return drafts().get(userId) ?? null;
+/**
+ * Durable Path: memory (same invocation) + signed cookie (survives Vercel cold starts).
+ */
+export async function getPath(userId: string): Promise<PathRecord | null> {
+  const mem = paths().get(userId);
+  if (mem) return mem;
+
+  const fromCookie = await readSignedCookie<PathRecord>(PATH_COOKIE);
+  if (fromCookie && isPathRecord(fromCookie) && fromCookie.userId === userId) {
+    paths().set(userId, fromCookie);
+    return fromCookie;
+  }
+  return null;
 }
 
-export function savePlacementDraft(
+export async function getPlacementDraft(
+  userId: string,
+): Promise<PlacementDraft | null> {
+  const mem = drafts().get(userId);
+  if (mem) return mem;
+
+  const fromCookie = await readSignedCookie<PlacementDraft>(DRAFT_COOKIE);
+  if (fromCookie && fromCookie.userId === userId) {
+    drafts().set(userId, fromCookie);
+    return fromCookie;
+  }
+  return null;
+}
+
+async function persistPath(record: PathRecord): Promise<PathRecord> {
+  paths().set(record.userId, record);
+  await writeSignedCookie(PATH_COOKIE, record);
+  return record;
+}
+
+export async function savePlacementDraft(
   userId: string,
   patch: Partial<Omit<PlacementDraft, "userId" | "updatedAt">>,
-): PlacementDraft {
-  const existing = drafts().get(userId);
+): Promise<PlacementDraft> {
+  const existing = (await getPlacementDraft(userId)) ?? undefined;
   const next: PlacementDraft = {
     userId,
     band: patch.band ?? existing?.band,
@@ -73,23 +122,25 @@ export function savePlacementDraft(
     updatedAt: new Date().toISOString(),
   };
   drafts().set(userId, next);
+  await writeSignedCookie(DRAFT_COOKIE, next);
   return next;
 }
 
-export function clearPlacementDraft(userId: string) {
+export async function clearPlacementDraft(userId: string): Promise<void> {
   drafts().delete(userId);
+  await clearSignedCookie(DRAFT_COOKIE);
+  void userId;
 }
 
-export function createPathFromPlacement(
+export async function createPathFromPlacement(
   userId: string,
   result: PlacementResult,
-): PathRecord {
+): Promise<PathRecord> {
   const first = firstLessonOfModule(result.module_entry);
   const trialIds = trialProgramLessonIds({
     level: result.level,
     moduleEntry: result.module_entry,
   });
-  // Free deneme starts at first trial-program lesson (may be M1 micro before entry).
   const openLessonId = trialIds[0] ?? first?.id ?? "piano.m1.l1";
   const injectedMicroLessons =
     result.level === "A1" ? ["piano.m1.l2", "piano.m1.l4"] : [];
@@ -108,8 +159,8 @@ export function createPathFromPlacement(
     createdAt: now,
     updatedAt: now,
   };
-  paths().set(userId, record);
-  clearPlacementDraft(userId);
+  await persistPath(record);
+  await clearPlacementDraft(userId);
   return record;
 }
 
@@ -123,11 +174,11 @@ export function toPlacementResult(path: PathRecord): PlacementResult {
 }
 
 /** S36→S38: mark lesson complete and open the next lesson (strict sequence). */
-export function unlockNextLesson(
+export async function unlockNextLesson(
   userId: string,
   completedLessonId: string,
-): PathRecord | null {
-  const path = paths().get(userId);
+): Promise<PathRecord | null> {
+  const path = await getPath(userId);
   if (!path) return null;
 
   const completed = path.completedLessonIds.includes(completedLessonId)
@@ -145,6 +196,5 @@ export function unlockNextLesson(
     openLessonId: nextId ?? path.openLessonId,
     updatedAt: new Date().toISOString(),
   };
-  paths().set(userId, updated);
-  return updated;
+  return persistPath(updated);
 }

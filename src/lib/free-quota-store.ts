@@ -1,7 +1,11 @@
 /**
- * In-memory listening quota for users without a Subscription record
- * (free deneme). Paid users use subscription-store counters instead.
+ * Listening quota for free-deneme users — durable via signed cookie on Vercel.
  */
+
+import {
+  readSignedCookie,
+  writeSignedCookie,
+} from "./signed-cookie";
 
 type FreeQuota = {
   userId: string;
@@ -10,6 +14,9 @@ type FreeQuota = {
 };
 
 type Store = Map<string, FreeQuota>;
+
+export const FREE_QUOTA_COOKIE = "st_free_quota_v1";
+const COOKIE = FREE_QUOTA_COOKIE;
 
 const globalForFree = globalThis as unknown as {
   __soundteacherFreeQuota?: Store;
@@ -22,24 +29,32 @@ function store(): Store {
   return globalForFree.__soundteacherFreeQuota;
 }
 
-export function getFreeQuota(userId: string): FreeQuota {
-  const existing = store().get(userId);
-  if (existing) return existing;
+export async function getFreeQuota(userId: string): Promise<FreeQuota> {
+  const mem = store().get(userId);
+  if (mem) return mem;
+
+  const fromCookie = await readSignedCookie<FreeQuota>(COOKIE);
+  if (fromCookie && fromCookie.userId === userId) {
+    store().set(userId, fromCookie);
+    return fromCookie;
+  }
+
   const fresh: FreeQuota = { userId, method1Used: 0, method2Used: 0 };
   store().set(userId, fresh);
   return fresh;
 }
 
-export function consumeFreeQuota(
+export async function consumeFreeQuota(
   userId: string,
   method: "1" | "2",
-): FreeQuota {
-  const current = getFreeQuota(userId);
+): Promise<FreeQuota> {
+  const current = await getFreeQuota(userId);
   const next: FreeQuota = {
     ...current,
     method1Used: method === "1" ? current.method1Used + 1 : current.method1Used,
     method2Used: method === "2" ? current.method2Used + 1 : current.method2Used,
   };
   store().set(userId, next);
+  await writeSignedCookie(COOKIE, next);
   return next;
 }

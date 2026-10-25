@@ -16,7 +16,7 @@ export const metadata: Metadata = {
  */
 export default async function PlacementResultPage() {
   const { session, subscription } = await requirePlacementAccess();
-  const path = getPath(session.user.id);
+  const path = await getPath(session.user.id);
   if (!path?.placementComplete) {
     redirect("/placement");
   }

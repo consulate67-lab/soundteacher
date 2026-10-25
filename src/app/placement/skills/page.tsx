@@ -18,12 +18,12 @@ type Props = {
 /** S11 — Beceri soruları (bantlı metin). */
 export default async function PlacementSkillsPage({ searchParams }: Props) {
   const { session } = await requirePlacementAccess();
-  if (getPath(session.user.id)?.placementComplete) {
-    redirect("/home");
+  if ((await getPath(session.user.id))?.placementComplete) {
+    redirect("/trial-program");
   }
 
   const params = await searchParams;
-  const draft = getPlacementDraft(session.user.id);
+  const draft = await getPlacementDraft(session.user.id);
   const bandParam = params.band && isBand(params.band) ? params.band : draft?.band;
   if (!bandParam) {
     redirect("/placement");

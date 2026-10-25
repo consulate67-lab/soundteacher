@@ -1,7 +1,10 @@
 /**
- * Dilim B mock user registry (in-memory).
- * Auth.js Credentials authorize reads/writes here — no live DB yet.
+ * Dilim B mock user registry.
+ * Stable user ids from email (HMAC/hash) so serverless cold starts don't mint
+ * a new id on re-login and orphan Path cookies.
  */
+
+import { createHash } from "crypto";
 
 export type MockUser = {
   id: string;
@@ -28,6 +31,15 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
+/** Deterministic id — same email → same userId across cold starts. */
+export function stableUserIdFromEmail(email: string): string {
+  const digest = createHash("sha256")
+    .update(`soundteacher:${normalizeEmail(email)}`)
+    .digest("hex")
+    .slice(0, 16);
+  return `usr_${digest}`;
+}
+
 export function findUserByEmail(email: string): MockUser | undefined {
   return store().get(normalizeEmail(email));
 }
@@ -49,6 +61,10 @@ export function upsertMockUser(input: {
   if (existing) {
     const updated: MockUser = {
       ...existing,
+      // Keep stable id even if older records had random ids
+      id: existing.id.startsWith("usr_")
+        ? existing.id
+        : stableUserIdFromEmail(email),
       password: input.password,
       displayName: input.displayName ?? existing.displayName,
     };
@@ -56,7 +72,7 @@ export function upsertMockUser(input: {
     return updated;
   }
   const user: MockUser = {
-    id: `usr_${crypto.randomUUID().replace(/-/g, "").slice(0, 16)}`,
+    id: stableUserIdFromEmail(email),
     email,
     password: input.password,
     displayName: input.displayName?.trim() || null,

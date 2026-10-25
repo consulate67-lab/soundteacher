@@ -37,6 +37,7 @@ export function SkillsForm({ band }: { band: Band }) {
     try {
       const res = await fetch("/api/placement", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "complete", band, answers }),
       });

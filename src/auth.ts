@@ -1,6 +1,10 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { findUserByEmail, upsertMockUser } from "@/lib/users";
+import {
+  findUserByEmail,
+  stableUserIdFromEmail,
+  upsertMockUser,
+} from "@/lib/users";
 
 /**
  * Auth vendor choice (Dilim B): **Auth.js (next-auth v5)** with Credentials.
@@ -59,8 +63,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (existing.password !== password) {
           return null;
         }
+        // Prefer email-stable id so Path cookies survive re-login after cold starts.
+        const id = existing.id.startsWith("usr_")
+          ? existing.id
+          : stableUserIdFromEmail(existing.email);
         return {
-          id: existing.id,
+          id,
           email: existing.email,
           name: existing.displayName ?? existing.email.split("@")[0],
         };

@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 /** S14 — Yerleştirme yarım. */
 export default async function PlacementIncompletePage() {
   const { session } = await requirePlacementAccess();
-  if (getPath(session.user.id)?.placementComplete) {
-    redirect("/home");
+  if ((await getPath(session.user.id))?.placementComplete) {
+    redirect("/trial-program");
   }
 
-  const draft = getPlacementDraft(session.user.id);
+  const draft = await getPlacementDraft(session.user.id);
   const resumeHref = draft?.provisional
     ? needsVerifyHref(draft)
     : draft?.band

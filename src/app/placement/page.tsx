@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 /** S10 — Yaş / bant. */
 export default async function PlacementBandPage() {
   const { session } = await requirePlacementAccess();
-  const path = getPath(session.user.id);
+  const path = await getPath(session.user.id);
   if (path?.placementComplete) {
-    redirect("/home");
+    redirect("/trial-program");
   }
 
   return (

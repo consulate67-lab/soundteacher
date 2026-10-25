@@ -4,10 +4,18 @@ import { isBand, type Band } from "@/lib/bands";
 import { needsVerification, scorePlacement, type AnswerMap } from "@/lib/placement";
 import {
   createPathFromPlacement,
+  DRAFT_COOKIE,
   getPath,
+  PATH_COOKIE,
   savePlacementDraft,
   toPlacementResult,
+  type PathRecord,
+  type PlacementDraft,
 } from "@/lib/path-store";
+import {
+  clearSignedCookieOnResponse,
+  setSignedCookieOnResponse,
+} from "@/lib/signed-cookie";
 import { getSubscription } from "@/lib/subscription-store";
 import { isPastDue } from "@/lib/subscription";
 
@@ -19,12 +27,25 @@ type Body = {
   answers?: AnswerMap;
 };
 
+function jsonWithDraft(data: unknown, draft: PlacementDraft) {
+  const res = NextResponse.json(data);
+  setSignedCookieOnResponse(res, DRAFT_COOKIE, draft);
+  return res;
+}
+
+function jsonWithPath(data: unknown, path: PathRecord) {
+  const res = NextResponse.json(data);
+  setSignedCookieOnResponse(res, PATH_COOKIE, path);
+  clearSignedCookieOnResponse(res, DRAFT_COOKIE);
+  return res;
+}
+
 export async function GET() {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Oturum gerekli" }, { status: 401 });
   }
-  const path = getPath(session.user.id);
+  const path = await getPath(session.user.id);
   return NextResponse.json({
     path: path ? toPlacementResult(path) : null,
     openLessonId: path?.openLessonId ?? null,
@@ -58,13 +79,13 @@ export async function POST(request: Request) {
     if (!body.band || !isBand(body.band)) {
       return NextResponse.json({ error: "Geçersiz bant" }, { status: 400 });
     }
-    const draft = savePlacementDraft(userId, {
+    const draft = await savePlacementDraft(userId, {
       band: body.band,
       answers: {},
       provisional: undefined,
       verificationPassed: undefined,
     });
-    return NextResponse.json({ ok: true, draft });
+    return jsonWithDraft({ ok: true, draft }, draft);
   }
 
   if (action === "score") {
@@ -74,21 +95,24 @@ export async function POST(request: Request) {
     }
     const answers = body.answers ?? {};
     const result = scorePlacement(band, answers);
-    const draft = savePlacementDraft(userId, {
+    const draft = await savePlacementDraft(userId, {
       band,
       answers,
       provisional: result,
     });
-    return NextResponse.json({
-      ok: true,
-      result,
-      needsVerification: needsVerification(result.level),
+    return jsonWithDraft(
+      {
+        ok: true,
+        result,
+        needsVerification: needsVerification(result.level),
+        draft,
+      },
       draft,
-    });
+    );
   }
 
   if (action === "verify_pass" || action === "verify_skip") {
-    const draft = savePlacementDraft(userId, {
+    const draft = await savePlacementDraft(userId, {
       verificationPassed: action === "verify_pass",
     });
     const result = draft.provisional;
@@ -108,12 +132,15 @@ export async function POST(request: Request) {
         level === "A0" ? 1 : level === "A1" ? 2 : level === "A2" ? 4 : 6;
       final = { ...result, level, module_entry };
     }
-    const path = createPathFromPlacement(userId, final);
-    return NextResponse.json({
-      ok: true,
-      result: toPlacementResult(path),
+    const path = await createPathFromPlacement(userId, final);
+    return jsonWithPath(
+      {
+        ok: true,
+        result: toPlacementResult(path),
+        path,
+      },
       path,
-    });
+    );
   }
 
   if (action === "complete") {
@@ -124,20 +151,30 @@ export async function POST(request: Request) {
     const answers = body.answers ?? {};
     const result = scorePlacement(band, answers);
     if (needsVerification(result.level)) {
-      savePlacementDraft(userId, { band, answers, provisional: result });
-      return NextResponse.json({
-        ok: true,
-        result,
-        needsVerification: true,
+      const draft = await savePlacementDraft(userId, {
+        band,
+        answers,
+        provisional: result,
       });
+      return jsonWithDraft(
+        {
+          ok: true,
+          result,
+          needsVerification: true,
+        },
+        draft,
+      );
     }
-    const path = createPathFromPlacement(userId, result);
-    return NextResponse.json({
-      ok: true,
-      result: toPlacementResult(path),
+    const path = await createPathFromPlacement(userId, result);
+    return jsonWithPath(
+      {
+        ok: true,
+        result: toPlacementResult(path),
+        path,
+        needsVerification: false,
+      },
       path,
-      needsVerification: false,
-    });
+    );
   }
 
   return NextResponse.json({ error: "Bilinmeyen action" }, { status: 400 });

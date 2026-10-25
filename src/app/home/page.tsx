@@ -35,7 +35,7 @@ export default async function HomePage() {
   const { session, subscription, path } = await requirePath();
   const paid = hasPaidEntitlement(subscription);
   const plan = subscription ? getPlan(subscription.plan) : null;
-  const quota = resolveQuotaForUser(session.user.id, subscription);
+  const quota = await resolveQuotaForUser(session.user.id, subscription);
   const open = getLesson(path.openLessonId);
   const openTitle = open ? lessonTitle(open, path.band) : path.openLessonId;
   const openAllowed = canAccessLesson(subscription, path.openLessonId, path);

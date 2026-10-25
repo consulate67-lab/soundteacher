@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 /** S12 — Doğrulama kaydı (A2/B1 adayı); ses yok, mock. */
 export default async function PlacementVerifyPage() {
   const { session } = await requirePlacementAccess();
-  if (getPath(session.user.id)?.placementComplete) {
+  if ((await getPath(session.user.id))?.placementComplete) {
     redirect("/placement/result");
   }
-  const draft = getPlacementDraft(session.user.id);
+  const draft = await getPlacementDraft(session.user.id);
   if (!draft?.provisional || !needsVerification(draft.provisional.level)) {
     redirect(draft?.band ? "/placement/skills" : "/placement");
   }

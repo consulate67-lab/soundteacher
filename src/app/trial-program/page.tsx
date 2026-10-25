@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 /** After placement — show tailored free trial lesson program before first lesson. */
 export default async function TrialProgramPage() {
   const { session, subscription } = await requirePlacementAccess();
-  const path = getPath(session.user.id);
+  const path = await getPath(session.user.id);
   if (!path?.placementComplete) {
     redirect("/placement");
   }

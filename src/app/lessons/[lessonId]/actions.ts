@@ -28,7 +28,7 @@ async function requireLessonAccess(lessonId: string) {
 
   const sub = getSubscription(session.user.id);
   if (sub && isPastDue(sub.status)) redirect("/billing/past-due");
-  const path = getPath(session.user.id);
+  const path = await getPath(session.user.id);
   if (!path?.placementComplete) redirect("/placement");
   if (!canAccessLesson(sub, lessonId, path)) {
     redirect(`/lessons/${lessonId}/locked`);
@@ -157,7 +157,7 @@ export async function evaluateGateAction(lessonId: string) {
   });
 
   if (outcome === "pass") {
-    unlockNextLesson(userId, lessonId);
+    await unlockNextLesson(userId, lessonId);
     setLessonPhase(userId, lessonId, "unlock", {
       status: "passed",
       lastGateResult: "pass",

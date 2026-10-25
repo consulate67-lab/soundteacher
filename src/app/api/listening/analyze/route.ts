@@ -7,9 +7,13 @@ import { saveAttempt } from "@/lib/attempt-store";
 import { ensureLessonProgress } from "@/lib/lesson-progress-store";
 import { log } from "@/lib/logger";
 import { getPath } from "@/lib/path-store";
-import { consumeFreeQuota } from "@/lib/free-quota-store";
+import {
+  consumeFreeQuota,
+  FREE_QUOTA_COOKIE,
+} from "@/lib/free-quota-store";
 import { isAbandonedTake, shouldConsumeQuota } from "@/lib/quota";
 import { resolveQuotaForUser } from "@/lib/resolve-quota";
+import { setSignedCookieOnResponse } from "@/lib/signed-cookie";
 import { consumeQuota, getSubscription } from "@/lib/subscription-store";
 import { isPastDue } from "@/lib/subscription";
 import {
@@ -38,7 +42,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Ödeme gecikmiş" }, { status: 403 });
   }
 
-  const path = getPath(userId);
+  const path = await getPath(userId);
   if (!path?.placementComplete) {
     log.warn("api.listening.analyze.forbidden", { userId, reason: "placement" });
     return NextResponse.json({ error: "Yerleştirme gerekli" }, { status: 403 });
@@ -74,7 +78,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const quota = resolveQuotaForUser(userId, sub);
+  const quota = await resolveQuotaForUser(userId, sub);
   const methodAvailable =
     method === "1" ? quota.method1Available : quota.method2Available;
   if (!methodAvailable) {
@@ -168,11 +172,12 @@ export async function POST(request: Request) {
       abandoned: false,
     });
 
+    let freeQuota: Awaited<ReturnType<typeof consumeFreeQuota>> | null = null;
     if (consume) {
       if (hasPaidEntitlement(sub)) {
         consumeQuota(userId, method);
       } else {
-        consumeFreeQuota(userId, method);
+        freeQuota = await consumeFreeQuota(userId, method);
       }
     }
 
@@ -208,13 +213,17 @@ export async function POST(request: Request) {
       formerAudioKey: discard.formerKey,
     });
 
-    return NextResponse.json({
+    const res = NextResponse.json({
       ok: true,
       analyzer: analyzer.name,
       retention: discard.policy,
       attempt,
       quotaConsumed: consume,
     });
+    if (freeQuota) {
+      setSignedCookieOnResponse(res, FREE_QUOTA_COOKIE, freeQuota);
+    }
+    return res;
   } catch (err) {
     log.error("api.listening.analyze.failed", {
       userId,

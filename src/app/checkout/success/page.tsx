@@ -50,7 +50,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
     });
   }
 
-  const path = getPath(session.user.id);
+  const path = await getPath(session.user.id);
   const nextHref = path?.placementComplete ? "/home" : "/placement";
   const nextLabel = path?.placementComplete ? "Path Home’a git" : "Yerleştirmeye başla";
 
