@@ -3,6 +3,7 @@ import { ListeningFeedback } from "@/components/listening-feedback";
 import { ListeningHandoff } from "@/components/listening-handoff";
 import { PostureHandsVisual } from "@/components/posture-hands-visual";
 import { TeacherBubble } from "@/components/teacher-bubble";
+import { TeachingSteps } from "@/components/teaching-steps";
 import type { Band } from "@/lib/bands";
 import { getAttempt, getLastAttemptForLesson } from "@/lib/attempt-store";
 import { primaryError } from "@/lib/attempt";
@@ -86,16 +87,11 @@ export async function LessonSession({
             />
           ))}
           {content.theorySteps && content.theorySteps.length > 0 ? (
-            <div className="st-panel px-4 py-3">
-              <p className="text-xs font-medium uppercase tracking-[0.12em] text-accent">
-                Ne yapacaksın
-              </p>
-              <ol className="mt-2 list-decimal space-y-2 pl-5 text-sm leading-relaxed">
-                {content.theorySteps.map((step, i) => (
-                  <li key={i}>{pickBand(step, band)}</li>
-                ))}
-              </ol>
-            </div>
+            <TeachingSteps
+              title="Ne yapacaksın"
+              steps={content.theorySteps}
+              band={band}
+            />
           ) : null}
           <form action={advanceToPracticeAction.bind(null, lessonId)}>
             <button
@@ -113,17 +109,15 @@ export async function LessonSession({
           <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
             Pratik
           </h2>
-          {visual === "posture-hands" ? <PostureHandsVisual /> : null}
-          <div className="st-panel px-4 py-3">
-            <p className="text-xs font-medium uppercase tracking-[0.12em] text-accent">
-              Adım adım
-            </p>
-            <ol className="mt-2 list-decimal space-y-2.5 pl-5 text-sm leading-relaxed">
-              {content.practiceSteps.map((step, i) => (
-                <li key={i}>{pickBand(step, band)}</li>
-              ))}
-            </ol>
-          </div>
+          {visual === "posture-hands" &&
+          !content.practiceSteps.some((s) => s.demo) ? (
+            <PostureHandsVisual />
+          ) : null}
+          <TeachingSteps
+            title="Adım adım"
+            steps={content.practiceSteps}
+            band={band}
+          />
           {content.practiceBubbles.map((b, i) => (
             <TeacherBubble key={i} text={pickBand(b, band)} band={band} />
           ))}

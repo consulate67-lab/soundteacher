@@ -9,6 +9,7 @@ export type {
   LessonContent,
   ListeningMethod,
   PracticeVisual,
+  TeachingStep,
 } from "./lesson-content-types";
 export { isListeningRequired, practiceVisualOf } from "./lesson-content-types";
 
@@ -39,16 +40,19 @@ const M1_L1: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m1-l1-sit",
       child: "Sandalyeyi piyanoya yaklaştır — dirseğin rahat açılsın.",
       teen: "Sandalyeyi ayarla: dirsek doğal açı, ayaklar yerde.",
       adult: "Sandalyeyi ayarlayın: ayaklar yerde, dirsek doğal açı.",
     },
     {
+      demo: "m1-l1-sit",
       child: "Omuzlarını düşür; bileğini düz tut.",
       teen: "Omuzları bırak; bileği nötr tut.",
       adult: "Omuzları bilinçli bırakın; bileği nötr hizada tutun.",
     },
     {
+      demo: "m1-l1-hands-rest",
       child: "Parmaklarını yumuşak kıvrımla tuşların üstüne koy — henüz basma.",
       teen: "Parmakları yumuşak kemerle tuşlara koy; baskı yok.",
       adult: "Parmakları yumuşak kemerle tuşlara yerleştirin; henüz ses yok.",
@@ -56,22 +60,26 @@ const M1_L1: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m1-l1-sit",
       child: "1) Otur: ayaklar yerde, sırt dik ama sert değil.",
       teen: "1) Oturuş: ayaklar yerde, omurga uzun, omuzlar düşük.",
       adult: "1) Oturuşu sabitleyin: ayaklar yerde, omuzlar düşük, mesafe dirsek rahat.",
     },
     {
+      demo: "m1-l1-hands-rest",
       child: "2) Ellerini tuşların üstüne koy; 10 saniye hiç basmadan dur.",
       teen: "2) Elleri tuşlara koy; 4 ölçü boyunca basmadan tut.",
       adult: "2) Elleri tuşlara koyun; ~30–60 sn sessiz tutuş (basmadan).",
     },
     {
+      demo: "m1-l1-sit",
       child: "3) Omuzunu yukarı çekip bırak — yumuşak olsun. Tekrar et.",
       teen: "3) Omuzları bilerek kaldır-bırak; iki nefes tut. Kontrol et.",
       adult:
         "3) Omuzları bilinçli kaldırıp bırakın; iki nefes boyunca bilek nötr kalsın.",
     },
     {
+      demo: "m1-l1-hands-rest",
       child: "4) Aynaya veya bakıcıya sor: omuz düşük mü, bilek düz mü?",
       teen: "4) Kısa kontrol: omuz düşük, bilek düz, mesafe rahat mı?",
       adult: "4) Öz kontrol: omuz, bilek, mesafe — üçü de rahat mı?",
@@ -161,11 +169,13 @@ const M1_L2: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m1-l2-black-2",
       child: "Klavyede iki siyahlı bir grup bul.",
       teen: "Bir 2’li siyah grup işaretle.",
       adult: "Bir 2’li siyah grubu bulun ve gösterin.",
     },
     {
+      demo: "m1-l2-black-3",
       child: "Yanında üç siyahlı grubu bul.",
       teen: "Hemen yanındaki 3’lü grubu bul.",
       adult: "Komşu 3’lü siyah grubu doğrulayın.",
@@ -173,16 +183,19 @@ const M1_L2: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m1-l2-black-2",
       child: "1) İki siyahlı grubu üç kez göster.",
       teen: "1) 2’li grup → 3’lü grup → yine 2’li; tempo yok.",
       adult: "1) 2’li ve 3’lü grupları sırayla işaretleyin; acele etmeyin.",
     },
     {
+      demo: "m1-l2-black-2",
       child: "2) Ellerini kaldır, başka yerde yine iki siyah bul.",
       teen: "2) Elleri kaldır; bir oktav sağda aynı 2’liyi bul.",
       adult: "2) Elleri kaldırıp başka oktavda aynı 2’li grubu bulun.",
     },
     {
+      demo: "m1-l2-black-3",
       child: "3) Üç siyahlı grubu bul; parmağınla say: bir-iki-üç.",
       teen: "3) 3’lü grubu bul; sol ve sağ yönünü söyle.",
       adult: "3) 3’lü grubu bulun; kalın/ince yönünü sözlü doğrulayın.",
@@ -262,11 +275,13 @@ const M1_L3: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m1-l1-hands-rest",
       child: "Eli bırak — yürürken sallanır gibi.",
       teen: "Eli asılı bırak; bileği sıkma.",
       adult: "Eli doğal asılı bırakın; bileği sıkmayın.",
     },
     {
+      demo: "m1-l3-fingers-2",
       child: "İki siyahın üstüne 2 ve 3. parmağı koy.",
       teen: "2’li siyah grubuna 2–3 yerleştir.",
       adult: "2’li gruba 2–3 parmakları yerleştirin.",
@@ -274,21 +289,25 @@ const M1_L3: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m1-l3-fingers-2",
       child: "1) Sağ el: iki siyaha tek tek dokun — yavaş.",
       teen: "1) RH 2’li: 3 sonra 2; sonra birlikte bir kez.",
       adult: "1) Sağ el 2’li: ayrı sonra birlikte; omuz düşük kalsın.",
     },
     {
+      demo: "m1-l3-fingers-2",
       child: "2) Aynı şeyi sol elle yap — kalın tarafta.",
       teen: "2) LH 2’li: 2 sonra 3; sonra birlikte.",
       adult: "2) Sol el 2’li aynı düzen; kalın oktav.",
     },
     {
+      demo: "m1-l3-fingers-3",
       child: "3) Üç siyah: 2-3-4 ile tek tek, sonra birlikte.",
       teen: "3) RH 3’lü yürüyüş; sonra LH.",
       adult: "3) 3’lü siyah yürüyüşü sağ sonra sol; tempo düşük.",
     },
     {
+      demo: "m1-l3-fingers-3",
       child: "4) 2’li → 3’lü → 2’li diye ilerle (sağa doğru).",
       teen: "4) 2’li–3’lü zincir; bir oktav sağa, geri dön.",
       adult: "4) 2’li–3’lü zinciri birkaç oktav; geri dönüş ekleyin.",
@@ -363,11 +382,13 @@ const M1_L4: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m1-l2-black-2",
       child: "İki siyahlı grubu bul.",
       teen: "2’li siyah grubu bul.",
       adult: "2’li siyah grubu bulun.",
     },
     {
+      demo: "m1-l4-middle-c",
       child: "Solundaki beyaz tuşa dokun — o Do.",
       teen: "Solundaki beyaza dokun; adını söyle: Do.",
       adult: "Solundaki beyaza dokunun; Do referansını beş kez tekrarlayın.",
@@ -375,16 +396,19 @@ const M1_L4: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m1-l4-middle-c",
       child: "Orta Do’ya üç kez dokun.",
       teen: "Orta Do → bir oktav üst Do (parmakla göster).",
       adult: "Gözler kapalı denemeden önce 5 kez bulun.",
     },
     {
+      demo: "m1-l4-middle-c",
       child: "Ellerini kaldır, yine bul — yavaş.",
       teen: "Elleri kaldırıp yeniden bul; tempo yok.",
       adult: "Elleri kaldırıp yeniden bulun; acele etmeyin.",
     },
     {
+      demo: "m1-l2-black-2",
       child: "Başka iki siyahlı grubun solunda da Do var — dene.",
       teen: "İki oktavda Do’ları sırayla göster.",
       adult: "Birkaç oktavda tüm Do’ları sırayla doğrulayın.",
@@ -459,11 +483,13 @@ const M1_L5: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m1-l5-five-finger",
       child: "Başparmağı orta Do’ya koy.",
       teen: "1’i orta Do’ya; 2–5’i yan beyazlara.",
       adult: "1’i orta Do’ya yerleştirin; 2–5’i Do pozisyonuna dizin.",
     },
     {
+      demo: "m1-l5-five-finger",
       child: "Parmakları say: 1 2 3 4 5.",
       teen: "Numaraları sesli say, sonra sessiz çal.",
       adult: "Parmak numaralarını bir kez sesli, sonra sessiz uygulayın.",
@@ -471,11 +497,13 @@ const M1_L5: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m1-l5-five-finger",
       child: "1-2-3-4-5 yukarı, 5-4-3-2-1 aşağı — yavaş.",
       teen: "1–5 legato iki tur; tempo yok.",
       adult: "1–5 ve 5–1; üç tur, eşit süre.",
     },
     {
+      demo: "m1-l5-drm",
       child: "Do Re Mi Re Do — üç kez.",
       teen: "Do–Sol çıkış-iniş; iki kez.",
       adult: "Do–Sol melodik çizgi; üç tekrar.",
@@ -543,6 +571,7 @@ const M1_L6: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m1-l4-middle-c",
       child: "Önce iki siyahlı grubu ve orta Do’yu göster.",
       teen: "2’li grup → orta Do → Do pozisyonu.",
       adult: "2’li grup, orta Do ve Do pozisyonunu sırayla doğrulayın.",
@@ -550,6 +579,7 @@ const M1_L6: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m1-l6-gate",
       child: "Orta Do’yu bul; Do Re Mi Re Do çal — yavaş.",
       teen: "Kapı motifi: Do–Re–Mi–Re–Do + 1–5 yürüyüş.",
       adult: "Kapı: orta Do doğrula; Do–Sol kısa çizgi; baştan sona kaydedin.",
