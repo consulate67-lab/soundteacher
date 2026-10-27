@@ -24,7 +24,7 @@ Educational loop — correct piano sitting (oturuş). Pexels Charles Parker + Mi
 
 | File | Lesson beat | Camera | Audio | Source |
 | --- | --- | --- | --- | --- |
-| `m1-l1-sit` | Oturuş / mesafe | Side (posture) | Silence bed | [Pexels 6647098](https://www.pexels.com/video/side-view-of-woman-playing-piano-6647098/) Charles Parker |
+| `m1-l1-sit` | Oturuş / mesafe | Side (posture) | Silence bed | [Pexels 8265554](https://www.pexels.com/video/8265554/) (posture side; prior 6647098 unavailable) |
 | `m1-l1-hands-rest` | Eller tuşta basmadan | Top-down | Silence (no press) | [Mixkit 45552](https://mixkit.co/free-stock-video/view-from-above-of-a-woman-playing-the-piano-45552/) |
 | `m1-l2-black-2` | İki siyahlı grup | High-angle overhead | FluidR3 Db4/Eb4 | [Pexels 5390438](https://www.pexels.com/video/high-angle-shot-of-a-person-playing-piano-5390438/) Gustavo Fring |
 | `m1-l2-black-3` | Üç siyahlı grup | Top view | FluidR3 Gb/Ab/Bb | [Mixkit 46734](https://mixkit.co/free-stock-video/top-view-of-a-girl-playing-a-piano-46734/) |
@@ -57,5 +57,6 @@ Licenses: [Pexels License](https://www.pexels.com/license/), [Mixkit License](ht
 ### Notes
 
 - Stock piano video is typically **silent**; acoustic notes are layered so the taught pitch is audible while TR captions keep the landing target explicit.
-- **A/V sync:** note-ons are locked to motion peaks on the final cut (`peak − ~1 frame`). Clips are one teaching take (no looping montage). If stock shows fewer clear presses than the full phrase, audio is retargeted to the visible presses only.
+- **Pacing:** ~2 s intro hold (hands on keys) → action → ~2 s outro hold. Typical total ~5–7 s. One teaching take (no looping montage).
+- **A/V sync:** note-ons are locked to motion peaks on the final cut (`peak − ~1 frame`). If stock shows fewer clear presses than the full phrase, audio is retargeted to the visible presses only.
 - Exact single-finger stop on a labeled “Do” key remains approximate when the source clip doesn’t isolate that key — captions + overhead framing + matching pitch teach the intent for MVP.
