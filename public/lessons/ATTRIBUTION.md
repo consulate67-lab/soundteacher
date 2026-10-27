@@ -57,6 +57,6 @@ Licenses: [Pexels License](https://www.pexels.com/license/), [Mixkit License](ht
 ### Notes
 
 - Stock piano video is typically **silent**; acoustic notes are layered so the taught pitch is audible while TR captions keep the landing target explicit.
-- **Pacing:** ~2 s intro hold (hands on keys) → action → ~2 s outro hold. Typical total ~5–7 s. One teaching take (no looping montage).
-- **A/V sync:** note-ons are locked to motion peaks on the final cut (`peak − ~1 frame`). If stock shows fewer clear presses than the full phrase, audio is retargeted to the visible presses only.
+- **Pacing:** continuous overhead stock (~8.5–10 s). Moving prep → press → settle — **no freeze-frame pads**. One teaching take (no looping montage).
+- **A/V sync:** note-ons locked to motion peaks on the final continuous cut (`peak − ~40 ms`). Silence when not pressing; picture keeps moving. Fewer notes if stock lacks clear presses.
 - Exact single-finger stop on a labeled “Do” key remains approximate when the source clip doesn’t isolate that key — captions + overhead framing + matching pitch teach the intent for MVP.
