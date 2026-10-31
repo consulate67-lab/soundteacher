@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { demoMeta } from "@/lib/lesson-demos";
 
 type Props = {
@@ -8,9 +9,24 @@ type Props = {
   variant?: "full" | "inline";
 };
 
-/** Real-human hand demo for a teaching step (overhead + piano audio when notes are taught). */
+/**
+ * Real-human overhead hand demo with FluidR3 piano audio when notes are taught.
+ * - Unmuted (user gesture via controls / play)
+ * - MP4 preferred over WebM for cleaner A/V sync
+ * - One take (no loop) so attack/press stay perceptually locked
+ */
 export function StepDemoPlayer({ demoId, variant = "full" }: Props) {
   const meta = demoMeta(demoId);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    // Reset to start when the teaching step's demo changes — avoid mid-clip resume
+    el.pause();
+    el.currentTime = 0;
+  }, [demoId]);
+
   if (!meta) return null;
 
   return (
@@ -23,18 +39,20 @@ export function StepDemoPlayer({ demoId, variant = "full" }: Props) {
       aria-label={meta.titleTr}
     >
       <video
+        ref={videoRef}
+        key={demoId}
         className="aspect-video w-full object-cover"
         controls
         playsInline
-        loop
-        preload="metadata"
+        preload="auto"
         poster={`${meta.base}-poster.jpg`}
       >
-        <source src={`${meta.base}.webm`} type="video/webm" />
+        {/* MP4 first: AAC + H.264 keeps note-on aligned; WebM was audio-leading ~7ms */}
         <source src={`${meta.base}.mp4`} type="video/mp4" />
+        <source src={`${meta.base}.webm`} type="video/webm" />
       </video>
       <figcaption className="border-t border-border/60 px-3 py-1.5 text-[0.7rem] text-muted">
-        {meta.titleTr} · üstten · gerçek eller
+        {meta.titleTr} · üstten · gerçek eller · ses açık
       </figcaption>
     </figure>
   );
