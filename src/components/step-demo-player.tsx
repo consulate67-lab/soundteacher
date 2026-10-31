@@ -14,6 +14,9 @@ type Props = {
  * - Unmuted (user gesture via controls / play)
  * - MP4 preferred over WebM for cleaner A/V sync
  * - One take (no loop) so attack/press stay perceptually locked
+ *
+ * A/V lead is baked into the media (note-on ≈ motion-rise − 100 ms). Muxed
+ * MP4 cannot offset audio vs video independently; do not seek on play for sync.
  */
 export function StepDemoPlayer({ demoId, variant = "full" }: Props) {
   const meta = demoMeta(demoId);
