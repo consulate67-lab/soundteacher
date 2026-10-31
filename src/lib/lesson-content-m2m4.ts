@@ -27,6 +27,7 @@ export const M2_L1: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m2-l1-do-link",
       child: "Sol anahtarını bul; beş çizgiyi say.",
       teen: "Sol anahtarını işaretle; orta Do’nun geleceği yeri gör.",
       adult: "Sol anahtarı + porte çizgilerini tarif edin; parmak 1–5’i tekrarlayın.",
@@ -34,11 +35,13 @@ export const M2_L1: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m2-l1-do-link",
       child: "Sol anahtarını bul; orta Do’nun çizgisini bakıcıyla göster.",
       teen: "Porte üzerinde sol anahtarı + ‘Do buraya gelecek’ noktasını işaretle.",
       adult: "Sol anahtarı, porte ve parmak numaralarını checklist ile doğrulayın.",
     },
     {
+      demo: "m2-l1-fingers",
       child: "Parmaklarını say: 1 2 3 4 5 — tuşa basmadan.",
       teen: "1–5 numaralarını sağ elde sessiz göster.",
       adult: "1–5 numaralarını her iki elde sessiz gösterin.",
@@ -108,11 +111,13 @@ export const M2_L2: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m2-l2-middle-c",
       child: "Notadaki Do’yu göster; tuştaki orta Do’ya dokun.",
       teen: "Porte Do ↔ tuş Do eşle.",
       adult: "Portedeki orta Do’yu tuşta beş kez eşleyin.",
     },
     {
+      demo: "m2-l2-duration",
       child: "Kısa Do, uzun Do — dinle, sonra çal.",
       teen: "Dörtlük Do ×2 + ikilik Do.",
       adult: "Dörtlük ve ikilik Do’yu 4/4 içinde sayarak çalın.",
@@ -120,11 +125,13 @@ export const M2_L2: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m2-l2-duration",
       child: "Orta Do’yu üç kez kısa, bir kez uzun çal.",
       teen: "Ölçü: dörtlük×2 + ikilik Do — iki tur.",
       adult: "Yazılı ritim: dörtlük / ikilik karışımı; yavaş sayarak.",
     },
     {
+      demo: "m2-l2-drm",
       child: "Do Re Mi — hepsi kısa; sonra Do uzun.",
       teen: "Do–Re–Mi dörtlük; Do ikilik kapanış.",
       adult: "Do–Re–Mi çizgisi + ikilik kapanış; iki birleşik tur.",
@@ -189,6 +196,7 @@ export const M2_L3: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m2-l3-re",
       child: "Do’yu bul; bir üst beyaz = Re.",
       teen: "Do → Re; Do → Si (aşağı).",
       adult: "Do referansından Re ve Si’yi türetin; portede konumlarını tarif edin.",
@@ -196,11 +204,13 @@ export const M2_L3: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m2-l3-re",
       child: "Do Re Do — üç kez. Sonra Do Si Do.",
       teen: "Re–Do–Si–Do kısa motif; iki tur.",
       adult: "Re/Si flash + kısa motif; yavaş birleştirin.",
     },
     {
+      demo: "m2-l3-si",
       child: "Re’ye ve Si’ye tek tek dokun; adını söyle.",
       teen: "Karışık Re/Si kartlarını çal.",
       adult: "Rastgele Re/Si; %80 doğruluk, acele yok.",
@@ -265,6 +275,7 @@ export const M2_L4: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m2-l4-mi",
       child: "Do Re Mi say; Mi’de dur.",
       teen: "Do pozisyonunda 3 = Mi; La’yı üstte bul.",
       adult: "Mi ve La konumlarını Do referansından türetin.",
@@ -272,11 +283,13 @@ export const M2_L4: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m2-l4-mi",
       child: "Do Mi Do — 1 ve 3. parmak. Üç kez.",
       teen: "1–3 Mi vurgusu; sonra La ekle.",
       adult: "1–3 drili + Mi/La kısa ezgi; eşit attack.",
     },
     {
+      demo: "m2-l4-la",
       child: "Mi La Mi — yavaş.",
       teen: "Mi–La–Mi–Do motif; iki tur.",
       adult: "Mi/La flash + motif birleşik tur.",
@@ -341,6 +354,7 @@ export const M2_L5: LessonContent = {
   ],
   theorySteps: [
     {
+      demo: "m2-l5-fa-sol",
       child: "Do’dan Sol’a çık: Do Re Mi Fa Sol.",
       teen: "4=Fa, 5=Sol; çıkış-iniş.",
       adult: "Fa ve Sol’u portede ve tuşta eşleyin; röpriz fikrini söyleyin.",
@@ -348,11 +362,13 @@ export const M2_L5: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m2-l5-do-sol",
       child: "Do’dan Sol’a çık, Sol’dan Do’ya in — iki kez (ikinci = tekrar).",
       teen: "Fa–Sol vurgulu motif; sonra tüm Do–Sol; röpriz bir tur.",
       adult: "Do–Sol çizgisi + röpriz turu; tempo sabit tutun.",
     },
     {
+      demo: "m2-l5-fa-sol",
       child: "Fa Sol Fa Sol — sonra Do.",
       teen: "Kısa Fa/Sol etüt + tekrar işareti hayali.",
       adult: "Fa/Sol flash; ardından işaretli tekrarla birleşik parça.",
@@ -417,6 +433,7 @@ export const M2_L6: LessonContent = {
   ],
   practiceSteps: [
     {
+      demo: "m2-l6-gate",
       child: "Kapı şarkını çal ve kaydet — Do’dan Sol’a, kısa ve uzun seslerle.",
       teen: "Kapı parçasını kaydet; skoruna bak.",
       adult: "Tam kayıt; hata listesini çalışın.",
