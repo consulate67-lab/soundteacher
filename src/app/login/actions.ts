@@ -12,9 +12,7 @@ export async function loginAction(
   const password = String(formData.get("password") ?? "");
   const rawCallback = String(formData.get("callbackUrl") ?? "/home");
   const redirectTo =
-    rawCallback.startsWith("/") && !rawCallback.startsWith("//")
-      ? rawCallback
-      : "/home";
+    rawCallback.startsWith("/") && !rawCallback.startsWith("//") ? rawCallback : "/home";
 
   if (!email.includes("@") || password.length < 8) {
     return { error: "Geçerli bir e-posta ve şifre gir." };

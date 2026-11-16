@@ -19,6 +19,8 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
+      // Sibling Vite app — own toolchain (oxlint); do not lint with Next ESLint
+      "falling-notes/**",
     ],
   },
 ];

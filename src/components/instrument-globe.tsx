@@ -21,11 +21,7 @@ const INSTRUMENTS: Instrument[] = [
 /**
  * CSS 3D “world of instruments” orb — Piano active → signup; others “yakında”.
  */
-export function InstrumentGlobe({
-  ctaHref = "/signup",
-}: {
-  ctaHref?: string;
-}) {
+export function InstrumentGlobe({ ctaHref = "/signup" }: { ctaHref?: string }) {
   const [paused, setPaused] = useState(false);
   const [tilt, setTilt] = useState(0);
 
@@ -74,8 +70,8 @@ export function InstrumentGlobe({
         </div>
       </div>
       <p className="mt-4 text-center text-xs text-white/70">
-        Dünyayı çevir — şimdi <strong className="text-accent">Piyano</strong> açık;
-        diğer enstrümanlar yakında.
+        Dünyayı çevir — şimdi <strong className="text-accent">Piyano</strong> açık; diğer
+        enstrümanlar yakında.
       </p>
     </div>
   );

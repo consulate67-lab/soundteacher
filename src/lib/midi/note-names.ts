@@ -1,4 +1,17 @@
-const NAMES = ["Do", "Do#", "Re", "Re#", "Mi", "Fa", "Fa#", "Sol", "Sol#", "La", "La#", "Si"] as const;
+const NAMES = [
+  "Do",
+  "Do#",
+  "Re",
+  "Re#",
+  "Mi",
+  "Fa",
+  "Fa#",
+  "Sol",
+  "Sol#",
+  "La",
+  "La#",
+  "Si",
+] as const;
 
 /** Turkish-ish note label from MIDI number (C4 = 60 → Do). */
 export function midiNoteLabel(note: number): string {

@@ -47,10 +47,7 @@ export function quotaSnapshot(sub: SubscriptionRecord): QuotaSnapshot {
   };
 }
 
-export function canUseMethod(
-  sub: SubscriptionRecord,
-  method: "1" | "2" | "3",
-): boolean {
+export function canUseMethod(sub: SubscriptionRecord, method: "1" | "2" | "3"): boolean {
   const q = quotaSnapshot(sub);
   if (method === "2") return q.method2Available;
   // Method 3 shares the high Method 1 quota bucket

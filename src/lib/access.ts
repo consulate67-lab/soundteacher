@@ -3,10 +3,7 @@ import { auth } from "@/auth";
 import { getPath, getPlacementDraft } from "@/lib/path-store";
 import { getSubscription } from "@/lib/subscription-store";
 import { isPastDue, type SubscriptionRecord } from "@/lib/subscription";
-import {
-  canAccessLesson,
-  hasPaidEntitlement,
-} from "@/lib/trial-access";
+import { canAccessLesson, hasPaidEntitlement } from "@/lib/trial-access";
 
 export async function requireSession() {
   const session = await auth();

@@ -242,8 +242,8 @@ export function Method3Recorder({
           </h3>
           <TeacherBubble text={midiUnsupportedBubble(band)} band={band} />
           <p className="text-sm text-muted">
-            Chrome veya Edge + USB MIDI klavye önerilir. Bu derste Yöntem 1 / 2 ile
-            devam edebilirsin.
+            Chrome veya Edge + USB MIDI klavye önerilir. Bu derste Yöntem 1 / 2 ile devam
+            edebilirsin.
           </p>
           {onFallbackMic ? (
             <button
@@ -336,7 +336,9 @@ export function Method3Recorder({
       ) : null}
 
       {ui === "uploading" ? (
-        <p className="text-sm text-muted">MIDI analiz ediliyor… geri bildirim hazırlanıyor</p>
+        <p className="text-sm text-muted">
+          MIDI analiz ediliyor… geri bildirim hazırlanıyor
+        </p>
       ) : null}
 
       {ui === "invalid" && invalidReason ? (

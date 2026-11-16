@@ -8,7 +8,7 @@ Bu depo **Faz 1 / Dilim A–H** MVP iskeletidir (sertleştirme dahil).
 
 ## Preferred: production on Vercel
 
-**Production URL:** https://soundteacher-consulate67-gmailcoms-projects.vercel.app  
+**Production URL:** https://soundteacher-consulate67-gmailcoms-projects.vercel.app
 
 **Use that URL for testing** — not `npm run dev` / localhost, unless you are editing code locally.
 
@@ -21,12 +21,12 @@ App is standard **Next.js** App Router (`vercel.json`). In-memory stores reset o
 3. Framework: **Next.js** (auto) → **Deploy**
 4. **Settings → Environment Variables** → add, then **Redeploy**:
 
-| Name | Required? | Value |
-| --- | --- | --- |
-| `AUTH_SECRET` | **Yes** | run `openssl rand -base64 32` and paste |
-| `AUTH_URL` | Optional | `https://YOUR-PROJECT.vercel.app` |
-| `STRIPE_*` | No | leave empty → mock billing |
-| `DATABASE_URL` / `S3_*` / `TTS_*` | No | unused in MVP mock |
+| Name                              | Required? | Value                                   |
+| --------------------------------- | --------- | --------------------------------------- |
+| `AUTH_SECRET`                     | **Yes**   | run `openssl rand -base64 32` and paste |
+| `AUTH_URL`                        | Optional  | `https://YOUR-PROJECT.vercel.app`       |
+| `STRIPE_*`                        | No        | leave empty → mock billing              |
+| `DATABASE_URL` / `S3_*` / `TTS_*` | No        | unused in MVP mock                      |
 
 5. Copy the Production URL (`https://….vercel.app`) and use that for QA.
 
@@ -34,8 +34,8 @@ App is standard **Next.js** App Router (`vercel.json`). In-memory stores reset o
 
 Cloud agent **cannot** create a sticky production URL without a Vercel token:
 
-1. [vercel.com/account/tokens](https://vercel.com/account/tokens) → create token  
-2. Add secret **`VERCEL_TOKEN`** to the Cursor cloud agent / environment (and optionally `VERCEL_ORG_ID` + `VERCEL_PROJECT_ID` after first `vercel link`)  
+1. [vercel.com/account/tokens](https://vercel.com/account/tokens) → create token
+2. Add secret **`VERCEL_TOKEN`** to the Cursor cloud agent / environment (and optionally `VERCEL_ORG_ID` + `VERCEL_PROJECT_ID` after first `vercel link`)
 3. Re-run agent → `npx vercel deploy --prod --yes` with `AUTH_SECRET` set on the project
 
 ```bash
@@ -79,15 +79,15 @@ Yöntem 2 (performans) handoff’tan seçilebilir; kota dolunca Y1’e düşer.
 
 ## Dilim özeti
 
-| Dilim | İçerik |
-| --- | --- |
-| A–B | Scaffold, Auth.js, Stripe mock |
-| C | Yerleştirme + Path Home |
-| D | M1 ders kabuğu |
-| E–F | Yöntem 1–2 MediaRecorder + kota |
-| E+ | Yöntem 3 Web MIDI (USB klavye) |
-| G | M2–M4 omurga, scoreRef, kapı metrikleri |
-| H | **PWA**, structured log, Saklama A, Web Speech TTS |
+| Dilim | İçerik                                             |
+| ----- | -------------------------------------------------- |
+| A–B   | Scaffold, Auth.js, Stripe mock                     |
+| C     | Yerleştirme + Path Home                            |
+| D     | M1 ders kabuğu                                     |
+| E–F   | Yöntem 1–2 MediaRecorder + kota                    |
+| E+    | Yöntem 3 Web MIDI (USB klavye)                     |
+| G     | M2–M4 omurga, scoreRef, kapı metrikleri            |
+| H     | **PWA**, structured log, Saklama A, Web Speech TTS |
 
 ## Dilim H notları
 

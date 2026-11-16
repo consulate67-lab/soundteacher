@@ -132,7 +132,20 @@ function invalid(
 }
 
 function pcName(pc: number): string {
-  const names = ["Do", "Do#", "Re", "Re#", "Mi", "Fa", "Fa#", "Sol", "Sol#", "La", "La#", "Si"];
+  const names = [
+    "Do",
+    "Do#",
+    "Re",
+    "Re#",
+    "Mi",
+    "Fa",
+    "Fa#",
+    "Sol",
+    "Sol#",
+    "La",
+    "La#",
+    "Si",
+  ];
   return names[((pc % 12) + 12) % 12]!;
 }
 

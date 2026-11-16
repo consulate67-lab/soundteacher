@@ -3,13 +3,7 @@
  */
 
 export type LessonPhase =
-  | "theory"
-  | "practice"
-  | "listening"
-  | "feedback"
-  | "gate_pass"
-  | "gate_fail"
-  | "unlock";
+  "theory" | "practice" | "listening" | "feedback" | "gate_pass" | "gate_fail" | "unlock";
 
 export type LessonProgressRecord = {
   userId: string;

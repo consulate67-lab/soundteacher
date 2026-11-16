@@ -3,26 +3,17 @@ import { auth } from "@/auth";
 import { getAudioAnalyzer } from "@/lib/analysis";
 import type { AttemptRecord } from "@/lib/attempt";
 import { discardAudioAfterAnalysis } from "@/lib/audio-retention";
-import {
-  persistLessonSessionOnResponse,
-  saveAttemptInMemory,
-} from "@/lib/attempt-store";
+import { persistLessonSessionOnResponse, saveAttemptInMemory } from "@/lib/attempt-store";
 import { ensureLessonProgress } from "@/lib/lesson-progress-store";
 import { log } from "@/lib/logger";
 import { getPath } from "@/lib/path-store";
-import {
-  consumeFreeQuota,
-  FREE_QUOTA_COOKIE,
-} from "@/lib/free-quota-store";
+import { consumeFreeQuota, FREE_QUOTA_COOKIE } from "@/lib/free-quota-store";
 import { isAbandonedTake, shouldConsumeQuota } from "@/lib/quota";
 import { resolveQuotaForUser } from "@/lib/resolve-quota";
 import { setSignedCookieOnResponse } from "@/lib/signed-cookie";
 import { consumeQuota, getSubscription } from "@/lib/subscription-store";
 import { isPastDue } from "@/lib/subscription";
-import {
-  canAccessLesson,
-  hasPaidEntitlement,
-} from "@/lib/trial-access";
+import { canAccessLesson, hasPaidEntitlement } from "@/lib/trial-access";
 
 export const dynamic = "force-dynamic";
 

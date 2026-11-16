@@ -32,12 +32,7 @@ export default async function LessonPage({ params }: Props) {
 
   const paid = hasPaidEntitlement(subscription);
   const locked = paid
-    ? isLessonLocked(
-        lesson,
-        path.openLessonId,
-        path.completedLessonIds,
-        path.moduleEntry,
-      )
+    ? isLessonLocked(lesson, path.openLessonId, path.completedLessonIds, path.moduleEntry)
     : isTrialProgramLessonLocked(lessonId, path);
 
   if (locked) {

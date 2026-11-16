@@ -79,8 +79,12 @@ a {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  background:
-    linear-gradient(115deg, rgba(6, 63, 61, 0.92) 0%, rgba(11, 110, 106, 0.88) 48%, rgba(14, 26, 34, 0.94) 100%);
+  background: linear-gradient(
+    115deg,
+    rgba(6, 63, 61, 0.92) 0%,
+    rgba(11, 110, 106, 0.88) 48%,
+    rgba(14, 26, 34, 0.94) 100%
+  );
 }
 
 .st-hero-plane::before {

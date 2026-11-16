@@ -1,0 +1,457 @@
+.app {
+  --ink: #1a1410;
+  --paper: #f3ebe0;
+  --stage: #2a221c;
+  --teal: #1f8a70;
+  --coral: #c45c3e;
+  --gold: #d4a24c;
+  --mist: rgba(243, 235, 224, 0.12);
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  color: var(--paper);
+  background:
+    radial-gradient(120% 80% at 10% -10%, #3d3228 0%, transparent 55%),
+    radial-gradient(90% 70% at 100% 0%, #1f4a3f 0%, transparent 50%),
+    linear-gradient(165deg, #1c1713 0%, #12100e 100%);
+}
+
+.landscape-first {
+  min-height: 100dvh;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: 1.2fr 1.4fr auto;
+  gap: 0.75rem 1.25rem;
+  padding: 0.75rem 1.25rem 0.5rem;
+  align-items: start;
+  border-bottom: 1px solid var(--mist);
+  backdrop-filter: blur(8px);
+}
+
+.brand-block .brand {
+  margin: 0;
+  font-family: "Fraunces", "Iowan Old Style", Georgia, serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold);
+  animation: brand-in 0.7s ease-out both;
+}
+
+.brand-block h1 {
+  margin: 0.15rem 0 0;
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1.15rem, 2.4vw, 1.65rem);
+  color: var(--paper);
+}
+
+.brand-block .sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  opacity: 0.75;
+  font-family: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+.control-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1rem;
+  align-items: center;
+  font-family: "Source Sans 3", sans-serif;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.field select {
+  font: inherit;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(243, 235, 224, 0.25);
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--paper);
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 9rem;
+}
+
+.btn {
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+.btn.primary {
+  background: var(--teal);
+  color: #f5fffb;
+}
+
+.btn.accent {
+  background: var(--gold);
+  color: #1a1410;
+}
+
+.btn.ghost {
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid rgba(243, 235, 224, 0.35);
+}
+
+.status-row {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 1.1rem;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.85rem;
+  opacity: 0.9;
+  padding-bottom: 0.25rem;
+}
+
+.mic-pill,
+.wait-pill,
+.done-pill {
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mic-pill.on {
+  background: rgba(31, 138, 112, 0.35);
+  color: #b8f5e2;
+}
+
+.wait-pill {
+  background: rgba(212, 162, 76, 0.3);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.done-pill {
+  background: rgba(31, 138, 112, 0.4);
+}
+
+.err {
+  color: #ffb4a4;
+}
+
+.playfield {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 0 0.75rem 0.75rem;
+}
+
+.feedback-flash {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.feedback-flash.ok {
+  opacity: 1;
+  background: radial-gradient(
+    ellipse at 50% 70%,
+    rgba(31, 138, 112, 0.28),
+    transparent 55%
+  );
+  animation: flash-ok 0.35s ease-out;
+}
+
+.feedback-flash.bad {
+  opacity: 1;
+  background: radial-gradient(
+    ellipse at 50% 70%,
+    rgba(196, 92, 62, 0.3),
+    transparent 55%
+  );
+  animation: flash-bad 0.35s ease-out;
+}
+
+.stage {
+  position: relative;
+  flex: 1;
+  min-height: 180px;
+  margin: 0.35rem 0 0;
+  border-radius: 12px 12px 0 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 40%),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 48px,
+      rgba(255, 255, 255, 0.03) 48px,
+      rgba(255, 255, 255, 0.03) 49px
+    ),
+    var(--stage);
+  overflow: hidden;
+}
+
+.hit-line {
+  position: absolute;
+  left: 2%;
+  right: 2%;
+  bottom: 8%;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--gold) 15%,
+    var(--gold) 85%,
+    transparent
+  );
+  box-shadow: 0 0 12px rgba(212, 162, 76, 0.45);
+  z-index: 2;
+}
+
+.drop {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50% 50% 50% 50% / 45% 45% 55% 55%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(160deg, #5ec4a8, #1f8a70);
+  color: #041510;
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
+  z-index: 3;
+  transition:
+    background 0.15s ease,
+    opacity 0.2s ease;
+  animation: drop-bob 1.8s ease-in-out infinite;
+}
+
+.drop.is-target {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.drop.is-hit {
+  background: linear-gradient(160deg, #9dffd4, #2bbf8a);
+  opacity: 0.35;
+}
+
+.drop.is-miss {
+  background: linear-gradient(160deg, #ff9b82, #c45c3e);
+}
+
+.keyboard {
+  position: relative;
+  height: 110px;
+  border-radius: 0 0 12px 12px;
+  background: #0e0c0a;
+  padding: 0 4px 6px;
+  user-select: none;
+}
+
+.keyboard-whites {
+  display: flex;
+  height: 100%;
+  gap: 2px;
+}
+
+.key.white {
+  flex: 1;
+  position: relative;
+  background: linear-gradient(180deg, #f7f1e8 0%, #e4d9c8 100%);
+  border-radius: 0 0 5px 5px;
+  color: #3a3228;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0.25rem;
+  transition:
+    background 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+.key.white .key-label {
+  font-size: 0.58rem;
+  font-family: "Source Sans 3", sans-serif;
+  opacity: 0.7;
+}
+
+.key.white.expected {
+  background: linear-gradient(180deg, #ffe7a8 0%, #d4a24c 100%);
+  box-shadow: inset 0 -4px 0 rgba(0, 0, 0, 0.12);
+}
+
+.key.white.hit {
+  background: linear-gradient(180deg, #b8f5e2 0%, #1f8a70 100%);
+  color: #06241c;
+}
+
+.key.white.miss {
+  background: linear-gradient(180deg, #ffc4b4 0%, #c45c3e 100%);
+}
+
+.key.white.detected {
+  box-shadow: inset 0 0 0 2px rgba(31, 138, 112, 0.7);
+}
+
+.keyboard-blacks {
+  position: absolute;
+  inset: 0 4px 40%;
+  pointer-events: none;
+}
+
+.key.black {
+  position: absolute;
+  width: 3.2%;
+  height: 100%;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg, #2c2620 0%, #12100e 100%);
+  border-radius: 0 0 3px 3px;
+  border: 1px solid #000;
+  transition: background 0.12s ease;
+}
+
+.key.black.expected {
+  background: linear-gradient(180deg, #d4a24c, #8a6820);
+}
+
+.key.black.hit {
+  background: linear-gradient(180deg, #1f8a70, #0d4a3a);
+}
+
+.key.black.miss {
+  background: linear-gradient(180deg, #c45c3e, #6a2a18);
+}
+
+.key.black.detected {
+  box-shadow: 0 0 0 2px #5ec4a8;
+}
+
+@keyframes brand-in {
+  from {
+    opacity: 0;
+    letter-spacing: 0.28em;
+  }
+  to {
+    opacity: 1;
+    letter-spacing: 0.14em;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes drop-bob {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.08);
+  }
+}
+
+@keyframes flash-ok {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes flash-bad {
+  from {
+    opacity: 0.9;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 900px), (orientation: portrait) {
+  .controls {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    flex-direction: row;
+    min-width: 0;
+  }
+
+  .keyboard {
+    height: 88px;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .controls {
+    padding: 0.4rem 0.8rem;
+  }
+
+  .brand-block .sub {
+    display: none;
+  }
+
+  .keyboard {
+    height: 72px;
+  }
+
+  .drop {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.6rem;
+  }
+}

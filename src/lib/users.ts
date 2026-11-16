@@ -62,9 +62,7 @@ export function upsertMockUser(input: {
     const updated: MockUser = {
       ...existing,
       // Keep stable id even if older records had random ids
-      id: existing.id.startsWith("usr_")
-        ? existing.id
-        : stableUserIdFromEmail(email),
+      id: existing.id.startsWith("usr_") ? existing.id : stableUserIdFromEmail(email),
       password: input.password,
       displayName: input.displayName ?? existing.displayName,
     };

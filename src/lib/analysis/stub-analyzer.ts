@@ -11,8 +11,7 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
   readonly name = "demo-energy-v1";
 
   async analyze(input: AnalyzeAudioInput): Promise<AnalyzeAudioResult> {
-    const { durationMs, byteLength, attemptIndex, lessonId, method, audioBuffer } =
-      input;
+    const { durationMs, byteLength, attemptIndex, lessonId, method, audioBuffer } = input;
     const objectKey = `temp/${lessonId}/${Date.now()}.webm`;
     const energy = estimateEnergyFromBytes(audioBuffer, durationMs);
 
@@ -66,9 +65,7 @@ export class StubAudioAnalyzer implements AudioAnalyzer {
           timingOk: false,
           notesDetected,
         },
-        errorSpans: [
-          span(2, "Re", "timing", "low", "grid", "erken"),
-        ],
+        errorSpans: [span(2, "Re", "timing", "low", "grid", "erken")],
         audioObjectKey: objectKey,
       };
     }

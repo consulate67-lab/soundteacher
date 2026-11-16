@@ -85,8 +85,7 @@ export function compactClaimsToPath(
 
   const userId = sessionUserId || claims.u;
   const completedLessonIds = decodeDone(claims.d);
-  const injectedMicroLessons =
-    claims.l === "A1" ? ["piano.m1.l2", "piano.m1.l4"] : [];
+  const injectedMicroLessons = claims.l === "A1" ? ["piano.m1.l2", "piano.m1.l4"] : [];
 
   return {
     userId,

@@ -49,7 +49,9 @@ export default async function PlacementSkillsPage({ searchParams }: Props) {
       <h1 className="st-fade-up-delay mt-2 font-[family-name:var(--font-display)] text-3xl font-medium text-foreground">
         Kısa beceri soruları
       </h1>
-      <p className="st-fade-up-delay mt-2 text-sm leading-relaxed text-muted">{address}</p>
+      <p className="st-fade-up-delay mt-2 text-sm leading-relaxed text-muted">
+        {address}
+      </p>
 
       <SkillsForm band={bandParam} />
     </main>

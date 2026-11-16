@@ -163,8 +163,7 @@ const M1_L2: LessonContent = {
     {
       child: "Sola gidersen ses kalınlaşır. … Sağa gidersen incelir. [kısa durak]",
       teen: "Sol = kalın, sağ = ince. … Aynı grubu başka oktavda da bul.",
-      adult:
-        "Sol yön kalın, sağ ince. … Aynı 2’li grubu birkaç oktavda doğrulayın.",
+      adult: "Sol yön kalın, sağ ince. … Aynı 2’li grubu birkaç oktavda doğrulayın.",
     },
   ],
   theorySteps: [
@@ -269,8 +268,7 @@ const M1_L3: LessonContent = {
     {
       child: "İki siyah tuşa 2 ve 3. parmak. … Sonra üç siyaha 2-3-4. [kısa durak]",
       teen: "2’li: işaret + orta. … 3’lü: 2-3-4. Tempo yok.",
-      adult:
-        "İki siyah: 2–3. … Üç siyah: 2–3–4. Sol el simetrik; kalın tarafta.",
+      adult: "İki siyah: 2–3. … Üç siyah: 2–3–4. Sol el simetrik; kalın tarafta.",
     },
   ],
   theorySteps: [
@@ -317,8 +315,7 @@ const M1_L3: LessonContent = {
     {
       child: "Çok güzel. … El yumuşak mı? [kısa durak] Dinlemeye hazır mısın?",
       teen: "İyi. … Serbest el + siyah tuş. [kısa durak] Kayda geçebiliriz.",
-      adult:
-        "Tamam. … Dokunuş rahat. [kısa durak] Dinlemeye hazır olduğunuzda devam.",
+      adult: "Tamam. … Dokunuş rahat. [kısa durak] Dinlemeye hazır olduğunuzda devam.",
     },
   ],
   recommendedMethod: "1",
@@ -369,8 +366,7 @@ const M1_L4: LessonContent = {
     {
       child: "Merhaba. … Bugün orta Do. [kısa durak] Hazır mısın?",
       teen: "Selam. … Orta Do haritası. [kısa durak] Başlayalım mı?",
-      adult:
-        "Merhaba. … Orta Do referansını kalıcı yerleştireceğiz. [kısa durak]",
+      adult: "Merhaba. … Orta Do referansını kalıcı yerleştireceğiz. [kısa durak]",
     },
     {
       child:
@@ -443,11 +439,9 @@ const M1_L4: LessonContent = {
   ],
   gateFailBubbles: [
     {
-      child:
-        "Sorun değil. … İki siyahın solundaki beyaza tekrar bak. [kısa durak]",
+      child: "Sorun değil. … İki siyahın solundaki beyaza tekrar bak. [kısa durak]",
       teen: "Geçmedi. … Do bir tuş kaymış olabilir — sol tarafı kontrol et.",
-      adult:
-        "Eşik tutmadı. … 2’li grubun solundaki beyazı yeniden doğrulayın.",
+      adult: "Eşik tutmadı. … 2’li grubun solundaki beyazı yeniden doğrulayın.",
     },
   ],
   failMicroTarget: {
@@ -472,8 +466,7 @@ const M1_L5: LessonContent = {
     {
       child: "Merhaba. … Parmak numaraları: 1 başparmak. [kısa durak] 5 serçe.",
       teen: "Selam. … Do pozisyonu: 1=Do … 5=Sol. [kısa durak]",
-      adult:
-        "Merhaba. … Do pozisyonu: 1 Do, 2 Re, 3 Mi, 4 Fa, 5 Sol. [kısa durak]",
+      adult: "Merhaba. … Do pozisyonu: 1 Do, 2 Re, 3 Mi, 4 Fa, 5 Sol. [kısa durak]",
     },
     {
       child: "Başparmak Do’da. … Diğerleri yan yana beyaz tuşlarda. [kısa durak]",
@@ -513,8 +506,7 @@ const M1_L5: LessonContent = {
     {
       child: "Süper. … Yavaş yürüyüş. [kısa durak] Dinlemeye hazır mısın?",
       teen: "İyi. … 5 parmak oturuyor. [kısa durak] MIDI veya mic OK.",
-      adult:
-        "Tamam. … Pozisyon tutarlı. [kısa durak] Dinlemeye hazır olduğunuzda.",
+      adult: "Tamam. … Pozisyon tutarlı. [kısa durak] Dinlemeye hazır olduğunuzda.",
     },
   ],
   recommendedMethod: "3",
@@ -565,8 +557,7 @@ const M1_L6: LessonContent = {
     {
       child: "Kapı günü. … Kısa şarkını çalacağız. [kısa durak] Yavaş.",
       teen: "Modül 1 kapısı. … Harita + ezgi. [kısa durak] Acele yok.",
-      adult:
-        "Modül 1 performans kapısı. … Tam kayıt. [kısa durak] Hazır olduğunuzda.",
+      adult: "Modül 1 performans kapısı. … Tam kayıt. [kısa durak] Hazır olduğunuzda.",
     },
   ],
   theorySteps: [
@@ -674,11 +665,7 @@ export function loadLessonContent(lessonId: string): LessonContent | null {
         adult: "Tamam. … Yavaş tutun. [kısa durak] Dinlemeye hazır olduğunuzda devam.",
       },
     ],
-    recommendedMethod: midiPracticeLesson(def)
-      ? "3"
-      : def.order >= 6
-        ? "2"
-        : "1",
+    recommendedMethod: midiPracticeLesson(def) ? "3" : def.order >= 6 ? "2" : "1",
     allowedMethods: midiPracticeLesson(def) ? ["3", "1", "2"] : ["1", "2"],
     listeningPrep: midiPracticeLesson(def)
       ? {
@@ -723,7 +710,11 @@ export function pickBand<T>(map: Record<Band, T>, band: Band): T {
 }
 
 /** MIDI-first practice: Do-position walk + early M2 note pairs. */
-function midiPracticeLesson(def: { moduleId: number; order: number; id: string }): boolean {
+function midiPracticeLesson(def: {
+  moduleId: number;
+  order: number;
+  id: string;
+}): boolean {
   if (def.id === "piano.m1.l5") return true;
   if (def.id === "piano.m2.l2") return true;
   if (def.id === "piano.m2.l3") return true;

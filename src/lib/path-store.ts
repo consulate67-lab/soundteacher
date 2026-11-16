@@ -16,10 +16,7 @@ import {
   sealJwt,
   writeSignedCookie,
 } from "./signed-cookie";
-import {
-  nextTrialProgramLessonId,
-  trialProgramLessonIds,
-} from "./trial-program";
+import { nextTrialProgramLessonId, trialProgramLessonIds } from "./trial-program";
 
 export type PathRecord = {
   userId: string;
@@ -93,8 +90,7 @@ function cookieToDraft(
       band: (raw.b as Band | undefined) ?? undefined,
       answers: {},
       provisional: (raw.r as PlacementResult | undefined) ?? undefined,
-      verificationPassed:
-        typeof raw.v === "boolean" ? raw.v : undefined,
+      verificationPassed: typeof raw.v === "boolean" ? raw.v : undefined,
       updatedAt: typeof raw.t === "string" ? raw.t : new Date().toISOString(),
     };
   }
@@ -107,17 +103,13 @@ function cookieToDraft(
       provisional: raw.provisional as PlacementResult | undefined,
       verificationPassed: raw.verificationPassed as boolean | undefined,
       updatedAt:
-        typeof raw.updatedAt === "string"
-          ? raw.updatedAt
-          : new Date().toISOString(),
+        typeof raw.updatedAt === "string" ? raw.updatedAt : new Date().toISOString(),
     };
   }
   return null;
 }
 
-async function readPathFromCookies(
-  userId: string,
-): Promise<PathRecord | null> {
+async function readPathFromCookies(userId: string): Promise<PathRecord | null> {
   const v3 = await readSignedCookie<CompactPathClaims>(PATH_COOKIE);
   if (v3) {
     const path = compactClaimsToPath(v3, userId);
@@ -147,9 +139,7 @@ export async function getPath(userId: string): Promise<PathRecord | null> {
   return fromCookie;
 }
 
-export async function getPlacementDraft(
-  userId: string,
-): Promise<PlacementDraft | null> {
+export async function getPlacementDraft(userId: string): Promise<PlacementDraft | null> {
   const mem = drafts().get(userId);
   if (mem) return mem;
 
@@ -276,8 +266,7 @@ export async function restorePathFromClient(
     completedLessonIds: Array.isArray(p.completedLessonIds)
       ? p.completedLessonIds.filter((x): x is string => typeof x === "string").slice(-8)
       : [],
-    injectedMicroLessons:
-      p.level === "A1" ? ["piano.m1.l2", "piano.m1.l4"] : [],
+    injectedMicroLessons: p.level === "A1" ? ["piano.m1.l2", "piano.m1.l4"] : [],
     placementComplete: true,
     createdAt: typeof p.createdAt === "string" ? p.createdAt : now,
     updatedAt: now,

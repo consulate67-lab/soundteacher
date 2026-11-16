@@ -14,10 +14,7 @@ export function FloatingNotes() {
   ] as const;
 
   return (
-    <div
-      className="pointer-events-none absolute inset-0 overflow-hidden"
-      aria-hidden
-    >
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
       {notes.map((n, i) => (
         <span
           key={i}
