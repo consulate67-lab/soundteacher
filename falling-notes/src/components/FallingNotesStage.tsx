@@ -34,11 +34,7 @@ export function FallingNotesStage({ snapshot, fallLeadSec }: Props) {
     <div className="stage" aria-label="Düşen notalar sahnesi">
       <div className="hit-line" />
       {snapshot.drops.map((drop) => {
-        const p = dropProgress(
-          snapshot.musicTime,
-          drop.event.time,
-          fallLeadSec,
-        );
+        const p = dropProgress(snapshot.musicTime, drop.event.time, fallLeadSec);
         if (p < -0.05 || p > 1.15) return null;
         if (drop.result === "hit" && p >= 1) return null;
 

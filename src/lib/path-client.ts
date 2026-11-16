@@ -35,8 +35,7 @@ export function savePathLocal(path: PathRecord): void {
 export function readPathLocal(): PathRecord | null {
   try {
     const raw =
-      localStorage.getItem(PATH_LOCAL_KEY) ??
-      localStorage.getItem(PATH_LOCAL_LEGACY);
+      localStorage.getItem(PATH_LOCAL_KEY) ?? localStorage.getItem(PATH_LOCAL_LEGACY);
     if (!raw) return null;
     const p = JSON.parse(raw) as Partial<PathRecord> & { p?: 1 };
     if (!(p.placementComplete === true || p.p === 1)) return null;
@@ -81,13 +80,10 @@ export function readPathLocal(): PathRecord | null {
       completedLessonIds: Array.isArray(p.completedLessonIds)
         ? p.completedLessonIds.filter((x): x is string => typeof x === "string")
         : [],
-      injectedMicroLessons:
-        p.level === "A1" ? ["piano.m1.l2", "piano.m1.l4"] : [],
+      injectedMicroLessons: p.level === "A1" ? ["piano.m1.l2", "piano.m1.l4"] : [],
       placementComplete: true,
-      createdAt:
-        typeof p.createdAt === "string" ? p.createdAt : new Date().toISOString(),
-      updatedAt:
-        typeof p.updatedAt === "string" ? p.updatedAt : new Date().toISOString(),
+      createdAt: typeof p.createdAt === "string" ? p.createdAt : new Date().toISOString(),
+      updatedAt: typeof p.updatedAt === "string" ? p.updatedAt : new Date().toISOString(),
     };
   } catch {
     return null;

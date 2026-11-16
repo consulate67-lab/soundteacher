@@ -27,13 +27,7 @@ import { isPastDue } from "@/lib/subscription";
 export const dynamic = "force-dynamic";
 
 type Body = {
-  action?:
-    | "save_band"
-    | "score"
-    | "complete"
-    | "verify_pass"
-    | "verify_skip"
-    | "restore";
+  action?: "save_band" | "score" | "complete" | "verify_pass" | "verify_skip" | "restore";
   band?: string;
   answers?: AnswerMap;
   path?: unknown;
@@ -77,8 +71,9 @@ export async function GET() {
   const path = await getPath(session.user.id);
   let pathCookieBytes: number | null = null;
   if (path) {
-    pathCookieBytes = (await sealJwt(pathToCompactClaims(path) as unknown as Record<string, unknown>))
-      .length;
+    pathCookieBytes = (
+      await sealJwt(pathToCompactClaims(path) as unknown as Record<string, unknown>)
+    ).length;
   }
   return NextResponse.json({
     path: path ? toPlacementResult(path) : null,

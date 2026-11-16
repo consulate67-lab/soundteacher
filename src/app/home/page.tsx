@@ -19,10 +19,7 @@ import {
   shouldPromptSubscribe,
   TRIAL_COPY,
 } from "@/lib/trial-access";
-import {
-  buildTrialProgram,
-  isTrialProgramLessonLocked,
-} from "@/lib/trial-program";
+import { buildTrialProgram, isTrialProgramLessonLocked } from "@/lib/trial-program";
 import { signOutAction, simulatePastDueAction } from "./actions";
 
 export const metadata: Metadata = {
@@ -206,11 +203,7 @@ export default async function HomePage() {
                   path.moduleEntry,
                 )
               : isTrialProgramLessonLocked(lesson.id, path);
-            const entitlementLocked = !canAccessLesson(
-              subscription,
-              lesson.id,
-              path,
-            );
+            const entitlementLocked = !canAccessLesson(subscription, lesson.id, path);
             const locked = sequenceLocked || entitlementLocked;
             const done = path.completedLessonIds.includes(lesson.id);
             const title = lessonTitle(lesson, path.band);
@@ -248,7 +241,10 @@ export default async function HomePage() {
       </section>
 
       {paid ? (
-        <form action={simulatePastDueAction} className="mt-12 border-t border-border pt-6">
+        <form
+          action={simulatePastDueAction}
+          className="mt-12 border-t border-border pt-6"
+        >
           <button
             type="submit"
             className="text-sm font-medium text-muted underline-offset-2 hover:text-foreground hover:underline"

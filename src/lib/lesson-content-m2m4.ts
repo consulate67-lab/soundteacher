@@ -9,7 +9,8 @@ export const M2_L1: LessonContent = {
   goals: {
     child: "Sol anahtarını tanırsın; porte çizgilerini görürsün.",
     teen: "Sol anahtarı, porte ve parmak numarası mantığını kurarsın.",
-    adult: "Sol anahtarı, porte, anahtar rolleri ve parmak numaralarını netleştirirsiniz.",
+    adult:
+      "Sol anahtarı, porte, anahtar rolleri ve parmak numaralarını netleştirirsiniz.",
   },
   theoryBubbles: [
     {
@@ -21,8 +22,7 @@ export const M2_L1: LessonContent = {
     {
       child: "Beş çizgi = porte. … Sol anahtarı başta durur. [kısa durak]",
       teen: "Sağ el çoğu zaman ince / sol anahtarı; sol el kalın tarafta.",
-      adult:
-        "Dizek, anahtarlar, sağ–sol el rolleri. … Parmak numaraları 1–5 sabittir.",
+      adult: "Dizek, anahtarlar, sağ–sol el rolleri. … Parmak numaraları 1–5 sabittir.",
     },
   ],
   theorySteps: [
@@ -190,8 +190,7 @@ export const M2_L3: LessonContent = {
     {
       child: "Merhaba. … Re, Do’nun hemen üstü. … Si, Do’nun altı. [kısa durak]",
       teen: "Selam. … Re / Si çifti. [kısa durak] Do referansın dursun.",
-      adult:
-        "Merhaba. … Re (2’li grubun ortası) ve Si (Do’nun altı). [kısa durak]",
+      adult: "Merhaba. … Re (2’li grubun ortası) ve Si (Do’nun altı). [kısa durak]",
     },
   ],
   theorySteps: [
@@ -269,8 +268,7 @@ export const M2_L4: LessonContent = {
     {
       child: "Merhaba. … Mi, Re’nin üstü. … La biraz daha yukarı. [kısa durak]",
       teen: "Selam. … Mi / La + parmak 1 ve 3. [kısa durak]",
-      adult:
-        "Merhaba. … Mi–La çifti; özellikle 1 ve 3. parmak rahatlığı. [kısa durak]",
+      adult: "Merhaba. … Mi–La çifti; özellikle 1 ve 3. parmak rahatlığı. [kısa durak]",
     },
   ],
   theorySteps: [

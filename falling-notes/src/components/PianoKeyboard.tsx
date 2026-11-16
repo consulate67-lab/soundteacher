@@ -12,12 +12,7 @@ type Props = {
   detectedMidi: number | null;
 };
 
-export function PianoKeyboard({
-  highlightMidi,
-  hitMidi,
-  missMidi,
-  detectedMidi,
-}: Props) {
+export function PianoKeyboard({ highlightMidi, hitMidi, missMidi, detectedMidi }: Props) {
   const keys: number[] = [];
   for (let m = KEYBOARD_START; m <= KEYBOARD_END; m++) keys.push(m);
 
@@ -34,9 +29,7 @@ export function PianoKeyboard({
             highlightMidi === midi ? "expected" : "",
             hitMidi === midi ? "hit" : "",
             missMidi === midi ? "miss" : "",
-            detectedMidi != null && Math.round(detectedMidi) === midi
-              ? "detected"
-              : "",
+            detectedMidi != null && Math.round(detectedMidi) === midi ? "detected" : "",
           ]
             .filter(Boolean)
             .join(" ");
@@ -52,17 +45,14 @@ export function PianoKeyboard({
           const whiteBefore = whites.filter((w) => w < midi).length;
           // Position black key between whites: left = whiteBefore * whiteWidth - half black
           const leftPct =
-            ((whiteBefore - 0.5) / whites.length) * 100 +
-            50 / whites.length;
+            ((whiteBefore - 0.5) / whites.length) * 100 + 50 / whites.length;
           const cls = [
             "key",
             "black",
             highlightMidi === midi ? "expected" : "",
             hitMidi === midi ? "hit" : "",
             missMidi === midi ? "miss" : "",
-            detectedMidi != null && Math.round(detectedMidi) === midi
-              ? "detected"
-              : "",
+            detectedMidi != null && Math.round(detectedMidi) === midi ? "detected" : "",
           ]
             .filter(Boolean)
             .join(" ");

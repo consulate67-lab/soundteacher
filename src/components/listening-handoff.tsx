@@ -100,9 +100,7 @@ export function ListeningHandoff({
             Ortam kaydına geç (Yöntem 1)
           </button>
         ) : (
-          <p className="text-sm text-muted">
-            Kota dolu. Limit yenilenince tekrar dene.
-          </p>
+          <p className="text-sm text-muted">Kota dolu. Limit yenilenince tekrar dene.</p>
         )}
         <button
           type="button"
@@ -168,9 +166,7 @@ export function ListeningHandoff({
           band={band}
           prepText={prepText}
           maxSeconds={Y3_MAX_SECONDS}
-          onFallbackMic={
-            allowedMethods.includes("1") ? () => setStage("y1") : undefined
-          }
+          onFallbackMic={allowedMethods.includes("1") ? () => setStage("y1") : undefined}
         />
         {allowedMethods.length > 1 ? (
           <button
@@ -213,8 +209,8 @@ export function ListeningHandoff({
             >
               <span className="font-semibold">USB / MIDI klavye (Yöntem 3)</span>
               <span className="mt-1 block text-xs text-muted">
-                Nota sinyali · mic yok · kota Y1 ile paylaşılır (
-                {quota.method1Remaining}/{quota.method1Limit})
+                Nota sinyali · mic yok · kota Y1 ile paylaşılır ({quota.method1Remaining}/
+                {quota.method1Limit})
               </span>
             </button>
           </li>

@@ -79,7 +79,10 @@ export function SkillsForm({ band }: { band: Band }) {
         {current.prompt}
       </h2>
 
-      <fieldset className="flex flex-col gap-2 border-0 p-0" aria-labelledby={`q-${current.id}`}>
+      <fieldset
+        className="flex flex-col gap-2 border-0 p-0"
+        aria-labelledby={`q-${current.id}`}
+      >
         <legend className="sr-only">{current.prompt}</legend>
         {current.options.map((opt) => {
           const active = selected === opt.id;

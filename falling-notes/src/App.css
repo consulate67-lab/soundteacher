@@ -108,7 +108,9 @@
   border-radius: 8px;
   padding: 0.55rem 0.9rem;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease;
 }
 
 .btn:disabled {
@@ -263,7 +265,9 @@
   font-weight: 700;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.35);
   z-index: 3;
-  transition: background 0.15s ease, opacity 0.2s ease;
+  transition:
+    background 0.15s ease,
+    opacity 0.2s ease;
   animation: drop-bob 1.8s ease-in-out infinite;
 }
 
@@ -306,7 +310,9 @@
   align-items: flex-end;
   justify-content: center;
   padding-bottom: 0.25rem;
-  transition: background 0.12s ease, box-shadow 0.12s ease;
+  transition:
+    background 0.12s ease,
+    box-shadow 0.12s ease;
 }
 
 .key.white .key-label {

@@ -1,10 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import {
-  findUserByEmail,
-  stableUserIdFromEmail,
-  upsertMockUser,
-} from "@/lib/users";
+import { findUserByEmail, stableUserIdFromEmail, upsertMockUser } from "@/lib/users";
 
 /**
  * Auth vendor choice (Dilim B): **Auth.js (next-auth v5)** with Credentials.

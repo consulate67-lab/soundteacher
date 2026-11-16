@@ -92,10 +92,7 @@ export class PitchDetector {
     this.raf = requestAnimationFrame(this.tick);
   };
 
-  private analyze(
-    buf: Float32Array<ArrayBuffer>,
-    sampleRate: number,
-  ): PitchSample {
+  private analyze(buf: Float32Array<ArrayBuffer>, sampleRate: number): PitchSample {
     const timestamp = performance.now();
     let rms = 0;
     for (let i = 0; i < buf.length; i++) rms += buf[i]! * buf[i]!;

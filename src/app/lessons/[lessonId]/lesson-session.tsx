@@ -52,8 +52,8 @@ export async function LessonSession({
   const phase = progress.phase;
   const nextId = nextLessonId(lessonId);
   const lastAttempt = progress.lastAttemptId
-    ? (await getAttempt(progress.userId, progress.lastAttemptId, lessonId)) ??
-      (await getLastAttemptForLesson(progress.userId, lessonId))
+    ? ((await getAttempt(progress.userId, progress.lastAttemptId, lessonId)) ??
+      (await getLastAttemptForLesson(progress.userId, lessonId)))
     : await getLastAttemptForLesson(progress.userId, lessonId);
   const needsListening = isListeningRequired(content);
   const visual = practiceVisualOf(content);
@@ -109,15 +109,10 @@ export async function LessonSession({
           <h2 className="font-[family-name:var(--font-display)] text-xl font-medium">
             Pratik
           </h2>
-          {visual === "posture-hands" &&
-          !content.practiceSteps.some((s) => s.demo) ? (
+          {visual === "posture-hands" && !content.practiceSteps.some((s) => s.demo) ? (
             <PostureHandsVisual />
           ) : null}
-          <TeachingSteps
-            title="Adım adım"
-            steps={content.practiceSteps}
-            band={band}
-          />
+          <TeachingSteps title="Adım adım" steps={content.practiceSteps} band={band} />
           {content.practiceBubbles.map((b, i) => (
             <TeacherBubble key={i} text={pickBand(b, band)} band={band} />
           ))}

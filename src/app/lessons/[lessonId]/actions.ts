@@ -41,12 +41,7 @@ async function requireLessonAccess(lessonId: string) {
   if (!lesson) redirect("/home");
 
   const locked = hasPaidEntitlement(sub)
-    ? isLessonLocked(
-        lesson,
-        path.openLessonId,
-        path.completedLessonIds,
-        path.moduleEntry,
-      )
+    ? isLessonLocked(lesson, path.openLessonId, path.completedLessonIds, path.moduleEntry)
     : isTrialProgramLessonLocked(lessonId, path);
 
   if (locked) {

@@ -1,10 +1,4 @@
-import type {
-  ActiveDrop,
-  Chart,
-  GameConfig,
-  GamePhase,
-  NoteEvent,
-} from "./types";
+import type { ActiveDrop, Chart, GameConfig, GamePhase, NoteEvent } from "./types";
 
 /**
  * Falling-notes clock:
@@ -88,8 +82,7 @@ export class GameEngine {
 
     if (this.phase === "playing") {
       const wallDelta = (now - this.wallStartedAt) / 1000;
-      this.musicTime =
-        this.musicAtWallStart + wallDelta * this.config.tempoScale;
+      this.musicTime = this.musicAtWallStart + wallDelta * this.config.tempoScale;
       this.expireMisses(now);
       this.maybeEnterWait(now);
 
@@ -103,17 +96,14 @@ export class GameEngine {
         }
       }
 
-      if (
-        this.targetIndex >= this.chart.notes.length &&
-        this.phase === "playing"
-      ) {
+      if (this.targetIndex >= this.chart.notes.length && this.phase === "playing") {
         this.phase = "finished";
       }
     } else if (this.phase === "waiting") {
       // Music clock frozen; still expire nothing new — wait for pitch.
     }
 
-    return { refNotes, snapshot: this.snapshot(now) };
+    return { refNotes, snapshot: this.snapshot() };
   }
 
   private maybeEnterWait(now: number): void {
@@ -195,7 +185,7 @@ export class GameEngine {
     return true;
   }
 
-  snapshot(_now = performance.now()): EngineSnapshot {
+  snapshot(): EngineSnapshot {
     const drops: ActiveDrop[] = this.chart.notes.map((event) => {
       const startScaled = this.scaleTime(event.time);
       const durationScaled = this.scaleTime(event.duration);

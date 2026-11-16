@@ -54,9 +54,7 @@ export default async function TrialProgramPage() {
       <dl className="st-fade-up-delay-2 mt-6 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
         <div>
           <span className="text-muted">Bant </span>
-          <span className="font-medium text-foreground">
-            {BAND_SHORT[program.band]}
-          </span>
+          <span className="font-medium text-foreground">{BAND_SHORT[program.band]}</span>
         </div>
         <div>
           <span className="text-muted">Seviye </span>
@@ -89,8 +87,7 @@ export default async function TrialProgramPage() {
       </ol>
 
       <p className="mt-6 text-xs leading-relaxed text-muted">
-        Bu paket abonelik gerektirmez. Program bitince tam Path için plan
-        seçebilirsin.
+        Bu paket abonelik gerektirmez. Program bitince tam Path için plan seçebilirsin.
       </p>
 
       <Link

@@ -2,27 +2,18 @@ import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { getMidiAnalyzer } from "@/lib/analysis/midi-analyzer";
 import type { AttemptRecord } from "@/lib/attempt";
-import {
-  persistLessonSessionOnResponse,
-  saveAttemptInMemory,
-} from "@/lib/attempt-store";
+import { persistLessonSessionOnResponse, saveAttemptInMemory } from "@/lib/attempt-store";
 import { ensureLessonProgress } from "@/lib/lesson-progress-store";
 import { log } from "@/lib/logger";
 import type { MidiNoteEvent } from "@/lib/midi/types";
 import { getPath } from "@/lib/path-store";
-import {
-  consumeFreeQuota,
-  FREE_QUOTA_COOKIE,
-} from "@/lib/free-quota-store";
+import { consumeFreeQuota, FREE_QUOTA_COOKIE } from "@/lib/free-quota-store";
 import { shouldConsumeQuota } from "@/lib/quota";
 import { resolveQuotaForUser } from "@/lib/resolve-quota";
 import { setSignedCookieOnResponse } from "@/lib/signed-cookie";
 import { consumeQuota, getSubscription } from "@/lib/subscription-store";
 import { isPastDue } from "@/lib/subscription";
-import {
-  canAccessLesson,
-  hasPaidEntitlement,
-} from "@/lib/trial-access";
+import { canAccessLesson, hasPaidEntitlement } from "@/lib/trial-access";
 
 export const dynamic = "force-dynamic";
 

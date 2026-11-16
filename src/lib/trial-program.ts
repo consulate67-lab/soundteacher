@@ -1,10 +1,5 @@
 import type { Band } from "./bands";
-import {
-  firstLessonOfModule,
-  getLesson,
-  lessonTitle,
-  nextLessonId,
-} from "./curriculum";
+import { firstLessonOfModule, getLesson, lessonTitle, nextLessonId } from "./curriculum";
 import { loadLessonContent } from "./lesson-content";
 import type { Level } from "./placement";
 import type { PathRecord } from "./path-store";
@@ -59,10 +54,7 @@ export function trialProgramLessonIds(input: {
 }
 
 export function buildTrialProgram(
-  path: Pick<
-    PathRecord,
-    "band" | "level" | "moduleEntry" | "defaultSessionMinutes"
-  >,
+  path: Pick<PathRecord, "band" | "level" | "moduleEntry" | "defaultSessionMinutes">,
 ): TrialProgram {
   const ids = trialProgramLessonIds(path);
   const minutesEach = Math.min(
@@ -73,9 +65,7 @@ export function buildTrialProgram(
   const items: TrialProgramItem[] = ids.map((lessonId, i) => {
     const lesson = getLesson(lessonId);
     const content = loadLessonContent(lessonId);
-    const title = lesson
-      ? lessonTitle(lesson, path.band)
-      : lessonId;
+    const title = lesson ? lessonTitle(lesson, path.band) : lessonId;
     const goal =
       content?.goals[path.band] ??
       (path.band === "adult"
@@ -125,10 +115,7 @@ function programBlurb(band: Band, level: Level, moduleEntry: number): string {
 }
 
 /** Sequence lock inside deneme programı (moduleEntry skip uygulanmaz). */
-export function isTrialProgramLessonLocked(
-  lessonId: string,
-  path: PathRecord,
-): boolean {
+export function isTrialProgramLessonLocked(lessonId: string, path: PathRecord): boolean {
   const program = trialProgramLessonIds(path);
   if (!program.includes(lessonId)) return true;
   if (path.completedLessonIds.includes(lessonId)) return false;

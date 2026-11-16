@@ -1,9 +1,4 @@
-export type PlanId =
-  | "trial"
-  | "monthly"
-  | "quarterly"
-  | "semiannual"
-  | "yearly";
+export type PlanId = "trial" | "monthly" | "quarterly" | "semiannual" | "yearly";
 
 export type PlanOption = {
   id: PlanId;

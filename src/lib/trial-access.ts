@@ -2,10 +2,7 @@ import type { PathRecord } from "./path-store";
 import type { QuotaSnapshot } from "./quota";
 import type { SubscriptionRecord } from "./subscription";
 import { hasLessonAccess } from "./subscription";
-import {
-  isTrialProgramComplete,
-  trialProgramLessonIds,
-} from "./trial-program";
+import { isTrialProgramComplete, trialProgramLessonIds } from "./trial-program";
 
 /**
  * Free deneme — no paid Stripe entitlement.
@@ -18,9 +15,7 @@ export const FREE_TRIAL_QUOTA = {
 } as const;
 
 /** Paid Stripe trial or active monthly/yearly. */
-export function hasPaidEntitlement(
-  sub: SubscriptionRecord | null | undefined,
-): boolean {
+export function hasPaidEntitlement(sub: SubscriptionRecord | null | undefined): boolean {
   return Boolean(sub && hasLessonAccess(sub.status));
 }
 
@@ -34,8 +29,7 @@ export function isLessonInFreeTrialScope(
   }
   // Fallback without path: M1 first four + M2 first two
   return (
-    lessonId.startsWith("piano.m1.l") &&
-    ["1", "2", "3", "4"].includes(lessonId.slice(-1))
+    lessonId.startsWith("piano.m1.l") && ["1", "2", "3", "4"].includes(lessonId.slice(-1))
   );
 }
 
@@ -87,13 +81,10 @@ export const TRIAL_COPY = {
   ctaStart: "Ücretsiz dene",
   ctaPlans: "Planlar",
   ctaFirstLesson: "İlk deneme dersine başla",
-  bannerHome:
-    "Deneme programın ücretsiz. Tam Path için abonelik — istediğin zaman.",
-  bannerSubscribe:
-    "Ücretsiz deneme programın bitti. Plan seçerek Path’e devam et.",
+  bannerHome: "Deneme programın ücretsiz. Tam Path için abonelik — istediğin zaman.",
+  bannerSubscribe: "Ücretsiz deneme programın bitti. Plan seçerek Path’e devam et.",
   lockedSubscribe:
     "Bu ders deneme programının dışında. Abonelik ile devam — ödeme mock da olabilir.",
-  placementNote:
-    "Yerleştirme ücretsizdir. Ardından kısa deneme programın gösterilir.",
+  placementNote: "Yerleştirme ücretsizdir. Ardından kısa deneme programın gösterilir.",
   programEyebrow: "Deneme programın",
 } as const;

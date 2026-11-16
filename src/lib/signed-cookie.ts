@@ -85,10 +85,7 @@ export async function setSignedCookieOnResponse(
   );
 }
 
-export function clearSignedCookieOnResponse(
-  response: NextResponse,
-  name: string,
-): void {
+export function clearSignedCookieOnResponse(response: NextResponse, name: string): void {
   response.cookies.set(name, "", {
     httpOnly: true,
     sameSite: "lax",

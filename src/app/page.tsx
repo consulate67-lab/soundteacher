@@ -23,8 +23,8 @@ export default async function HomePage() {
               Enstrümanını seç, çevrim içi öğretmeninle çal
             </h1>
             <p className="st-fade-up-delay-2 mt-4 text-base leading-relaxed text-white/80 sm:text-lg">
-              Yerleştirme, deneme dersleri ve dinleme geri bildirimi — gerçek bir
-              öğretmen gibi yol gösterir. Şimdi Piyano açık.
+              Yerleştirme, deneme dersleri ve dinleme geri bildirimi — gerçek bir öğretmen
+              gibi yol gösterir. Şimdi Piyano açık.
             </p>
 
             <div className="st-fade-up-delay-2 mt-8 flex flex-wrap gap-3">

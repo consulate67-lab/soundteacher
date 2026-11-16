@@ -22,11 +22,11 @@ Allow microphone access when prompted. Place the tablet on the music stand, aim 
 
 ### Scripts
 
-| Command           | Purpose              |
-| ----------------- | -------------------- |
-| `npm run dev`     | Vite dev server      |
-| `npm run build`   | Production build     |
-| `npm run preview` | Serve `dist/` locally|
+| Command           | Purpose               |
+| ----------------- | --------------------- |
+| `npm run dev`     | Vite dev server       |
+| `npm run build`   | Production build      |
+| `npm run preview` | Serve `dist/` locally |
 
 ## MVP features
 

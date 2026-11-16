@@ -2,10 +2,7 @@
  * Listening quota for free-deneme users — durable via signed cookie on Vercel.
  */
 
-import {
-  readSignedCookie,
-  writeSignedCookie,
-} from "./signed-cookie";
+import { readSignedCookie, writeSignedCookie } from "./signed-cookie";
 
 type FreeQuota = {
   userId: string;

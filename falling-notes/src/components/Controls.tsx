@@ -44,9 +44,7 @@ export function Controls({
       <div className="brand-block">
         <p className="brand">Falling Notes</p>
         <h1>{chartTitle}</h1>
-        <p className="sub">
-          Tableti müzik sehpasına koy · mikrofonla nota yakala
-        </p>
+        <p className="sub">Tableti müzik sehpasına koy · mikrofonla nota yakala</p>
       </div>
 
       <div className="control-grid">
@@ -131,12 +129,8 @@ export function Controls({
         <span>
           İsabet: {hits} · Kaçırılan: {misses}
         </span>
-        {phase === "waiting" && (
-          <span className="wait-pill">Doğru notayı bekliyor…</span>
-        )}
-        {phase === "finished" && (
-          <span className="done-pill">Bitti — tebrikler!</span>
-        )}
+        {phase === "waiting" && <span className="wait-pill">Doğru notayı bekliyor…</span>}
+        {phase === "finished" && <span className="done-pill">Bitti — tebrikler!</span>}
         {micError && <span className="err">{micError}</span>}
       </div>
     </header>

@@ -4,10 +4,7 @@ import { ReferenceSynth } from "./audio/synth";
 import { Controls } from "./components/Controls";
 import { FallingNotesStage } from "./components/FallingNotesStage";
 import { PianoKeyboard } from "./components/PianoKeyboard";
-import {
-  GameEngine,
-  type EngineSnapshot,
-} from "./engine/gameEngine";
+import { GameEngine, type EngineSnapshot } from "./engine/gameEngine";
 import { DEMO_CHART, midiToName } from "./engine/noteChart";
 import type { GameConfig } from "./engine/types";
 import "./App.css";
@@ -69,10 +66,7 @@ export default function App() {
       }
     }
 
-    if (
-      snap.feedback !== "none" &&
-      snap.lastFeedbackAt !== lastFeedbackRef.current
-    ) {
+    if (snap.feedback !== "none" && snap.lastFeedbackAt !== lastFeedbackRef.current) {
       lastFeedbackRef.current = snap.lastFeedbackAt;
       const target = DEMO_CHART.notes[snap.targetIndex - 1];
       if (snap.feedback === "hit" && target) {
@@ -110,8 +104,7 @@ export default function App() {
       await detector.start();
       setMicOn(true);
     } catch (err) {
-      const msg =
-        err instanceof Error ? err.message : "Mikrofon izni alınamadı";
+      const msg = err instanceof Error ? err.message : "Mikrofon izni alınamadı";
       setMicError(msg);
       setMicOn(false);
     }
@@ -144,8 +137,7 @@ export default function App() {
       ? (DEMO_CHART.notes[snapshot.targetIndex]?.midi ?? null)
       : null;
 
-  const detectedLabel =
-    detectedMidi != null ? midiToName(Math.round(detectedMidi)) : "—";
+  const detectedLabel = detectedMidi != null ? midiToName(Math.round(detectedMidi)) : "—";
 
   return (
     <div className="app landscape-first">
@@ -159,12 +151,8 @@ export default function App() {
         detectedLabel={detectedLabel}
         chartTitle={DEMO_CHART.title}
         onTempo={(tempoScale) => setConfig((c) => ({ ...c, tempoScale }))}
-        onWaitToggle={(waitForNote) =>
-          setConfig((c) => ({ ...c, waitForNote }))
-        }
-        onRefToggle={(referenceAudio) =>
-          setConfig((c) => ({ ...c, referenceAudio }))
-        }
+        onWaitToggle={(waitForNote) => setConfig((c) => ({ ...c, waitForNote }))}
+        onRefToggle={(referenceAudio) => setConfig((c) => ({ ...c, referenceAudio }))}
         onWindow={(hitWindowMs) => setConfig((c) => ({ ...c, hitWindowMs }))}
         onStartMic={handleStartMic}
         onStopMic={handleStopMic}

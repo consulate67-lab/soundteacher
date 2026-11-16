@@ -10,3 +10,6 @@ public
 *.svg
 *.jpg
 *.webp
+falling-notes/dist
+falling-notes/node_modules
+falling-notes/package-lock.json

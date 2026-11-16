@@ -3,11 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requirePath } from "@/lib/access";
 import { getLesson, isLessonLocked, lessonTitle } from "@/lib/curriculum";
-import {
-  canAccessLesson,
-  hasPaidEntitlement,
-  TRIAL_COPY,
-} from "@/lib/trial-access";
+import { canAccessLesson, hasPaidEntitlement, TRIAL_COPY } from "@/lib/trial-access";
 import { isTrialProgramLessonLocked } from "@/lib/trial-program";
 
 export const metadata: Metadata = {
@@ -32,12 +28,7 @@ export default async function LessonLockedPage({ params }: Props) {
   const paid = hasPaidEntitlement(subscription);
   const needsSub = !canAccessLesson(subscription, lessonId, path);
   const sequenceLocked = paid
-    ? isLessonLocked(
-        lesson,
-        path.openLessonId,
-        path.completedLessonIds,
-        path.moduleEntry,
-      )
+    ? isLessonLocked(lesson, path.openLessonId, path.completedLessonIds, path.moduleEntry)
     : isTrialProgramLessonLocked(lessonId, path);
 
   if (!sequenceLocked && !needsSub) {

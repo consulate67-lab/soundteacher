@@ -1,11 +1,7 @@
 import Link from "next/link";
 import { LESSONS_PER_MONTH, PAID_PLANS } from "@/lib/plans";
 
-export function PricingSection({
-  ctaHref = "/signup",
-}: {
-  ctaHref?: string;
-}) {
+export function PricingSection({ ctaHref = "/signup" }: { ctaHref?: string }) {
   return (
     <section
       id="abonelik"

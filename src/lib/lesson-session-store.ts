@@ -51,12 +51,15 @@ function emptyLesson(): SessionLesson {
   };
 }
 
-function trimLessons(lessons: Record<string, SessionLesson>): Record<string, SessionLesson> {
+function trimLessons(
+  lessons: Record<string, SessionLesson>,
+): Record<string, SessionLesson> {
   const ids = Object.keys(lessons);
   if (ids.length <= MAX_LESSONS) return lessons;
   const sorted = ids.sort(
     (a, b) =>
-      new Date(lessons[b]!.updatedAt).getTime() - new Date(lessons[a]!.updatedAt).getTime(),
+      new Date(lessons[b]!.updatedAt).getTime() -
+      new Date(lessons[a]!.updatedAt).getTime(),
   );
   const keep = sorted.slice(0, MAX_LESSONS);
   const next: Record<string, SessionLesson> = {};
@@ -105,7 +108,10 @@ async function loadCookie(userId: string): Promise<SessionCookie> {
 async function persist(session: SessionCookie): Promise<void> {
   session.lessons = trimLessons(session.lessons);
   memory().set(session.u, session);
-  await writeSignedCookie(LESSON_SESSION_COOKIE, session as unknown as Record<string, unknown>);
+  await writeSignedCookie(
+    LESSON_SESSION_COOKIE,
+    session as unknown as Record<string, unknown>,
+  );
 }
 
 export async function persistLessonSessionOnResponse(
@@ -244,7 +250,9 @@ export async function getLastAttemptForLesson(
   return session.lessons[lessonId]?.attempt ?? null;
 }
 
-export async function saveGateResult(record: GateResultRecord): Promise<GateResultRecord> {
+export async function saveGateResult(
+  record: GateResultRecord,
+): Promise<GateResultRecord> {
   const session = await loadCookie(record.userId);
   const current = session.lessons[record.lessonId] ?? emptyLesson();
   session.lessons[record.lessonId] = {
