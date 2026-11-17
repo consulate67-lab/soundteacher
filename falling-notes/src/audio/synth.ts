@@ -1,30 +1,50 @@
-import { midiToFrequency } from "../engine/noteChart";
+/** Chromatic Salamander-based acoustic piano under /samples/piano (C3–C6). */
+const SAMPLE_NAMES = [
+  "C3",
+  "Cs3",
+  "D3",
+  "Ds3",
+  "E3",
+  "F3",
+  "Fs3",
+  "G3",
+  "Gs3",
+  "A3",
+  "As3",
+  "B3",
+  "C4",
+  "Cs4",
+  "D4",
+  "Ds4",
+  "E4",
+  "F4",
+  "Fs4",
+  "G4",
+  "Gs4",
+  "A4",
+  "As4",
+  "B4",
+  "C5",
+  "Cs5",
+  "D5",
+  "Ds5",
+  "E5",
+  "F5",
+  "Fs5",
+  "G5",
+  "Gs5",
+  "A5",
+  "As5",
+  "B5",
+  "C6",
+] as const;
 
-/** Sparse Salamander piano samples shipped under /samples/piano. */
-const SAMPLE_FILES: { name: string; midi: number }[] = [
-  { name: "A1", midi: 33 },
-  { name: "C2", midi: 36 },
-  { name: "Ds2", midi: 39 },
-  { name: "Fs2", midi: 42 },
-  { name: "A2", midi: 45 },
-  { name: "C3", midi: 48 },
-  { name: "Ds3", midi: 51 },
-  { name: "Fs3", midi: 54 },
-  { name: "A3", midi: 57 },
-  { name: "C4", midi: 60 },
-  { name: "Ds4", midi: 63 },
-  { name: "Fs4", midi: 66 },
-  { name: "A4", midi: 69 },
-  { name: "C5", midi: 72 },
-  { name: "Ds5", midi: 75 },
-  { name: "Fs5", midi: 78 },
-  { name: "A5", midi: 81 },
-  { name: "C6", midi: 84 },
-];
+/** MIDI for C3 … C6 matching SAMPLE_NAMES order. */
+const SAMPLE_MIDI_START = 48; // C3
 
 /**
- * Real piano sample playback (Web Audio buffers) for reference notes and hits.
- * Falls back to a soft triangle oscillator if samples fail to load.
+ * Acoustic piano playback via dense multi-samples (Web Audio buffers).
+ * Exact MIDI hits play without pitch-shift; envelope preserves hammer attack.
  */
 export class ReferenceSynth {
   private ctx: AudioContext | null = null;
@@ -37,7 +57,8 @@ export class ReferenceSynth {
     if (!this.ctx || this.ctx.state === "closed") {
       this.ctx = new AudioContext();
       this.master = this.ctx.createGain();
-      this.master.gain.value = 0.85;
+      // Slight headroom; samples are already normalized.
+      this.master.gain.value = 0.72;
       this.master.connect(this.ctx.destination);
     }
     return this.ctx;
@@ -57,7 +78,8 @@ export class ReferenceSynth {
     this.loadPromise = (async () => {
       const ctx = this.ensure();
       await Promise.all(
-        SAMPLE_FILES.map(async ({ name, midi }) => {
+        SAMPLE_NAMES.map(async (name, i) => {
+          const midi = SAMPLE_MIDI_START + i;
           try {
             const res = await fetch(`/samples/piano/${name}.mp3`);
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -65,7 +87,7 @@ export class ReferenceSynth {
             const buf = await ctx.decodeAudioData(raw.slice(0));
             this.buffers.set(midi, buf);
           } catch {
-            // Leave gap; nearest-sample lookup + oscillator fallback handle it.
+            // Missing note: nearest-sample path covers it.
           }
         }),
       );
@@ -75,21 +97,23 @@ export class ReferenceSynth {
     return this.loadPromise;
   }
 
-  /** Play a pitched piano note for roughly durationSec (envelope release). */
+  /** Play acoustic piano for roughly durationSec (natural attack, soft release). */
   play(midi: number, durationSec: number, when?: number, velocity = 0.9): void {
     const ctx = this.ensure();
     const t0 = when ?? ctx.currentTime;
-    const dur = Math.max(0.08, durationSec);
+    const dur = Math.max(0.06, durationSec);
 
-    const nearest = this.nearestSample(midi);
-    if (nearest) {
-      this.playSample(nearest.midi, nearest.buffer, midi, dur, t0, velocity);
-      return;
-    }
-    this.playOscillator(midi, dur, t0, velocity * 0.2);
+    const picked = this.pickSample(midi);
+    if (!picked) return;
+
+    this.playSample(picked.midi, picked.buffer, midi, dur, t0, velocity);
   }
 
-  private nearestSample(midi: number): { midi: number; buffer: AudioBuffer } | null {
+  /** Prefer exact buffer; otherwise nearest (≤2 semitones typical with dense set). */
+  private pickSample(midi: number): { midi: number; buffer: AudioBuffer } | null {
+    const exact = this.buffers.get(midi);
+    if (exact) return { midi, buffer: exact };
+
     let best: { midi: number; buffer: AudioBuffer } | null = null;
     let bestDist = Infinity;
     for (const [sampleMidi, buffer] of this.buffers) {
@@ -113,48 +137,30 @@ export class ReferenceSynth {
     const ctx = this.ensure();
     const src = ctx.createBufferSource();
     src.buffer = buffer;
-    src.playbackRate.value = Math.pow(2, (targetMidi - sampleMidi) / 12);
+
+    const semitones = targetMidi - sampleMidi;
+    // Dense bank → almost always 0; keep tiny shifts only for out-of-range notes.
+    src.playbackRate.value = semitones === 0 ? 1 : Math.pow(2, semitones / 12);
 
     const gain = ctx.createGain();
-    const peak = Math.min(1, 0.22 + velocity * 0.35);
-    const attack = 0.008;
-    const release = Math.min(0.45, Math.max(0.08, durationSec * 0.35));
-    const holdEnd = t0 + Math.max(attack + 0.02, durationSec - release);
+    const peak = Math.min(0.95, 0.35 + velocity * 0.55);
 
-    gain.gain.setValueAtTime(0.0001, t0);
-    gain.gain.exponentialRampToValueAtTime(peak, t0 + attack);
-    gain.gain.setValueAtTime(peak * 0.92, holdEnd);
-    gain.gain.exponentialRampToValueAtTime(0.0001, holdEnd + release);
+    // Preserve Salamander hammer attack: no fade-in from silence (that → organ).
+    gain.gain.setValueAtTime(peak, t0);
+
+    // Natural decay lives in the sample; we only gate with a short piano-like release.
+    const release = Math.min(0.55, Math.max(0.12, durationSec * 0.28));
+    const noteEnd = t0 + Math.max(0.05, durationSec);
+    const levelAtRelease = peak * 0.55;
+    gain.gain.setValueAtTime(levelAtRelease, Math.max(t0 + 0.03, noteEnd - release));
+    gain.gain.exponentialRampToValueAtTime(0.0001, noteEnd + 0.02);
 
     src.connect(gain);
     gain.connect(this.master ?? ctx.destination);
 
-    const stopAt = holdEnd + release + 0.05;
     src.start(t0);
-    src.stop(stopAt);
-  }
-
-  private playOscillator(
-    midi: number,
-    durationSec: number,
-    t0: number,
-    gainPeak: number,
-  ): void {
-    const ctx = this.ensure();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = "triangle";
-    osc.frequency.value = midiToFrequency(midi);
-    gain.gain.setValueAtTime(0.0001, t0);
-    gain.gain.exponentialRampToValueAtTime(gainPeak, t0 + 0.02);
-    gain.gain.exponentialRampToValueAtTime(
-      0.0001,
-      t0 + Math.max(0.08, durationSec * 0.9),
-    );
-    osc.connect(gain);
-    gain.connect(this.master ?? ctx.destination);
-    osc.start(t0);
-    osc.stop(t0 + durationSec + 0.05);
+    // Let a bit of release trail past written duration.
+    src.stop(noteEnd + release + 0.08);
   }
 
   dispose(): void {
