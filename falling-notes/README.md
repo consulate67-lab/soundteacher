@@ -12,7 +12,7 @@ Charts live in `src/engine/catalog.ts` / `songMelodies.ts` as note sequences (pe
 
 Turkish UI labels use solfege + pedagogical octave (**Do1** = scientific C4, **Do2** = C5). Black-key drops use a distinct silhouette + `#` badge; the on-screen piano shows tall, high-contrast black keys.
 
-Play at 0.5× / 0.75× / 1× via tempo scale.
+**Tempo:** chart BPM is the **1:1 performance** speed. Practice uses `0.75×` / `0.5×` wall-clock slowdown; **1:1 Performans** plays at the original chart BPM.
 
 ## Run locally
 
@@ -40,7 +40,7 @@ Allow microphone access when prompted. Place the tablet on the music stand, aim 
 2. **Hold matching** — attack within the hit window, then keep the pitch for ~70% of the written duration (tempo scale stretches the real hold; short mic gaps forgiven).
 3. **Color mapping** — each drop uses the same pitch-class color as its target piano key; black-key targets are visually distinct.
 4. **Piano keyboard UI** — realistic white/black layout; keys light for expected / holding / hit / miss / detected; mic match stays primary.
-5. **Tempo control** — clock/tempo scale on chart events (`tempoScale`); optional Web Audio triangle synth reference at the same tempo.
+5. **Tempo control** — `tempoScale` vs performance BPM (`1` = live, `<1` = practice); Salamander piano reference follows the same clock.
 6. **Mic pitch detection** — `getUserMedia` → `AnalyserNode` + autocorrelation; match within ±100–200 ms; noise gate; green/red feedback. Monophonic-first.
 7. **Wait-for-note mode** — scroll freezes until attack, then until the required hold completes (`Notayı bekle`).
 8. **Exercise list** — scrollable catalog by type + difficulty (≥100 public-domain / teaching motifs).

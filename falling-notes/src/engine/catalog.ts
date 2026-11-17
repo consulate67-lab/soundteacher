@@ -1789,7 +1789,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "anadolu-besli",
       "Anadolu Beşli Ezgi (pedagojik)",
-      84,
+      96,
       pattern(Melodies.ANADOLU.midis, Melodies.ANADOLU.beats),
       "halk",
       "baslangic",
@@ -1800,7 +1800,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "karadeniz-motif",
       "Karadeniz Motifi (pedagojik)",
-      100,
+      120,
       pattern(Melodies.KARADENIZ.midis, Melodies.KARADENIZ.beats),
       "halk",
       "orta",
@@ -1811,7 +1811,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "ege-zeybek-sade",
       "Ege Zeybek (sade pedagojik)",
-      60,
+      66,
       pattern(Melodies.EGE.midis, Melodies.EGE.beats),
       "halk",
       "ileri",
@@ -1822,7 +1822,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "rumeli-ezgi",
       "Rumeli Ezgi (pedagojik)",
-      88,
+      100,
       pattern(Melodies.RUMELI.midis, Melodies.RUMELI.beats),
       "halk",
       "orta",
@@ -1833,7 +1833,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "uzun-hava-sade",
       "Uzun Hava (sade tutuş)",
-      48,
+      52,
       pattern(Melodies.UZUN_HAVA.midis, Melodies.UZUN_HAVA.beats),
       "halk",
       "ileri",
@@ -1845,7 +1845,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "daglar-kizi-reyhan",
       "Dağlar Kızı Reyhan",
-      92,
+      116,
       pattern(Melodies.DAGLAR_KIZI_REYHAN.midis, Melodies.DAGLAR_KIZI_REYHAN.beats),
       "halk",
       "orta",
@@ -1856,7 +1856,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "uskudara-gideriken",
       "Üsküdar’a Gider İken (Kâtibim)",
-      100,
+      112,
       pattern(Melodies.USKUDARA.midis, Melodies.USKUDARA.beats),
       "halk",
       "orta",
@@ -1867,7 +1867,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "entarisi-ala",
       "Entarisi Ala Benziyor",
-      108,
+      126,
       pattern(Melodies.ENTARISI.midis, Melodies.ENTARISI.beats),
       "halk",
       "baslangic",
@@ -1878,7 +1878,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "cayelinden-ote",
       "Çayelinden Öteye",
-      96,
+      112,
       pattern(Melodies.CAYELINDEN.midis, Melodies.CAYELINDEN.beats),
       "halk",
       "orta",
@@ -1889,7 +1889,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "allisimin-kaslari",
       "Alişimin Kaşları",
-      100,
+      116,
       pattern(Melodies.ALLISIMIN.midis, Melodies.ALLISIMIN.beats),
       "halk",
       "baslangic",
@@ -1900,7 +1900,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "alli-turnam",
       "Allı Turnam",
-      84,
+      100,
       pattern(Melodies.ALLI_TURNAM.midis, Melodies.ALLI_TURNAM.beats),
       "halk",
       "orta",
@@ -1911,7 +1911,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "sari-gelin",
       "Sarı Gelin",
-      72,
+      80,
       pattern(Melodies.SARI_GELIN.midis, Melodies.SARI_GELIN.beats),
       "halk",
       "orta",
@@ -1922,7 +1922,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "yemen-turkusu",
       "Yemen Türküsü",
-      66,
+      76,
       pattern(Melodies.YEMEN.midis, Melodies.YEMEN.beats),
       "halk",
       "ileri",
@@ -1933,7 +1933,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "cirpinirdi-karadeniz",
       "Çırpınırdı Karadeniz",
-      88,
+      104,
       pattern(Melodies.CIRPINIRDI.midis, Melodies.CIRPINIRDI.beats),
       "halk",
       "orta",
@@ -1944,7 +1944,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "uzun-ince-yol",
       "Uzun İnce Bir Yoldayım",
-      70,
+      84,
       pattern(Melodies.UZUN_INCE.midis, Melodies.UZUN_INCE.beats),
       "halk",
       "orta",
@@ -1955,7 +1955,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "ada-sahilleri",
       "Ada Sahilleri",
-      96,
+      108,
       pattern(Melodies.ADA_SAHILLERI.midis, Melodies.ADA_SAHILLERI.beats),
       "halk",
       "baslangic",
@@ -1966,7 +1966,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "felek-cakmagi",
       "Felek Çakmağını Taktı",
-      90,
+      104,
       pattern(Melodies.FELEK.midis, Melodies.FELEK.beats),
       "halk",
       "orta",
@@ -1978,7 +1978,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "happy-birthday",
       "Mutlu Yıllar (Happy Birthday)",
-      96,
+      120,
       pattern(Melodies.HAPPY_BIRTHDAY.midis, Melodies.HAPPY_BIRTHDAY.beats),
       "populer",
       "baslangic",
@@ -1989,7 +1989,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "when-the-saints",
       "When the Saints",
-      110,
+      132,
       pattern(Melodies.WHEN_THE_SAINTS.midis, Melodies.WHEN_THE_SAINTS.beats),
       "populer",
       "baslangic",
@@ -2000,7 +2000,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "bella-ciao",
       "Bella Ciao",
-      100,
+      120,
       pattern(Melodies.BELLA_CIAO.midis, Melodies.BELLA_CIAO.beats),
       "populer",
       "orta",
@@ -2011,7 +2011,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "la-bamba",
       "La Bamba",
-      120,
+      140,
       pattern(Melodies.LA_BAMBA.midis, Melodies.LA_BAMBA.beats),
       "populer",
       "baslangic",
@@ -2022,7 +2022,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "guantanamera",
       "Guantanamera",
-      92,
+      108,
       pattern(Melodies.GUANTANAMERA.midis, Melodies.GUANTANAMERA.beats),
       "populer",
       "baslangic",
@@ -2033,7 +2033,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "el-condor-pasa",
       "El Cóndor Pasa",
-      80,
+      92,
       pattern(Melodies.EL_CONDOR.midis, Melodies.EL_CONDOR.beats),
       "populer",
       "orta",
@@ -2044,7 +2044,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "hava-nagila",
       "Hava Nagila",
-      120,
+      144,
       pattern(Melodies.HAVA_NAGILA.midis, Melodies.HAVA_NAGILA.beats),
       "populer",
       "ileri",
@@ -2055,7 +2055,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "kalinka",
       "Kalinka",
-      100,
+      120,
       pattern(Melodies.KALINKA.midis, Melodies.KALINKA.beats),
       "populer",
       "orta",
@@ -2066,7 +2066,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "korobeiniki",
       "Korobeiniki / Tetris",
-      120,
+      150,
       pattern(Melodies.KOROBEINIKI.midis, Melodies.KOROBEINIKI.beats),
       "populer",
       "orta",
@@ -2077,7 +2077,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "house-rising-sun",
       "House of the Rising Sun",
-      76,
+      88,
       pattern(Melodies.HOUSE_RISING.midis, Melodies.HOUSE_RISING.beats),
       "populer",
       "orta",
@@ -2088,7 +2088,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "let-it-be-motif",
       "Let It Be (öğretim)",
-      72,
+      76,
       pattern(Melodies.LET_IT_BE.midis, Melodies.LET_IT_BE.beats),
       "populer",
       "baslangic",
@@ -2099,7 +2099,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "imagine-motif",
       "Imagine (öğretim)",
-      70,
+      78,
       pattern(Melodies.IMAGINE.midis, Melodies.IMAGINE.beats),
       "populer",
       "baslangic",
@@ -2110,7 +2110,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "yesterday-motif",
       "Yesterday (öğretim)",
-      78,
+      88,
       pattern(Melodies.YESTERDAY.midis, Melodies.YESTERDAY.beats),
       "populer",
       "orta",
@@ -2121,7 +2121,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "perfect-motif",
       "Perfect (öğretim)",
-      84,
+      96,
       pattern(Melodies.PERFECT.midis, Melodies.PERFECT.beats),
       "populer",
       "orta",
@@ -2132,7 +2132,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "someone-like-you-motif",
       "Someone Like You (öğretim)",
-      68,
+      76,
       pattern(Melodies.SOMEONE_LIKE_YOU.midis, Melodies.SOMEONE_LIKE_YOU.beats),
       "populer",
       "ileri",
@@ -2143,7 +2143,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "shallow-motif",
       "Shallow (öğretim)",
-      88,
+      100,
       pattern(Melodies.SHALLOW.midis, Melodies.SHALLOW.beats),
       "populer",
       "orta",
@@ -2154,7 +2154,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "blinding-lights-motif",
       "Blinding Lights (öğretim)",
-      114,
+      171,
       pattern(Melodies.BLINDING_LIGHTS.midis, Melodies.BLINDING_LIGHTS.beats),
       "populer",
       "ileri",
@@ -2165,7 +2165,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "as-it-was-motif",
       "As It Was (öğretim)",
-      116,
+      174,
       pattern(Melodies.AS_IT_WAS.midis, Melodies.AS_IT_WAS.beats),
       "populer",
       "orta",
@@ -2176,7 +2176,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "flowers-motif",
       "Flowers (öğretim)",
-      100,
+      118,
       pattern(Melodies.FLOWERS.midis, Melodies.FLOWERS.beats),
       "populer",
       "orta",
@@ -2187,7 +2187,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "stay-rixton-motif",
       "Stay (öğretim)",
-      100,
+      120,
       pattern(Melodies.STAY.midis, Melodies.STAY.beats),
       "populer",
       "baslangic",
@@ -2198,7 +2198,7 @@ function buildCatalog(): Chart[] {
     buildChart(
       "despacito-motif",
       "Despacito (öğretim)",
-      108,
+      134,
       pattern(Melodies.DESPACITO.midis, Melodies.DESPACITO.beats),
       "populer",
       "ileri",

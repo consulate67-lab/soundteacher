@@ -55,18 +55,41 @@ export function Controls({
       </div>
 
       <div className="control-grid">
-        <label className="field">
-          <span>Tempo</span>
-          <select
-            value={config.tempoScale}
-            onChange={(e) => onTempo(Number(e.target.value))}
-            disabled={playing}
-          >
-            <option value={0.5}>0.5× (yavaş)</option>
-            <option value={0.75}>0.75×</option>
-            <option value={1}>1× (orijinal)</option>
-          </select>
-        </label>
+        <div className="field field-wide">
+          <span>
+            Tempo · etkin {Math.round(chart.bpm * config.tempoScale)} BPM
+            {config.tempoScale === 1 ? " (1:1)" : " (alıştırma)"}
+          </span>
+          <div className="tempo-modes" role="group" aria-label="Tempo modu">
+            <button
+              type="button"
+              className={`tempo-chip ${config.tempoScale === 1 ? "active" : ""}`}
+              onClick={() => onTempo(1)}
+              disabled={playing}
+              title={`Orijinal performans hızı (${chart.bpm} BPM)`}
+            >
+              1:1 Performans
+            </button>
+            <button
+              type="button"
+              className={`tempo-chip ${config.tempoScale === 0.75 ? "active" : ""}`}
+              onClick={() => onTempo(0.75)}
+              disabled={playing}
+              title="Alıştırma — %75 hız"
+            >
+              0.75× Alıştırma
+            </button>
+            <button
+              type="button"
+              className={`tempo-chip ${config.tempoScale === 0.5 ? "active" : ""}`}
+              onClick={() => onTempo(0.5)}
+              disabled={playing}
+              title="Yavaş alıştırma — yarı hız"
+            >
+              0.5× Yavaş
+            </button>
+          </div>
+        </div>
 
         <label className="field">
           <span>Pencere</span>

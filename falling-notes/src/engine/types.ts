@@ -22,7 +22,10 @@ export type ChartDifficulty = "baslangic" | "orta" | "ileri";
 export type Chart = {
   id: string;
   title: string;
-  /** Beats per minute of the chart’s written tempo. */
+  /**
+   * Performance BPM (1:1 original feel). Chart note times are authored at this
+   * tempo; `tempoScale` slows wall-clock practice relative to it (1 = live).
+   */
   bpm: number;
   notes: NoteEvent[];
   category: ChartCategory;
@@ -50,7 +53,10 @@ export type GamePhase =
   "idle" | "countdown" | "playing" | "waiting" | "holding" | "finished";
 
 export type GameConfig = {
-  /** Clock/tempo scale: 0.5 = half speed (notes take 2× wall time). */
+  /**
+   * Wall-clock scale vs chart performance BPM.
+   * 1 = 1:1 performans; 0.75 / 0.5 = alıştırma slowdown.
+   */
   tempoScale: number;
   /** Hit window half-width in chart-time ms (±) for attack onset. */
   hitWindowMs: number;

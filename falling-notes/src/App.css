@@ -290,6 +290,36 @@
   color: var(--paper);
 }
 
+.tempo-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.tempo-chip {
+  font-family: "Source Sans 3", sans-serif;
+  font-size: 0.78rem;
+  border: 1px solid rgba(243, 235, 224, 0.22);
+  background: transparent;
+  color: var(--paper);
+  border-radius: 999px;
+  padding: 0.3rem 0.65rem;
+  cursor: pointer;
+}
+
+.tempo-chip.active {
+  background: rgba(31, 138, 112, 0.35);
+  border-color: var(--teal);
+  color: #c8f5e6;
+}
+
+.tempo-chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .toggle {
   display: flex;
   align-items: center;
