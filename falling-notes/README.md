@@ -43,12 +43,14 @@ Allow microphone access when prompted. Place the tablet on the music stand, aim 
 
 ## MVP features
 
-1. **Falling notes engine** — larger labeled drops (Do1/Re1/…) fall onto a hit line above a real-looking on-screen piano.
-2. **Piano keyboard UI** — bottom keys light for expected / hit / miss / detected pitch; mic match stays primary.
-3. **Tempo control** — clock/tempo scale on chart events (`tempoScale`); optional Web Audio triangle synth reference at the same tempo.
-4. **Mic pitch detection** — `getUserMedia` → `AnalyserNode` + autocorrelation; match within ±100–200 ms; noise gate; green/red feedback. Monophonic-first.
-5. **Wait-for-note mode** — scroll freezes until the correct pitch is heard (`Notayı bekle`).
-6. **Exercise picker** — beginner drills + well-known public-domain teaching motifs.
+1. **Falling notes engine** — larger labeled drops (Do1/Re1/…) fall onto a hit line above a real-looking on-screen piano. Drop **height encodes duration** (½ / 1 / 2 / 4 beats); fill shows hold progress.
+2. **Hold matching** — attack within the hit window, then keep the pitch for ~70% of the written duration (tempo scale stretches the real hold; short mic gaps forgiven).
+3. **Color mapping** — each drop uses the same pitch-class color as its target piano key.
+4. **Piano keyboard UI** — bottom keys tinted by pitch color; light for expected / holding / hit / miss / detected; mic match stays primary.
+5. **Tempo control** — clock/tempo scale on chart events (`tempoScale`); optional Web Audio triangle synth reference at the same tempo.
+6. **Mic pitch detection** — `getUserMedia` → `AnalyserNode` + autocorrelation; match within ±100–200 ms; noise gate; green/red feedback. Monophonic-first.
+7. **Wait-for-note mode** — scroll freezes until attack, then until the required hold completes (`Notayı bekle`).
+8. **Exercise picker** — beginner drills + well-known public-domain teaching motifs.
 
 ## Pitch detection limits & next steps
 

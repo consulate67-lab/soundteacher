@@ -27,16 +27,26 @@ export type ActiveDrop = {
   /** Scaled duration in game clock seconds. */
   durationScaled: number;
   result: MatchResult;
+  /** 0–1 hold progress toward required duration (target only). */
+  holdProgress: number;
+  /** True once the correct pitch has been attacked for this note. */
+  attacked: boolean;
 };
 
-export type GamePhase = "idle" | "countdown" | "playing" | "waiting" | "finished";
+export type GamePhase =
+  | "idle"
+  | "countdown"
+  | "playing"
+  | "waiting"
+  | "holding"
+  | "finished";
 
 export type GameConfig = {
   /** Clock/tempo scale: 0.5 = half speed (notes take 2× wall time). */
   tempoScale: number;
-  /** Hit window half-width in wall-clock ms (±). */
+  /** Hit window half-width in chart-time ms (±) for attack onset. */
   hitWindowMs: number;
-  /** Pause scroll until correct pitch is heard. */
+  /** Pause scroll until correct pitch is heard (and held when required). */
   waitForNote: boolean;
   /** Play reference synth tones at the same tempo. */
   referenceAudio: boolean;

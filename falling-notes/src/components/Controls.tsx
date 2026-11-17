@@ -9,6 +9,7 @@ type Props = {
   hits: number;
   misses: number;
   detectedLabel: string;
+  holdProgress: number;
   chart: Chart;
   charts: Chart[];
   onChart: (id: string) => void;
@@ -30,6 +31,7 @@ export function Controls({
   hits,
   misses,
   detectedLabel,
+  holdProgress,
   chart,
   charts,
   onChart,
@@ -42,7 +44,7 @@ export function Controls({
   onPlay,
   onStop,
 }: Props) {
-  const playing = phase === "playing" || phase === "waiting";
+  const playing = phase === "playing" || phase === "waiting" || phase === "holding";
 
   return (
     <header className="controls">
@@ -151,6 +153,11 @@ export function Controls({
           İsabet: {hits} · Kaçırılan: {misses}
         </span>
         {phase === "waiting" && <span className="wait-pill">Doğru notayı bekliyor…</span>}
+        {phase === "holding" && (
+          <span className="hold-pill">
+            Basılı tut · {Math.round(holdProgress * 100)}%
+          </span>
+        )}
         {phase === "finished" && <span className="done-pill">Bitti — tebrikler!</span>}
         {micError && <span className="err">{micError}</span>}
       </div>

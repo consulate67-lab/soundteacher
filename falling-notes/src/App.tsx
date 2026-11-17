@@ -51,7 +51,6 @@ export default function App() {
     return () => {
       cancelAnimationFrame(rafRef.current);
     };
-    // Re-bind engine when exercise chart changes (idle only via Controls).
     // eslint-disable-next-line react-hooks/exhaustive-deps -- chart id drives rebuild
   }, [chart.id]);
 
@@ -112,8 +111,11 @@ export default function App() {
       const detector = new PitchDetector((sample) => {
         setDetectedMidi(sample.midi);
         const engine = engineRef.current;
-        if (!engine || sample.midi == null) return;
-        engine.tryMatch(Math.round(sample.midi), performance.now());
+        if (!engine) return;
+        engine.updatePitch(
+          sample.midi == null ? null : Math.round(sample.midi),
+          performance.now(),
+        );
       });
       detectorRef.current = detector;
       await detector.start();
@@ -156,10 +158,14 @@ export default function App() {
     setChart(next);
   };
 
-  const expectedMidi =
-    snapshot.phase === "playing" || snapshot.phase === "waiting"
-      ? (chart.notes[snapshot.targetIndex]?.midi ?? null)
-      : null;
+  const livePhase =
+    snapshot.phase === "playing" ||
+    snapshot.phase === "waiting" ||
+    snapshot.phase === "holding";
+
+  const expectedMidi = livePhase
+    ? (chart.notes[snapshot.targetIndex]?.midi ?? null)
+    : null;
 
   const detectedLabel =
     detectedMidi != null ? midiToDisplayLabel(Math.round(detectedMidi)) : "—";
@@ -174,6 +180,7 @@ export default function App() {
         hits={snapshot.hits}
         misses={snapshot.misses}
         detectedLabel={detectedLabel}
+        holdProgress={snapshot.holdProgress}
         chart={chart}
         charts={CHARTS}
         onChart={handleChart}
@@ -198,6 +205,8 @@ export default function App() {
           hitMidi={flashHit}
           missMidi={flashMiss}
           detectedMidi={detectedMidi}
+          holding={snapshot.phase === "holding"}
+          holdProgress={snapshot.holdProgress}
         />
       </main>
     </div>
