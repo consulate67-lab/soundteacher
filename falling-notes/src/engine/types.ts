@@ -11,7 +11,7 @@ export type NoteEvent = {
 };
 
 /** Exercise type / content category (Turkish UI labels via catalog). */
-export type ChartCategory = "gam" | "teknik" | "cocuk" | "klasik" | "halk";
+export type ChartCategory = "gam" | "teknik" | "cocuk" | "klasik" | "halk" | "populer";
 
 /** Pedagogical difficulty band. */
 export type ChartDifficulty = "baslangic" | "orta" | "ileri";

@@ -6,7 +6,7 @@ Turkish UI · landscape-first · Vite + React + TypeScript.
 
 ## Exercises
 
-Charts live in `src/engine/catalog.ts` as note sequences (not sheet-music dumps). **100+** entries with Turkish titles, organized by **type** (Gam / Teknik / Çocuk / Klasik / Halk) and **difficulty** (Başlangıç / Orta / İleri). The in-app picker is a **scrollable list** (not a dropdown), with difficulty chips and a “Siyah tuş” badge when black keys appear.
+Charts live in `src/engine/catalog.ts` as note sequences (not sheet-music dumps). **100+** entries with Turkish titles, organized by **type** (Gam / Teknik / Çocuk / Klasik / Halk / Popüler) and **difficulty** (Başlangıç / Orta / İleri). The in-app picker is a **scrollable list** (not a dropdown), with difficulty chips and a “Siyah tuş” badge when black keys appear. Short popular-song entries are pedagogical motifs/hooks only—not full commercial sheet music.
 
 Turkish UI labels use solfege + pedagogical octave (**Do1** = scientific C4, **Do2** = C5). Black-key drops use a distinct silhouette + `#` badge; the on-screen piano shows tall, high-contrast black keys.
 

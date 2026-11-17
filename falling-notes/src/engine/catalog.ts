@@ -56,6 +56,7 @@ export const CATEGORY_LABELS: Record<ChartCategory, string> = {
   cocuk: "Çocuk Şarkısı",
   klasik: "Klasik Motif",
   halk: "Halk Ezgisi",
+  populer: "Popüler Motif",
 };
 
 export const DIFFICULTY_LABELS: Record<ChartDifficulty, string> = {
@@ -70,6 +71,7 @@ export const CATEGORY_ORDER: ChartCategory[] = [
   "cocuk",
   "klasik",
   "halk",
+  "populer",
 ];
 
 export const DIFFICULTY_ORDER: ChartDifficulty[] = ["baslangic", "orta", "ileri"];
@@ -1849,6 +1851,1040 @@ function buildCatalog(): Chart[] {
     ),
   );
 
+  // ——— Extra Turkish folk (Halk) ———
+  // Dağlar Kızı Reyhan — traditional Turkish folk; pedagogical note sequence.
+  add(
+    buildChart(
+      "daglar-kizi-reyhan",
+      "Dağlar Kızı Reyhan",
+      92,
+      pattern(
+        [
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.E4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.D4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+          NOTE.B3,
+          NOTE.C4,
+          NOTE.C4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+          NOTE.G3,
+          NOTE.A3,
+          NOTE.A3,
+          NOTE.A3,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+          NOTE.A3,
+        ],
+        [
+          1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2,
+          1, 1, 1, 1, 2, 2,
+        ],
+      ),
+      "halk",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "uskudara-gideriken",
+      "Üsküdar’a Gider İken (Kâtibim)",
+      100,
+      pattern(
+        [
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.Cs4,
+          NOTE.D4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.A3,
+          NOTE.D4,
+        ],
+        [
+          1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+          2,
+        ],
+      ),
+      "halk",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "entarisi-ala",
+      "Entarisi Ala Benziyor",
+      108,
+      pattern(
+        [
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "cayelinden-ote",
+      "Çayelinden Öteye",
+      96,
+      pattern(
+        [
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.C5,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.Fs4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.Fs4,
+          NOTE.E4,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "allisimin-kaslari",
+      "Alişimin Kaşları",
+      100,
+      pattern(
+        [
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.E4,
+        ],
+        [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "alli-turnam",
+      "Allı Turnam",
+      84,
+      pattern(
+        [
+          NOTE.A3,
+          NOTE.B3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+        ],
+        [1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "sari-gelin",
+      "Sarı Gelin",
+      72,
+      pattern(
+        [
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+          NOTE.G3,
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+        ],
+        [1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "yemen-turkusu",
+      "Yemen Türküsü (motif)",
+      66,
+      pattern(
+        [
+          NOTE.D4,
+          NOTE.F4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.Bb4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.Cs4,
+          NOTE.D4,
+        ],
+        [1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "ileri",
+    ),
+  );
+
+  add(
+    buildChart(
+      "cirpinirdi-karadeniz",
+      "Çırpınırdı Karadeniz (motif)",
+      88,
+      pattern(
+        [
+          NOTE.E4,
+          NOTE.Fs4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.Fs4,
+          NOTE.E4,
+          NOTE.B3,
+          NOTE.E4,
+          NOTE.Fs4,
+          NOTE.G4,
+          NOTE.Fs4,
+          NOTE.E4,
+        ],
+        [1, 1, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "uzun-ince-yol",
+      "Uzun İnce Bir Yoldayım (motif)",
+      70,
+      pattern(
+        [
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+          NOTE.G3,
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+        ],
+        [1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "ada-sahilleri",
+      "Ada Sahilleri (motif)",
+      96,
+      pattern(
+        [
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "felek-cakmagi",
+      "Felek Çakmağını Taktı (motif)",
+      90,
+      pattern(
+        [
+          NOTE.A3,
+          NOTE.B3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+        ],
+        [1, 1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 2],
+      ),
+      "halk",
+      "orta",
+    ),
+  );
+
+  // ——— Popular / well-known foreign short pedagogical motifs ———
+  add(
+    buildChart(
+      "happy-birthday",
+      "Mutlu Yıllar (Happy Birthday)",
+      96,
+      pattern(
+        [
+          NOTE.C4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.C4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.G4,
+          NOTE.F4,
+          NOTE.C4,
+          NOTE.C4,
+          NOTE.C5,
+          NOTE.A4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.Bb4,
+          NOTE.Bb4,
+          NOTE.A4,
+          NOTE.F4,
+          NOTE.G4,
+          NOTE.F4,
+        ],
+        [
+          0.75, 0.25, 1, 1, 1, 2, 0.75, 0.25, 1, 1, 1, 2, 0.75, 0.25, 1, 1, 1, 1, 1, 0.75,
+          0.25, 1, 1, 1, 2,
+        ],
+      ),
+      "populer",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "when-the-saints",
+      "When the Saints (motif)",
+      110,
+      pattern(
+        [
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.G4,
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.G4,
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.D4,
+        ],
+        [1, 1, 1, 2, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "bella-ciao",
+      "Bella Ciao (motif)",
+      100,
+      pattern(
+        [
+          NOTE.E4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.C5,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.C5,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.E4,
+          NOTE.E4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.C5,
+          NOTE.D5,
+          NOTE.C5,
+          NOTE.B4,
+          NOTE.A4,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "la-bamba",
+      "La Bamba (motif)",
+      120,
+      pattern(
+        [
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.F4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.C4,
+        ],
+        [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "guantanamera",
+      "Guantanamera (motif)",
+      92,
+      pattern(
+        [
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.A3,
+          NOTE.G3,
+        ],
+        [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "el-condor-pasa",
+      "El Cóndor Pasa (motif)",
+      80,
+      pattern(
+        [
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.E4,
+        ],
+        [1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "hava-nagila",
+      "Hava Nagila (motif)",
+      120,
+      pattern(
+        [
+          NOTE.E4,
+          NOTE.Fs4,
+          NOTE.Gs4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.Gs4,
+          NOTE.Fs4,
+          NOTE.E4,
+          NOTE.B3,
+          NOTE.E4,
+          NOTE.Fs4,
+          NOTE.Gs4,
+          NOTE.Fs4,
+          NOTE.E4,
+        ],
+        [0.5, 0.5, 0.5, 0.5, 1, 0.5, 0.5, 0.5, 1, 1, 0.5, 0.5, 0.5, 0.5, 2],
+      ),
+      "populer",
+      "ileri",
+    ),
+  );
+
+  add(
+    buildChart(
+      "kalinka",
+      "Kalinka (motif)",
+      100,
+      pattern(
+        [
+          NOTE.A4,
+          NOTE.A4,
+          NOTE.E4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.Fs4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.Fs4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.A4,
+          NOTE.E4,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "korobeiniki",
+      "Korobeiniki / Tetris (motif)",
+      120,
+      pattern(
+        [
+          NOTE.E4,
+          NOTE.B3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.A3,
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.B3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.C4,
+          NOTE.A3,
+          NOTE.A3,
+        ],
+        [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "house-rising-sun",
+      "House of the Rising Sun (motif)",
+      76,
+      pattern(
+        [
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.A3,
+          NOTE.G3,
+          NOTE.A3,
+        ],
+        [1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "let-it-be-motif",
+      "Let It Be (öğretim motifi)",
+      72,
+      pattern(
+        [
+          NOTE.C4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "imagine-motif",
+      "Imagine (öğretim motifi)",
+      70,
+      pattern(
+        [
+          NOTE.C4,
+          NOTE.C4,
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.E4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.B3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "yesterday-motif",
+      "Yesterday (öğretim motifi)",
+      78,
+      pattern(
+        [
+          NOTE.G4,
+          NOTE.F4,
+          NOTE.F4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+        ],
+        [1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "perfect-motif",
+      "Perfect (öğretim motifi)",
+      84,
+      pattern(
+        [
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+        ],
+        [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "someone-like-you-motif",
+      "Someone Like You (öğretim motifi)",
+      68,
+      pattern(
+        [
+          NOTE.A3,
+          NOTE.E4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.Cs5,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.E4,
+          NOTE.Fs4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.Cs4,
+          NOTE.B3,
+          NOTE.A3,
+        ],
+        [1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "ileri",
+    ),
+  );
+
+  add(
+    buildChart(
+      "shallow-motif",
+      "Shallow (öğretim motifi)",
+      88,
+      pattern(
+        [
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.D5,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.B4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+        ],
+        [1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "blinding-lights-motif",
+      "Blinding Lights (öğretim motifi)",
+      114,
+      pattern(
+        [
+          NOTE.F4,
+          NOTE.F4,
+          NOTE.Ab4,
+          NOTE.Bb4,
+          NOTE.C5,
+          NOTE.Bb4,
+          NOTE.Ab4,
+          NOTE.F4,
+          NOTE.Eb4,
+          NOTE.F4,
+          NOTE.Ab4,
+          NOTE.Bb4,
+          NOTE.Ab4,
+          NOTE.F4,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "ileri",
+    ),
+  );
+
+  add(
+    buildChart(
+      "as-it-was-motif",
+      "As It Was (öğretim motifi)",
+      116,
+      pattern(
+        [
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+        ],
+        [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "flowers-motif",
+      "Flowers (öğretim motifi)",
+      100,
+      pattern(
+        [
+          NOTE.A3,
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.C4,
+          NOTE.D4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.A3,
+        ],
+        [1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "orta",
+    ),
+  );
+
+  add(
+    buildChart(
+      "stay-rixton-motif",
+      "Stay (öğretim motifi)",
+      100,
+      pattern(
+        [
+          NOTE.C4,
+          NOTE.E4,
+          NOTE.G4,
+          NOTE.A4,
+          NOTE.G4,
+          NOTE.E4,
+          NOTE.F4,
+          NOTE.E4,
+          NOTE.D4,
+          NOTE.C4,
+          NOTE.G3,
+          NOTE.C4,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "baslangic",
+    ),
+  );
+
+  add(
+    buildChart(
+      "despacito-motif",
+      "Despacito (öğretim motifi)",
+      108,
+      pattern(
+        [
+          NOTE.B3,
+          NOTE.Cs4,
+          NOTE.E4,
+          NOTE.Fs4,
+          NOTE.Gs4,
+          NOTE.Fs4,
+          NOTE.E4,
+          NOTE.Cs4,
+          NOTE.B3,
+          NOTE.Cs4,
+          NOTE.E4,
+          NOTE.Fs4,
+          NOTE.E4,
+          NOTE.Cs4,
+          NOTE.B3,
+        ],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+      ),
+      "populer",
+      "ileri",
+    ),
+  );
+
   // Fill to ≥100 with systematic short drills (white + black keys)
   const drillRoots: { name: string; root: number; black: boolean }[] = [
     { name: "Do", root: NOTE.C4, black: false },
@@ -2092,6 +3128,7 @@ export function catalogStats(): {
     cocuk: 0,
     klasik: 0,
     halk: 0,
+    populer: 0,
   } satisfies Record<ChartCategory, number>;
   const byDifficulty = {
     baslangic: 0,
