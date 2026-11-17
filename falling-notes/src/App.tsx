@@ -26,7 +26,9 @@ function emptySnapshot(chart: Chart): EngineSnapshot {
 export default function App() {
   const [chart, setChart] = useState<Chart>(DEMO_CHART);
   const [config, setConfig] = useState<GameConfig>(DEFAULT_CONFIG);
-  const [snapshot, setSnapshot] = useState<EngineSnapshot>(() => emptySnapshot(DEMO_CHART));
+  const [snapshot, setSnapshot] = useState<EngineSnapshot>(() =>
+    emptySnapshot(DEMO_CHART),
+  );
   const [micOn, setMicOn] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
   const [detectedMidi, setDetectedMidi] = useState<number | null>(null);

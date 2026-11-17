@@ -34,12 +34,7 @@ export type ActiveDrop = {
 };
 
 export type GamePhase =
-  | "idle"
-  | "countdown"
-  | "playing"
-  | "waiting"
-  | "holding"
-  | "finished";
+  "idle" | "countdown" | "playing" | "waiting" | "holding" | "finished";
 
 export type GameConfig = {
   /** Clock/tempo scale: 0.5 = half speed (notes take 2× wall time). */

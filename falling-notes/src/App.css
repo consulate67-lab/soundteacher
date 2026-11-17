@@ -278,7 +278,12 @@
   justify-content: flex-end;
   gap: 0.15rem;
   padding: 0.35rem 0.2rem 0.45rem;
-  background: linear-gradient(180deg, var(--note-light) 0%, var(--note-base) 55%, var(--note-dark) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--note-light) 0%,
+    var(--note-base) 55%,
+    var(--note-dark) 100%
+  );
   color: var(--note-ink);
   font-family: "Source Sans 3", sans-serif;
   font-size: 0.92rem;
@@ -300,7 +305,11 @@
   right: 0;
   bottom: 0;
   height: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.18));
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.18)
+  );
   pointer-events: none;
   transition: height 0.08s linear;
   z-index: 0;
@@ -345,8 +354,7 @@
   position: relative;
   height: 148px;
   border-radius: 0 0 12px 12px;
-  background:
-    linear-gradient(180deg, #1a1612 0%, #0a0908 100%);
+  background: linear-gradient(180deg, #1a1612 0%, #0a0908 100%);
   padding: 10px 6px 8px;
   user-select: none;
   box-shadow: inset 0 8px 16px rgba(0, 0, 0, 0.35);
@@ -412,13 +420,12 @@
 }
 
 .key.white.holding {
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--note-light) 70%, white) 0%,
-      var(--note-base) var(--hold-pct),
-      var(--note-dark) 100%
-    );
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--note-light) 70%, white) 0%,
+    var(--note-base) var(--hold-pct),
+    var(--note-dark) 100%
+  );
   transform: translateY(2px);
 }
 
@@ -474,7 +481,12 @@
 
 .key.black.expected,
 .key.black.holding {
-  background: linear-gradient(180deg, var(--note-light), var(--note-base), var(--note-dark));
+  background: linear-gradient(
+    180deg,
+    var(--note-light),
+    var(--note-base),
+    var(--note-dark)
+  );
   transform: translateX(-50%) translateY(1px);
 }
 

@@ -122,7 +122,11 @@ export class GameEngine {
     this.lastDetectedMidi = detectedMidi;
     this.lastPitchAt = now;
 
-    if (this.phase !== "playing" && this.phase !== "waiting" && this.phase !== "holding") {
+    if (
+      this.phase !== "playing" &&
+      this.phase !== "waiting" &&
+      this.phase !== "holding"
+    ) {
       return;
     }
 

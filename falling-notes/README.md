@@ -8,16 +8,16 @@ Turkish UI · landscape-first · Vite + React + TypeScript.
 
 Charts live in `src/engine/noteChart.ts` as note sequences (not sheet-music dumps). Turkish UI labels use solfege + pedagogical octave (**Do1** = scientific C4, **Do2** = C5).
 
-| Exercise | Notes |
-| --- | --- |
-| Do–Re–Mi Egzersizi | Original beginner drill |
-| Do Majör Gam (Do1–Do2) | C-major scale up/down |
-| Sıcak Çörekler | Hot Cross Buns (PD) |
-| Mary’nin Kuzusu | Mary Had a Little Lamb (PD) |
-| Küçük Yıldız | Twinkle Twinkle (PD) |
-| Neşeye Övgü | Ode to Joy motif (PD) |
-| Yankee Doodle | Simplified C-major motif (PD) |
-| Şıngırdak Ziller | Jingle Bells motif (1857, PD) |
+| Exercise               | Notes                         |
+| ---------------------- | ----------------------------- |
+| Do–Re–Mi Egzersizi     | Original beginner drill       |
+| Do Majör Gam (Do1–Do2) | C-major scale up/down         |
+| Sıcak Çörekler         | Hot Cross Buns (PD)           |
+| Mary’nin Kuzusu        | Mary Had a Little Lamb (PD)   |
+| Küçük Yıldız           | Twinkle Twinkle (PD)          |
+| Neşeye Övgü            | Ode to Joy motif (PD)         |
+| Yankee Doodle          | Simplified C-major motif (PD) |
+| Şıngırdak Ziller       | Jingle Bells motif (1857, PD) |
 
 Play at 0.5× / 0.75× / 1× via tempo scale.
 
