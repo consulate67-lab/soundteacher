@@ -98,7 +98,7 @@ export function Controls({
             onChange={(e) => onRefToggle(e.target.checked)}
             disabled={playing}
           />
-          <span>Referans ses</span>
+          <span>Piyano referans</span>
         </label>
       </div>
 

@@ -55,6 +55,7 @@ export default function App() {
     engineRef.current = new GameEngine(chart, config, FALL_LEAD);
     setSnapshot(engineRef.current.snapshot());
     synthRef.current ??= new ReferenceSynth();
+    void synthRef.current.load();
     return () => {
       cancelAnimationFrame(rafRef.current);
     };
@@ -82,8 +83,14 @@ export default function App() {
 
     if (config.referenceAudio && synthRef.current) {
       for (const n of refNotes) {
+        // Wall-clock duration so held notes ring with the falling-note timing.
         const dur = n.duration / config.tempoScale;
-        synthRef.current.play(n.midi, Math.min(dur, 1.2));
+        synthRef.current.play(
+          n.midi,
+          Math.min(Math.max(dur, 0.12), 3.5),
+          undefined,
+          0.95,
+        );
       }
     }
 
@@ -93,6 +100,15 @@ export default function App() {
       if (snap.feedback === "hit" && target) {
         setFlashHit(target.midi);
         setFlashMiss(null);
+        // Confirm hit with the same pitched piano sample (music ↔ pitch link).
+        if (!config.referenceAudio) {
+          synthRef.current?.play(
+            target.midi,
+            Math.min(target.duration / config.tempoScale, 1.6),
+            undefined,
+            1,
+          );
+        }
         window.setTimeout(() => setFlashHit(null), 280);
       }
       if (snap.feedback === "miss" && target) {

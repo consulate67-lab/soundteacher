@@ -56,7 +56,7 @@ export type GameConfig = {
   hitWindowMs: number;
   /** Pause scroll until correct pitch is heard (and held when required). */
   waitForNote: boolean;
-  /** Play reference synth tones at the same tempo. */
+  /** Play pitched piano samples in sync with falling notes. */
   referenceAudio: boolean;
 };
 
