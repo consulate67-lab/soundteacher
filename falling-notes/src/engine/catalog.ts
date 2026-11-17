@@ -1,4 +1,10 @@
-import type { Chart, ChartCategory, ChartDifficulty, NoteEvent } from "./types";
+import type {
+  Chart,
+  ChartCategory,
+  ChartDifficulty,
+  ChartLocale,
+  NoteEvent,
+} from "./types";
 
 /** MIDI helpers spanning C3–E5 including black keys. */
 export const NOTE = {
@@ -59,6 +65,11 @@ export const CATEGORY_LABELS: Record<ChartCategory, string> = {
   populer: "Popüler Motif",
 };
 
+export const LOCALE_LABELS: Record<ChartLocale, string> = {
+  turkce: "Türkçe",
+  yabanci: "Yabancı",
+};
+
 export const DIFFICULTY_LABELS: Record<ChartDifficulty, string> = {
   baslangic: "Başlangıç",
   orta: "Orta",
@@ -74,7 +85,42 @@ export const CATEGORY_ORDER: ChartCategory[] = [
   "populer",
 ];
 
+export const LOCALE_ORDER: ChartLocale[] = ["turkce", "yabanci"];
+
 export const DIFFICULTY_ORDER: ChartDifficulty[] = ["baslangic", "orta", "ileri"];
+
+/** Turkish folk / Anadolu repertoire ids under Halk (others under Halk are foreign). */
+const TURKISH_HALK_IDS = new Set([
+  "anadolu-besli",
+  "karadeniz-motif",
+  "ege-zeybek-sade",
+  "rumeli-ezgi",
+  "uzun-hava-sade",
+  "daglar-kizi-reyhan",
+  "uskudara-gideriken",
+  "entarisi-ala",
+  "cayelinden-ote",
+  "allisimin-kaslari",
+  "alli-turnam",
+  "sari-gelin",
+  "yemen-turkusu",
+  "cirpinirdi-karadeniz",
+  "uzun-ince-yol",
+  "ada-sahilleri",
+  "felek-cakmagi",
+]);
+
+/** Resolve Türkçe vs Yabancı for list grouping. */
+export function resolveChartLocale(
+  id: string,
+  category: ChartCategory,
+  locale?: ChartLocale,
+): ChartLocale {
+  if (locale) return locale;
+  if (category === "gam" || category === "teknik") return "turkce";
+  if (category === "halk" && TURKISH_HALK_IDS.has(id)) return "turkce";
+  return "yabanci";
+}
 
 export function buildChart(
   id: string,
@@ -84,6 +130,7 @@ export function buildChart(
   category: ChartCategory,
   difficulty: ChartDifficulty,
   leadInBeats = 1,
+  locale?: ChartLocale,
 ): Chart {
   const beat = 60 / bpm;
   let t = leadInBeats * beat;
@@ -98,7 +145,15 @@ export function buildChart(
     t += duration;
     return event;
   });
-  return { id, title, bpm, notes, category, difficulty };
+  return {
+    id,
+    title,
+    bpm,
+    notes,
+    category,
+    difficulty,
+    locale: resolveChartLocale(id, category, locale),
+  };
 }
 
 function scaleAscDesc(root: number, intervals: number[], beats = 1): SeqNote[] {

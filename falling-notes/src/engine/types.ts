@@ -13,6 +13,9 @@ export type NoteEvent = {
 /** Exercise type / content category (Turkish UI labels via catalog). */
 export type ChartCategory = "gam" | "teknik" | "cocuk" | "klasik" | "halk" | "populer";
 
+/** Top-level song-menu language / repertoire group. */
+export type ChartLocale = "turkce" | "yabanci";
+
 /** Pedagogical difficulty band. */
 export type ChartDifficulty = "baslangic" | "orta" | "ileri";
 
@@ -24,6 +27,8 @@ export type Chart = {
   notes: NoteEvent[];
   category: ChartCategory;
   difficulty: ChartDifficulty;
+  /** Türkçe vs Yabancı grouping for the left-side song list. */
+  locale: ChartLocale;
 };
 
 export type MatchResult = "hit" | "miss" | "pending";

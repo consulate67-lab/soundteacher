@@ -6,9 +6,12 @@ export {
   buildChart,
   catalogStats,
   chartHasBlackKeys,
+  resolveChartLocale,
   CATEGORY_LABELS,
+  LOCALE_LABELS,
   DIFFICULTY_LABELS,
   CATEGORY_ORDER,
+  LOCALE_ORDER,
   DIFFICULTY_ORDER,
 } from "./catalog";
 

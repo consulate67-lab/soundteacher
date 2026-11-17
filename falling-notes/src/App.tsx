@@ -7,7 +7,7 @@ import { FallingNotesStage } from "./components/FallingNotesStage";
 import { PianoKeyboard } from "./components/PianoKeyboard";
 import { GameEngine, type EngineSnapshot } from "./engine/gameEngine";
 import { CHARTS, DEMO_CHART, getChartById, midiToDisplayLabel } from "./engine/noteChart";
-import type { Chart, ChartDifficulty, GameConfig } from "./engine/types";
+import type { Chart, ChartDifficulty, ChartLocale, GameConfig } from "./engine/types";
 import "./App.css";
 
 const FALL_LEAD = 2.5;
@@ -38,6 +38,7 @@ export default function App() {
   const [difficultyFilter, setDifficultyFilter] = useState<ChartDifficulty | "all">(
     "all",
   );
+  const [localeFilter, setLocaleFilter] = useState<ChartLocale | "all">("all");
 
   const engineRef = useRef<GameEngine | null>(null);
   const chartRef = useRef(chart);
@@ -184,6 +185,8 @@ export default function App() {
         disabled={livePhase}
         difficultyFilter={difficultyFilter}
         onDifficultyFilter={setDifficultyFilter}
+        localeFilter={localeFilter}
+        onLocaleFilter={setLocaleFilter}
         onSelect={handleChart}
       />
 

@@ -68,13 +68,19 @@
   font-family: "Source Sans 3", sans-serif;
 }
 
+.locale-filters,
 .diff-filters {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
-  padding: 0.35rem 0.75rem 0.65rem;
+  padding: 0.35rem 0.75rem 0.35rem;
 }
 
+.diff-filters {
+  padding-bottom: 0.65rem;
+}
+
+.locale-chip,
 .diff-chip {
   font-family: "Source Sans 3", sans-serif;
   font-size: 0.72rem;
@@ -86,12 +92,14 @@
   cursor: pointer;
 }
 
+.locale-chip.active,
 .diff-chip.active {
   background: rgba(212, 162, 76, 0.3);
   border-color: var(--gold);
   color: #ffe7a8;
 }
 
+.locale-chip:disabled,
 .diff-chip:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -104,12 +112,25 @@
   overscroll-behavior: contain;
 }
 
+.exercise-locale {
+  margin-bottom: 1.1rem;
+}
+
+.exercise-locale-title {
+  margin: 0.55rem 0.35rem 0.45rem;
+  font-family: "Fraunces", Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.02em;
+}
+
 .exercise-section {
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.75rem;
 }
 
 .exercise-section-title {
-  margin: 0.4rem 0.35rem 0.35rem;
+  margin: 0.35rem 0.35rem 0.3rem;
   font-family: "Source Sans 3", sans-serif;
   font-size: 0.68rem;
   letter-spacing: 0.08em;
