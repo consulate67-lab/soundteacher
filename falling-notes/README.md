@@ -4,9 +4,22 @@ Tablet-on-music-stand practice game: **Synthesia-like falling note drops** match
 
 Turkish UI · landscape-first · Vite + React + TypeScript.
 
-## Demo melody
+## Exercises
 
-**Do–Re–Mi Egzersizi** — original hardcoded beginner chart in C major (`src/engine/noteChart.ts`). Not a ripped or copyrighted song. Written tempo **80 BPM**; play at 0.5× / 0.75× / 1× via tempo scale.
+Charts live in `src/engine/noteChart.ts` as note sequences (not sheet-music dumps). Turkish UI labels use solfege + pedagogical octave (**Do1** = scientific C4, **Do2** = C5).
+
+| Exercise | Notes |
+| --- | --- |
+| Do–Re–Mi Egzersizi | Original beginner drill |
+| Do Majör Gam (Do1–Do2) | C-major scale up/down |
+| Sıcak Çörekler | Hot Cross Buns (PD) |
+| Mary’nin Kuzusu | Mary Had a Little Lamb (PD) |
+| Küçük Yıldız | Twinkle Twinkle (PD) |
+| Neşeye Övgü | Ode to Joy motif (PD) |
+| Yankee Doodle | Simplified C-major motif (PD) |
+| Şıngırdak Ziller | Jingle Bells motif (1857, PD) |
+
+Play at 0.5× / 0.75× / 1× via tempo scale.
 
 ## Run locally
 
@@ -30,10 +43,12 @@ Allow microphone access when prompted. Place the tablet on the music stand, aim 
 
 ## MVP features
 
-1. **Falling notes engine** — drops fall onto a hit line above an on-screen piano keyboard.
-2. **Tempo control** — clock/tempo scale on chart events (`tempoScale`); optional Web Audio triangle synth reference at the same tempo.
-3. **Mic pitch detection** — `getUserMedia` → `AnalyserNode` + autocorrelation; match within ±100–200 ms; noise gate; green/red feedback. Monophonic-first.
-4. **Wait-for-note mode** — scroll freezes until the correct pitch is heard (`Notayı bekle`).
+1. **Falling notes engine** — larger labeled drops (Do1/Re1/…) fall onto a hit line above a real-looking on-screen piano.
+2. **Piano keyboard UI** — bottom keys light for expected / hit / miss / detected pitch; mic match stays primary.
+3. **Tempo control** — clock/tempo scale on chart events (`tempoScale`); optional Web Audio triangle synth reference at the same tempo.
+4. **Mic pitch detection** — `getUserMedia` → `AnalyserNode` + autocorrelation; match within ±100–200 ms; noise gate; green/red feedback. Monophonic-first.
+5. **Wait-for-note mode** — scroll freezes until the correct pitch is heard (`Notayı bekle`).
+6. **Exercise picker** — beginner drills + well-known public-domain teaching motifs.
 
 ## Pitch detection limits & next steps
 

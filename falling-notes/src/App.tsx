@@ -5,8 +5,8 @@ import { Controls } from "./components/Controls";
 import { FallingNotesStage } from "./components/FallingNotesStage";
 import { PianoKeyboard } from "./components/PianoKeyboard";
 import { GameEngine, type EngineSnapshot } from "./engine/gameEngine";
-import { DEMO_CHART, midiToName } from "./engine/noteChart";
-import type { GameConfig } from "./engine/types";
+import { CHARTS, DEMO_CHART, getChartById, midiToDisplayLabel } from "./engine/noteChart";
+import type { Chart, GameConfig } from "./engine/types";
 import "./App.css";
 
 const FALL_LEAD = 2.5;
@@ -18,14 +18,15 @@ const DEFAULT_CONFIG: GameConfig = {
   referenceAudio: true,
 };
 
-function emptySnapshot(): EngineSnapshot {
-  const engine = new GameEngine(DEMO_CHART, DEFAULT_CONFIG, FALL_LEAD);
+function emptySnapshot(chart: Chart): EngineSnapshot {
+  const engine = new GameEngine(chart, DEFAULT_CONFIG, FALL_LEAD);
   return engine.snapshot();
 }
 
 export default function App() {
+  const [chart, setChart] = useState<Chart>(DEMO_CHART);
   const [config, setConfig] = useState<GameConfig>(DEFAULT_CONFIG);
-  const [snapshot, setSnapshot] = useState<EngineSnapshot>(emptySnapshot);
+  const [snapshot, setSnapshot] = useState<EngineSnapshot>(() => emptySnapshot(DEMO_CHART));
   const [micOn, setMicOn] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
   const [detectedMidi, setDetectedMidi] = useState<number | null>(null);
@@ -33,20 +34,33 @@ export default function App() {
   const [flashMiss, setFlashMiss] = useState<number | null>(null);
 
   const engineRef = useRef<GameEngine | null>(null);
+  const chartRef = useRef(chart);
   const detectorRef = useRef<PitchDetector | null>(null);
   const synthRef = useRef<ReferenceSynth | null>(null);
   const rafRef = useRef(0);
   const lastFeedbackRef = useRef(0);
 
   useEffect(() => {
-    engineRef.current = new GameEngine(DEMO_CHART, config, FALL_LEAD);
-    synthRef.current = new ReferenceSynth();
+    chartRef.current = chart;
+  }, [chart]);
+
+  useEffect(() => {
+    engineRef.current = new GameEngine(chart, config, FALL_LEAD);
+    setSnapshot(engineRef.current.snapshot());
+    synthRef.current ??= new ReferenceSynth();
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+    };
+    // Re-bind engine when exercise chart changes (idle only via Controls).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chart id drives rebuild
+  }, [chart.id]);
+
+  useEffect(() => {
     return () => {
       cancelAnimationFrame(rafRef.current);
       detectorRef.current?.stop();
       synthRef.current?.dispose();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount once
   }, []);
 
   useEffect(() => {
@@ -58,6 +72,7 @@ export default function App() {
     if (!engine) return;
     const now = performance.now();
     const { refNotes, snapshot: snap } = engine.tick(now);
+    const activeChart = chartRef.current;
 
     if (config.referenceAudio && synthRef.current) {
       for (const n of refNotes) {
@@ -68,7 +83,7 @@ export default function App() {
 
     if (snap.feedback !== "none" && snap.lastFeedbackAt !== lastFeedbackRef.current) {
       lastFeedbackRef.current = snap.lastFeedbackAt;
-      const target = DEMO_CHART.notes[snap.targetIndex - 1];
+      const target = activeChart.notes[snap.targetIndex - 1];
       if (snap.feedback === "hit" && target) {
         setFlashHit(target.midi);
         setFlashMiss(null);
@@ -129,15 +144,25 @@ export default function App() {
   const handleStop = () => {
     engineRef.current?.stop();
     cancelAnimationFrame(rafRef.current);
-    setSnapshot(engineRef.current?.snapshot() ?? emptySnapshot());
+    setSnapshot(engineRef.current?.snapshot() ?? emptySnapshot(chart));
+  };
+
+  const handleChart = (id: string) => {
+    const next = getChartById(id);
+    cancelAnimationFrame(rafRef.current);
+    setFlashHit(null);
+    setFlashMiss(null);
+    lastFeedbackRef.current = 0;
+    setChart(next);
   };
 
   const expectedMidi =
     snapshot.phase === "playing" || snapshot.phase === "waiting"
-      ? (DEMO_CHART.notes[snapshot.targetIndex]?.midi ?? null)
+      ? (chart.notes[snapshot.targetIndex]?.midi ?? null)
       : null;
 
-  const detectedLabel = detectedMidi != null ? midiToName(Math.round(detectedMidi)) : "—";
+  const detectedLabel =
+    detectedMidi != null ? midiToDisplayLabel(Math.round(detectedMidi)) : "—";
 
   return (
     <div className="app landscape-first">
@@ -149,7 +174,9 @@ export default function App() {
         hits={snapshot.hits}
         misses={snapshot.misses}
         detectedLabel={detectedLabel}
-        chartTitle={DEMO_CHART.title}
+        chart={chart}
+        charts={CHARTS}
+        onChart={handleChart}
         onTempo={(tempoScale) => setConfig((c) => ({ ...c, tempoScale }))}
         onWaitToggle={(waitForNote) => setConfig((c) => ({ ...c, waitForNote }))}
         onRefToggle={(referenceAudio) => setConfig((c) => ({ ...c, referenceAudio }))}

@@ -3,6 +3,7 @@ import {
   isWhiteKey,
   KEYBOARD_END,
   KEYBOARD_START,
+  midiToDisplayLabel,
   midiToName,
 } from "../engine/noteChart";
 import type { EngineSnapshot } from "../engine/gameEngine";
@@ -40,6 +41,7 @@ export function FallingNotesStage({ snapshot, fallLeadSec }: Props) {
 
         const x = midiToXPercent(drop.event.midi);
         const y = Math.min(1, Math.max(0, p)) * 100;
+        const label = midiToDisplayLabel(drop.event.midi);
         const cls = [
           "drop",
           drop.result === "hit" ? "is-hit" : "",
@@ -60,9 +62,10 @@ export function FallingNotesStage({ snapshot, fallLeadSec }: Props) {
               left: `${x}%`,
               top: `${y}%`,
             }}
-            title={midiToName(drop.event.midi)}
+            title={`${label} (${midiToName(drop.event.midi)})`}
+            data-note-label={label}
           >
-            <span>{midiToName(drop.event.midi)}</span>
+            <span className="drop-label">{label}</span>
           </div>
         );
       })}

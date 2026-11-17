@@ -1,3 +1,4 @@
+import type { Chart } from "../engine/types";
 import type { GameConfig, GamePhase } from "../engine/types";
 
 type Props = {
@@ -8,7 +9,9 @@ type Props = {
   hits: number;
   misses: number;
   detectedLabel: string;
-  chartTitle: string;
+  chart: Chart;
+  charts: Chart[];
+  onChart: (id: string) => void;
   onTempo: (scale: number) => void;
   onWaitToggle: (v: boolean) => void;
   onRefToggle: (v: boolean) => void;
@@ -27,7 +30,9 @@ export function Controls({
   hits,
   misses,
   detectedLabel,
-  chartTitle,
+  chart,
+  charts,
+  onChart,
   onTempo,
   onWaitToggle,
   onRefToggle,
@@ -43,11 +48,27 @@ export function Controls({
     <header className="controls">
       <div className="brand-block">
         <p className="brand">Falling Notes</p>
-        <h1>{chartTitle}</h1>
+        <h1>{chart.title}</h1>
         <p className="sub">Tableti müzik sehpasına koy · mikrofonla nota yakala</p>
       </div>
 
       <div className="control-grid">
+        <label className="field field-wide">
+          <span>Egzersiz</span>
+          <select
+            value={chart.id}
+            onChange={(e) => onChart(e.target.value)}
+            disabled={playing}
+            aria-label="Egzersiz seç"
+          >
+            {charts.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.title}
+              </option>
+            ))}
+          </select>
+        </label>
+
         <label className="field">
           <span>Tempo</span>
           <select
