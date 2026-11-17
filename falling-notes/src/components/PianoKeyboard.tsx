@@ -74,6 +74,7 @@ export function PianoKeyboard({
               )}
               data-midi={midi}
               data-note-label={label}
+              data-black-key="false"
               style={
                 {
                   ...colors,
@@ -88,11 +89,11 @@ export function PianoKeyboard({
           );
         })}
       </div>
-      <div className="keyboard-blacks">
+      <div className="keyboard-blacks" aria-hidden={false}>
         {blacks.map((midi) => {
           const whiteBefore = whites.filter((w) => w < midi).length;
-          const leftPct =
-            ((whiteBefore - 0.5) / whites.length) * 100 + 50 / whites.length;
+          // Sit between whites: center over the gap after whiteBefore whites
+          const leftPct = (whiteBefore / whites.length) * 100;
           const label = midiToDisplayLabel(midi);
           const colors = midiColorStyle(midi);
           return (
@@ -109,8 +110,9 @@ export function PianoKeyboard({
               )}
               data-midi={midi}
               data-note-label={label}
+              data-black-key="true"
               style={{ left: `${leftPct}%`, ...colors }}
-              title={label}
+              title={`${label} · siyah tuş`}
             >
               <span className="key-label black-label">{label}</span>
             </div>

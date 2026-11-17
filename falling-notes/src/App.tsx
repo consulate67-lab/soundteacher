@@ -2,11 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { PitchDetector } from "./audio/pitchDetect";
 import { ReferenceSynth } from "./audio/synth";
 import { Controls } from "./components/Controls";
+import { ExerciseList } from "./components/ExerciseList";
 import { FallingNotesStage } from "./components/FallingNotesStage";
 import { PianoKeyboard } from "./components/PianoKeyboard";
 import { GameEngine, type EngineSnapshot } from "./engine/gameEngine";
 import { CHARTS, DEMO_CHART, getChartById, midiToDisplayLabel } from "./engine/noteChart";
-import type { Chart, GameConfig } from "./engine/types";
+import type { Chart, ChartDifficulty, GameConfig } from "./engine/types";
 import "./App.css";
 
 const FALL_LEAD = 2.5;
@@ -34,6 +35,9 @@ export default function App() {
   const [detectedMidi, setDetectedMidi] = useState<number | null>(null);
   const [flashHit, setFlashHit] = useState<number | null>(null);
   const [flashMiss, setFlashMiss] = useState<number | null>(null);
+  const [difficultyFilter, setDifficultyFilter] = useState<ChartDifficulty | "all">(
+    "all",
+  );
 
   const engineRef = useRef<GameEngine | null>(null);
   const chartRef = useRef(chart);
@@ -173,44 +177,53 @@ export default function App() {
     detectedMidi != null ? midiToDisplayLabel(Math.round(detectedMidi)) : "—";
 
   return (
-    <div className="app landscape-first">
-      <Controls
-        phase={snapshot.phase}
-        config={config}
-        micOn={micOn}
-        micError={micError}
-        hits={snapshot.hits}
-        misses={snapshot.misses}
-        detectedLabel={detectedLabel}
-        holdProgress={snapshot.holdProgress}
-        chart={chart}
+    <div className="app landscape-first app-with-catalog">
+      <ExerciseList
         charts={CHARTS}
-        onChart={handleChart}
-        onTempo={(tempoScale) => setConfig((c) => ({ ...c, tempoScale }))}
-        onWaitToggle={(waitForNote) => setConfig((c) => ({ ...c, waitForNote }))}
-        onRefToggle={(referenceAudio) => setConfig((c) => ({ ...c, referenceAudio }))}
-        onWindow={(hitWindowMs) => setConfig((c) => ({ ...c, hitWindowMs }))}
-        onStartMic={handleStartMic}
-        onStopMic={handleStopMic}
-        onPlay={handlePlay}
-        onStop={handleStop}
+        selectedId={chart.id}
+        disabled={livePhase}
+        difficultyFilter={difficultyFilter}
+        onDifficultyFilter={setDifficultyFilter}
+        onSelect={handleChart}
       />
 
-      <main className="playfield">
-        <div
-          className={`feedback-flash ${flashHit != null ? "ok" : ""} ${flashMiss != null ? "bad" : ""}`}
-          aria-live="polite"
-        />
-        <FallingNotesStage snapshot={snapshot} fallLeadSec={FALL_LEAD} />
-        <PianoKeyboard
-          highlightMidi={expectedMidi}
-          hitMidi={flashHit}
-          missMidi={flashMiss}
-          detectedMidi={detectedMidi}
-          holding={snapshot.phase === "holding"}
+      <div className="app-main">
+        <Controls
+          phase={snapshot.phase}
+          config={config}
+          micOn={micOn}
+          micError={micError}
+          hits={snapshot.hits}
+          misses={snapshot.misses}
+          detectedLabel={detectedLabel}
           holdProgress={snapshot.holdProgress}
+          chart={chart}
+          onTempo={(tempoScale) => setConfig((c) => ({ ...c, tempoScale }))}
+          onWaitToggle={(waitForNote) => setConfig((c) => ({ ...c, waitForNote }))}
+          onRefToggle={(referenceAudio) => setConfig((c) => ({ ...c, referenceAudio }))}
+          onWindow={(hitWindowMs) => setConfig((c) => ({ ...c, hitWindowMs }))}
+          onStartMic={handleStartMic}
+          onStopMic={handleStopMic}
+          onPlay={handlePlay}
+          onStop={handleStop}
         />
-      </main>
+
+        <main className="playfield">
+          <div
+            className={`feedback-flash ${flashHit != null ? "ok" : ""} ${flashMiss != null ? "bad" : ""}`}
+            aria-live="polite"
+          />
+          <FallingNotesStage snapshot={snapshot} fallLeadSec={FALL_LEAD} />
+          <PianoKeyboard
+            highlightMidi={expectedMidi}
+            hitMidi={flashHit}
+            missMidi={flashMiss}
+            detectedMidi={detectedMidi}
+            holding={snapshot.phase === "holding"}
+            holdProgress={snapshot.holdProgress}
+          />
+        </main>
+      </div>
     </div>
   );
 }

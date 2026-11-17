@@ -10,12 +10,20 @@ export type NoteEvent = {
   midi: MidiNote;
 };
 
+/** Exercise type / content category (Turkish UI labels via catalog). */
+export type ChartCategory = "gam" | "teknik" | "cocuk" | "klasik" | "halk";
+
+/** Pedagogical difficulty band. */
+export type ChartDifficulty = "baslangic" | "orta" | "ileri";
+
 export type Chart = {
   id: string;
   title: string;
   /** Beats per minute of the chart’s written tempo. */
   bpm: number;
   notes: NoteEvent[];
+  category: ChartCategory;
+  difficulty: ChartDifficulty;
 };
 
 export type MatchResult = "hit" | "miss" | "pending";

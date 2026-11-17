@@ -53,8 +53,10 @@ export function FallingNotesStage({ snapshot, fallLeadSec }: Props) {
         const isTarget =
           snapshot.targetIndex < snapshot.drops.length &&
           drop.event.id === snapshot.drops[snapshot.targetIndex]?.event.id;
+        const black = !isWhiteKey(drop.event.midi);
         const cls = [
           "drop",
+          black ? "is-black-key" : "is-white-key",
           drop.result === "hit" ? "is-hit" : "",
           drop.result === "miss" ? "is-miss" : "",
           isTarget ? "is-target" : "",
@@ -75,16 +77,22 @@ export function FallingNotesStage({ snapshot, fallLeadSec }: Props) {
               height: `${heightRem}rem`,
               ...colors,
             }}
-            title={`${label} · ${beats.toFixed(beats % 1 === 0 ? 0 : 1)} vuruş (${midiToName(drop.event.midi)})`}
+            title={`${label} · ${beats.toFixed(beats % 1 === 0 ? 0 : 1)} vuruş (${midiToName(drop.event.midi)})${black ? " · siyah tuş" : ""}`}
             data-note-label={label}
             data-midi={drop.event.midi}
             data-beats={beats}
+            data-black-key={black ? "true" : "false"}
           >
             <div
               className="drop-hold-fill"
               style={{ height: `${Math.round(drop.holdProgress * 100)}%` }}
               aria-hidden
             />
+            {black && (
+              <span className="drop-sharp-badge" aria-hidden>
+                #
+              </span>
+            )}
             <span className="drop-label">{label}</span>
             <span className="drop-beats" aria-hidden>
               {beats >= 3.5 ? "4" : beats >= 1.75 ? "2" : beats >= 0.9 ? "1" : "½"}
