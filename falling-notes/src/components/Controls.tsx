@@ -1,4 +1,6 @@
+import type { Chart } from "../engine/types";
 import type { GameConfig, GamePhase } from "../engine/types";
+import { CATEGORY_LABELS, DIFFICULTY_LABELS } from "../engine/noteChart";
 
 type Props = {
   phase: GamePhase;
@@ -8,7 +10,8 @@ type Props = {
   hits: number;
   misses: number;
   detectedLabel: string;
-  chartTitle: string;
+  holdProgress: number;
+  chart: Chart;
   onTempo: (scale: number) => void;
   onWaitToggle: (v: boolean) => void;
   onRefToggle: (v: boolean) => void;
@@ -27,7 +30,8 @@ export function Controls({
   hits,
   misses,
   detectedLabel,
-  chartTitle,
+  holdProgress,
+  chart,
   onTempo,
   onWaitToggle,
   onRefToggle,
@@ -37,29 +41,55 @@ export function Controls({
   onPlay,
   onStop,
 }: Props) {
-  const playing = phase === "playing" || phase === "waiting";
+  const playing = phase === "playing" || phase === "waiting" || phase === "holding";
 
   return (
     <header className="controls">
       <div className="brand-block">
         <p className="brand">Falling Notes</p>
-        <h1>{chartTitle}</h1>
-        <p className="sub">Tableti müzik sehpasına koy · mikrofonla nota yakala</p>
+        <h1>{chart.title}</h1>
+        <p className="sub">
+          {CATEGORY_LABELS[chart.category]} · {DIFFICULTY_LABELS[chart.difficulty]} ·
+          tableti sehpaya koy
+        </p>
       </div>
 
       <div className="control-grid">
-        <label className="field">
-          <span>Tempo</span>
-          <select
-            value={config.tempoScale}
-            onChange={(e) => onTempo(Number(e.target.value))}
-            disabled={playing}
-          >
-            <option value={0.5}>0.5× (yavaş)</option>
-            <option value={0.75}>0.75×</option>
-            <option value={1}>1× (orijinal)</option>
-          </select>
-        </label>
+        <div className="field field-wide">
+          <span>
+            Tempo · etkin {Math.round(chart.bpm * config.tempoScale)} BPM
+            {config.tempoScale === 1 ? " (1:1)" : " (alıştırma)"}
+          </span>
+          <div className="tempo-modes" role="group" aria-label="Tempo modu">
+            <button
+              type="button"
+              className={`tempo-chip ${config.tempoScale === 1 ? "active" : ""}`}
+              onClick={() => onTempo(1)}
+              disabled={playing}
+              title={`Orijinal performans hızı (${chart.bpm} BPM)`}
+            >
+              1:1 Performans
+            </button>
+            <button
+              type="button"
+              className={`tempo-chip ${config.tempoScale === 0.75 ? "active" : ""}`}
+              onClick={() => onTempo(0.75)}
+              disabled={playing}
+              title="Alıştırma — %75 hız"
+            >
+              0.75× Alıştırma
+            </button>
+            <button
+              type="button"
+              className={`tempo-chip ${config.tempoScale === 0.5 ? "active" : ""}`}
+              onClick={() => onTempo(0.5)}
+              disabled={playing}
+              title="Yavaş alıştırma — yarı hız"
+            >
+              0.5× Yavaş
+            </button>
+          </div>
+        </div>
 
         <label className="field">
           <span>Pencere</span>
@@ -91,7 +121,7 @@ export function Controls({
             onChange={(e) => onRefToggle(e.target.checked)}
             disabled={playing}
           />
-          <span>Referans ses</span>
+          <span>Piyano referans</span>
         </label>
       </div>
 
@@ -130,6 +160,11 @@ export function Controls({
           İsabet: {hits} · Kaçırılan: {misses}
         </span>
         {phase === "waiting" && <span className="wait-pill">Doğru notayı bekliyor…</span>}
+        {phase === "holding" && (
+          <span className="hold-pill">
+            Basılı tut · {Math.round(holdProgress * 100)}%
+          </span>
+        )}
         {phase === "finished" && <span className="done-pill">Bitti — tebrikler!</span>}
         {micError && <span className="err">{micError}</span>}
       </div>

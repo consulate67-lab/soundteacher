@@ -8,14 +8,35 @@ export type NoteEvent = {
   /** Duration at 1.0× tempo (seconds). */
   duration: number;
   midi: MidiNote;
+  /**
+   * Shared id for simultaneous voices (dyad/chord). Notes with the same
+   * `chordId` share onset; engine treats them as one attack target.
+   */
+  chordId?: string;
 };
+
+/** Exercise type / content category (Turkish UI labels via catalog). */
+export type ChartCategory = "gam" | "teknik" | "cocuk" | "klasik" | "halk" | "populer";
+
+/** Top-level song-menu language / repertoire group. */
+export type ChartLocale = "turkce" | "yabanci";
+
+/** Pedagogical difficulty band. */
+export type ChartDifficulty = "baslangic" | "orta" | "ileri";
 
 export type Chart = {
   id: string;
   title: string;
-  /** Beats per minute of the chart’s written tempo. */
+  /**
+   * Performance BPM (1:1 original feel). Chart note times are authored at this
+   * tempo; `tempoScale` slows wall-clock practice relative to it (1 = live).
+   */
   bpm: number;
   notes: NoteEvent[];
+  category: ChartCategory;
+  difficulty: ChartDifficulty;
+  /** Türkçe vs Yabancı grouping for the left-side song list. */
+  locale: ChartLocale;
 };
 
 export type MatchResult = "hit" | "miss" | "pending";
@@ -27,18 +48,28 @@ export type ActiveDrop = {
   /** Scaled duration in game clock seconds. */
   durationScaled: number;
   result: MatchResult;
+  /** 0–1 hold progress toward required duration (target only). */
+  holdProgress: number;
+  /** True once the correct pitch has been attacked for this note. */
+  attacked: boolean;
+  /** True for every voice in the current simultaneous target group. */
+  isTarget: boolean;
 };
 
-export type GamePhase = "idle" | "countdown" | "playing" | "waiting" | "finished";
+export type GamePhase =
+  "idle" | "countdown" | "playing" | "waiting" | "holding" | "finished";
 
 export type GameConfig = {
-  /** Clock/tempo scale: 0.5 = half speed (notes take 2× wall time). */
+  /**
+   * Wall-clock scale vs chart performance BPM.
+   * 1 = 1:1 performans; 0.75 / 0.5 = alıştırma slowdown.
+   */
   tempoScale: number;
-  /** Hit window half-width in wall-clock ms (±). */
+  /** Hit window half-width in chart-time ms (±) for attack onset. */
   hitWindowMs: number;
-  /** Pause scroll until correct pitch is heard. */
+  /** Pause scroll until correct pitch is heard (and held when required). */
   waitForNote: boolean;
-  /** Play reference synth tones at the same tempo. */
+  /** Play pitched piano samples in sync with falling notes. */
   referenceAudio: boolean;
 };
 

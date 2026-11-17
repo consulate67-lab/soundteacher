@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { PitchDetector } from "./audio/pitchDetect";
 import { ReferenceSynth } from "./audio/synth";
 import { Controls } from "./components/Controls";
+import { ExerciseList } from "./components/ExerciseList";
 import { FallingNotesStage } from "./components/FallingNotesStage";
 import { PianoKeyboard } from "./components/PianoKeyboard";
+import { chordGroupAt, groupMidis } from "./engine/chordGroup";
 import { GameEngine, type EngineSnapshot } from "./engine/gameEngine";
-import { DEMO_CHART, midiToName } from "./engine/noteChart";
-import type { GameConfig } from "./engine/types";
+import { CHARTS, DEMO_CHART, getChartById, midiToDisplayLabel } from "./engine/noteChart";
+import type { Chart, ChartDifficulty, ChartLocale, GameConfig } from "./engine/types";
 import "./App.css";
 
 const FALL_LEAD = 2.5;
@@ -18,35 +20,55 @@ const DEFAULT_CONFIG: GameConfig = {
   referenceAudio: true,
 };
 
-function emptySnapshot(): EngineSnapshot {
-  const engine = new GameEngine(DEMO_CHART, DEFAULT_CONFIG, FALL_LEAD);
+function emptySnapshot(chart: Chart): EngineSnapshot {
+  const engine = new GameEngine(chart, DEFAULT_CONFIG, FALL_LEAD);
   return engine.snapshot();
 }
 
 export default function App() {
+  const [chart, setChart] = useState<Chart>(DEMO_CHART);
   const [config, setConfig] = useState<GameConfig>(DEFAULT_CONFIG);
-  const [snapshot, setSnapshot] = useState<EngineSnapshot>(emptySnapshot);
+  const [snapshot, setSnapshot] = useState<EngineSnapshot>(() =>
+    emptySnapshot(DEMO_CHART),
+  );
   const [micOn, setMicOn] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
   const [detectedMidi, setDetectedMidi] = useState<number | null>(null);
-  const [flashHit, setFlashHit] = useState<number | null>(null);
-  const [flashMiss, setFlashMiss] = useState<number | null>(null);
+  const [flashHit, setFlashHit] = useState<number[]>([]);
+  const [flashMiss, setFlashMiss] = useState<number[]>([]);
+  const [difficultyFilter, setDifficultyFilter] = useState<ChartDifficulty | "all">(
+    "all",
+  );
+  const [localeFilter, setLocaleFilter] = useState<ChartLocale | "all">("all");
 
   const engineRef = useRef<GameEngine | null>(null);
+  const chartRef = useRef(chart);
   const detectorRef = useRef<PitchDetector | null>(null);
   const synthRef = useRef<ReferenceSynth | null>(null);
   const rafRef = useRef(0);
   const lastFeedbackRef = useRef(0);
 
   useEffect(() => {
-    engineRef.current = new GameEngine(DEMO_CHART, config, FALL_LEAD);
-    synthRef.current = new ReferenceSynth();
+    chartRef.current = chart;
+  }, [chart]);
+
+  useEffect(() => {
+    engineRef.current = new GameEngine(chart, config, FALL_LEAD);
+    setSnapshot(engineRef.current.snapshot());
+    synthRef.current ??= new ReferenceSynth();
+    void synthRef.current.load();
+    return () => {
+      cancelAnimationFrame(rafRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- chart id drives rebuild
+  }, [chart.id]);
+
+  useEffect(() => {
     return () => {
       cancelAnimationFrame(rafRef.current);
       detectorRef.current?.stop();
       synthRef.current?.dispose();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- mount once
   }, []);
 
   useEffect(() => {
@@ -58,26 +80,64 @@ export default function App() {
     if (!engine) return;
     const now = performance.now();
     const { refNotes, snapshot: snap } = engine.tick(now);
+    const activeChart = chartRef.current;
 
     if (config.referenceAudio && synthRef.current) {
       for (const n of refNotes) {
+        // Wall-clock duration so held notes ring with the falling-note timing.
+        // Short articulations stay short (no artificial sustain).
         const dur = n.duration / config.tempoScale;
-        synthRef.current.play(n.midi, Math.min(dur, 1.2));
+        const isBass =
+          n.chordId != null &&
+          n.midi ===
+            Math.min(
+              ...activeChart.notes
+                .filter((x) => x.chordId === n.chordId)
+                .map((x) => x.midi),
+            );
+        synthRef.current.play(
+          n.midi,
+          Math.min(Math.max(dur, 0.08), 3.5),
+          undefined,
+          isBass ? 0.72 : 0.95,
+        );
       }
     }
 
     if (snap.feedback !== "none" && snap.lastFeedbackAt !== lastFeedbackRef.current) {
       lastFeedbackRef.current = snap.lastFeedbackAt;
-      const target = DEMO_CHART.notes[snap.targetIndex - 1];
-      if (snap.feedback === "hit" && target) {
-        setFlashHit(target.midi);
-        setFlashMiss(null);
-        window.setTimeout(() => setFlashHit(null), 280);
+      // targetIndex already advanced past the completed group — recover it.
+      const completedIdx = Math.max(0, snap.targetIndex - 1);
+      const headIdx = (() => {
+        const n = activeChart.notes[completedIdx];
+        if (!n) return -1;
+        if (n.chordId) {
+          return activeChart.notes.findIndex((x) => x.chordId === n.chordId);
+        }
+        return completedIdx;
+      })();
+      const group = headIdx >= 0 ? chordGroupAt(activeChart.notes, headIdx) : [];
+      const midis = groupMidis(group);
+      if (snap.feedback === "hit" && midis.length) {
+        setFlashHit(midis);
+        setFlashMiss([]);
+        if (!config.referenceAudio) {
+          for (const midi of midis) {
+            const note = group.find((g) => g.midi === midi)!;
+            synthRef.current?.play(
+              midi,
+              Math.min(note.duration / config.tempoScale, 1.6),
+              undefined,
+              1,
+            );
+          }
+        }
+        window.setTimeout(() => setFlashHit([]), 280);
       }
-      if (snap.feedback === "miss" && target) {
-        setFlashMiss(target.midi);
-        setFlashHit(null);
-        window.setTimeout(() => setFlashMiss(null), 320);
+      if (snap.feedback === "miss" && midis.length) {
+        setFlashMiss(midis);
+        setFlashHit([]);
+        window.setTimeout(() => setFlashMiss([]), 320);
       }
     }
 
@@ -97,8 +157,11 @@ export default function App() {
       const detector = new PitchDetector((sample) => {
         setDetectedMidi(sample.midi);
         const engine = engineRef.current;
-        if (!engine || sample.midi == null) return;
-        engine.tryMatch(Math.round(sample.midi), performance.now());
+        if (!engine) return;
+        engine.updatePitch(
+          sample.midi == null ? null : Math.round(sample.midi),
+          performance.now(),
+        );
       });
       detectorRef.current = detector;
       await detector.start();
@@ -129,50 +192,78 @@ export default function App() {
   const handleStop = () => {
     engineRef.current?.stop();
     cancelAnimationFrame(rafRef.current);
-    setSnapshot(engineRef.current?.snapshot() ?? emptySnapshot());
+    setSnapshot(engineRef.current?.snapshot() ?? emptySnapshot(chart));
   };
 
-  const expectedMidi =
-    snapshot.phase === "playing" || snapshot.phase === "waiting"
-      ? (DEMO_CHART.notes[snapshot.targetIndex]?.midi ?? null)
-      : null;
+  const handleChart = (id: string) => {
+    const next = getChartById(id);
+    cancelAnimationFrame(rafRef.current);
+    setFlashHit([]);
+    setFlashMiss([]);
+    lastFeedbackRef.current = 0;
+    setChart(next);
+  };
 
-  const detectedLabel = detectedMidi != null ? midiToName(Math.round(detectedMidi)) : "—";
+  const livePhase =
+    snapshot.phase === "playing" ||
+    snapshot.phase === "waiting" ||
+    snapshot.phase === "holding";
+
+  const expectedMidis = livePhase ? snapshot.targetMidis : [];
+
+  const detectedLabel =
+    detectedMidi != null ? midiToDisplayLabel(Math.round(detectedMidi)) : "—";
 
   return (
-    <div className="app landscape-first">
-      <Controls
-        phase={snapshot.phase}
-        config={config}
-        micOn={micOn}
-        micError={micError}
-        hits={snapshot.hits}
-        misses={snapshot.misses}
-        detectedLabel={detectedLabel}
-        chartTitle={DEMO_CHART.title}
-        onTempo={(tempoScale) => setConfig((c) => ({ ...c, tempoScale }))}
-        onWaitToggle={(waitForNote) => setConfig((c) => ({ ...c, waitForNote }))}
-        onRefToggle={(referenceAudio) => setConfig((c) => ({ ...c, referenceAudio }))}
-        onWindow={(hitWindowMs) => setConfig((c) => ({ ...c, hitWindowMs }))}
-        onStartMic={handleStartMic}
-        onStopMic={handleStopMic}
-        onPlay={handlePlay}
-        onStop={handleStop}
+    <div className="app landscape-first app-with-catalog">
+      <ExerciseList
+        charts={CHARTS}
+        selectedId={chart.id}
+        disabled={livePhase}
+        difficultyFilter={difficultyFilter}
+        onDifficultyFilter={setDifficultyFilter}
+        localeFilter={localeFilter}
+        onLocaleFilter={setLocaleFilter}
+        onSelect={handleChart}
       />
 
-      <main className="playfield">
-        <div
-          className={`feedback-flash ${flashHit != null ? "ok" : ""} ${flashMiss != null ? "bad" : ""}`}
-          aria-live="polite"
+      <div className="app-main">
+        <Controls
+          phase={snapshot.phase}
+          config={config}
+          micOn={micOn}
+          micError={micError}
+          hits={snapshot.hits}
+          misses={snapshot.misses}
+          detectedLabel={detectedLabel}
+          holdProgress={snapshot.holdProgress}
+          chart={chart}
+          onTempo={(tempoScale) => setConfig((c) => ({ ...c, tempoScale }))}
+          onWaitToggle={(waitForNote) => setConfig((c) => ({ ...c, waitForNote }))}
+          onRefToggle={(referenceAudio) => setConfig((c) => ({ ...c, referenceAudio }))}
+          onWindow={(hitWindowMs) => setConfig((c) => ({ ...c, hitWindowMs }))}
+          onStartMic={handleStartMic}
+          onStopMic={handleStopMic}
+          onPlay={handlePlay}
+          onStop={handleStop}
         />
-        <FallingNotesStage snapshot={snapshot} fallLeadSec={FALL_LEAD} />
-        <PianoKeyboard
-          highlightMidi={expectedMidi}
-          hitMidi={flashHit}
-          missMidi={flashMiss}
-          detectedMidi={detectedMidi}
-        />
-      </main>
+
+        <main className="playfield">
+          <div
+            className={`feedback-flash ${flashHit.length ? "ok" : ""} ${flashMiss.length ? "bad" : ""}`}
+            aria-live="polite"
+          />
+          <FallingNotesStage snapshot={snapshot} fallLeadSec={FALL_LEAD} />
+          <PianoKeyboard
+            highlightMidis={expectedMidis}
+            hitMidis={flashHit}
+            missMidis={flashMiss}
+            detectedMidi={detectedMidi}
+            holding={snapshot.phase === "holding"}
+            holdProgress={snapshot.holdProgress}
+          />
+        </main>
+      </div>
     </div>
   );
 }

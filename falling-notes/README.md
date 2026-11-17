@@ -4,9 +4,15 @@ Tablet-on-music-stand practice game: **Synthesia-like falling note drops** match
 
 Turkish UI · landscape-first · Vite + React + TypeScript.
 
-## Demo melody
+## Exercises
 
-**Do–Re–Mi Egzersizi** — original hardcoded beginner chart in C major (`src/engine/noteChart.ts`). Not a ripped or copyrighted song. Written tempo **80 BPM**; play at 0.5× / 0.75× / 1× via tempo scale.
+Charts live in `src/engine/catalog.ts` / `songMelodies.ts` as note sequences (pedagogical arrangements, not commercial sheet dumps). **100+** entries with Turkish titles, organized under top-level **Türkçe / Yabancı** headings, then by **type** (Gam / Teknik / Çocuk / Klasik / Halk / Popüler) and **difficulty** (Başlangıç / Orta / İleri). The in-app picker is a **scrollable list** (not a dropdown), with locale + difficulty chips and a “Siyah tuş” badge when black keys appear.
+
+**Audio:** with **Piyano referans** on, falling notes trigger **chromatic Salamander-based acoustic piano** samples (`public/samples/piano`, C3–C6). Exact pitches play without `playbackRate` shift; envelope keeps the hammer attack (no organ-like synth).
+
+Turkish UI labels use solfege + pedagogical octave (**Do1** = scientific C4, **Do2** = C5). Black-key drops use a distinct silhouette + `#` badge; the on-screen piano shows tall, high-contrast black keys.
+
+**Tempo:** chart BPM is the **1:1 performance** speed. Practice uses `0.75×` / `0.5×` wall-clock slowdown; **1:1 Performans** plays at the original chart BPM.
 
 ## Run locally
 
@@ -30,10 +36,14 @@ Allow microphone access when prompted. Place the tablet on the music stand, aim 
 
 ## MVP features
 
-1. **Falling notes engine** — drops fall onto a hit line above an on-screen piano keyboard.
-2. **Tempo control** — clock/tempo scale on chart events (`tempoScale`); optional Web Audio triangle synth reference at the same tempo.
-3. **Mic pitch detection** — `getUserMedia` → `AnalyserNode` + autocorrelation; match within ±100–200 ms; noise gate; green/red feedback. Monophonic-first.
-4. **Wait-for-note mode** — scroll freezes until the correct pitch is heard (`Notayı bekle`).
+1. **Falling notes engine** — larger labeled drops (Do1/Re1/…) fall onto a hit line above a real-looking on-screen piano. Drop **height encodes duration** (½ / 1 / 2 / 4 beats); fill shows hold progress. **Simultaneous dyads/chords** spawn two (or more) drops and light multiple keys at once.
+2. **Hold matching** — attack within the hit window, then keep a matching pitch for ~70% of the written duration (short articulations need only a brief tap; tempo scale stretches the real hold; short mic gaps forgiven). Chord groups count as one attack; monophonic mic accepts any voice in the group.
+3. **Color mapping** — each drop uses the same pitch-class color as its target piano key; black-key targets are visually distinct.
+4. **Piano keyboard UI** — realistic white/black layout; keys light for expected / holding / hit / miss / detected (multi-key for chords); mic match stays primary.
+5. **Tempo control** — `tempoScale` vs performance BPM (`1` = live, `<1` = practice); Salamander piano reference follows the same clock.
+6. **Mic pitch detection** — `getUserMedia` → `AnalyserNode` + autocorrelation; match within ±100–200 ms; noise gate; green/red feedback. Monophonic-first.
+7. **Wait-for-note mode** — scroll freezes until attack, then until the required hold completes (`Notayı bekle`).
+8. **Exercise list** — scrollable catalog by type + difficulty (≥100 public-domain / teaching motifs).
 
 ## Pitch detection limits & next steps
 

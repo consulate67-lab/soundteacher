@@ -1,18 +1,54 @@
+import type { CSSProperties } from "react";
+import { midiColorStyle } from "../engine/noteColors";
 import {
   isWhiteKey,
   KEYBOARD_END,
   KEYBOARD_START,
-  midiToName,
+  midiToDisplayLabel,
 } from "../engine/noteChart";
 
 type Props = {
-  highlightMidi: number | null;
-  hitMidi: number | null;
-  missMidi: number | null;
+  /** Expected keys for the current chord group (1–n simultaneous). */
+  highlightMidis: number[];
+  hitMidis: number[];
+  missMidis: number[];
   detectedMidi: number | null;
+  /** True while the current target is being held. */
+  holding?: boolean;
+  holdProgress?: number;
 };
 
-export function PianoKeyboard({ highlightMidi, hitMidi, missMidi, detectedMidi }: Props) {
+function keyClass(
+  midi: number,
+  kind: "white" | "black",
+  highlightMidis: number[],
+  hitMidis: number[],
+  missMidis: number[],
+  detectedMidi: number | null,
+  holding: boolean,
+): string {
+  const expected = highlightMidis.includes(midi);
+  return [
+    "key",
+    kind,
+    expected ? "expected" : "",
+    expected && holding ? "holding" : "",
+    hitMidis.includes(midi) ? "hit" : "",
+    missMidis.includes(midi) ? "miss" : "",
+    detectedMidi != null && Math.round(detectedMidi) === midi ? "detected" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+export function PianoKeyboard({
+  highlightMidis,
+  hitMidis,
+  missMidis,
+  detectedMidi,
+  holding = false,
+  holdProgress = 0,
+}: Props) {
   const keys: number[] = [];
   for (let m = KEYBOARD_START; m <= KEYBOARD_END; m++) keys.push(m);
 
@@ -20,49 +56,68 @@ export function PianoKeyboard({ highlightMidi, hitMidi, missMidi, detectedMidi }
   const blacks = keys.filter((m) => !isWhiteKey(m));
 
   return (
-    <div className="keyboard" aria-label="Piyano klavyesi">
+    <div className="keyboard" aria-label="Piyano klavyesi" role="group">
+      <div className="keyboard-rail" aria-hidden />
       <div className="keyboard-whites">
         {whites.map((midi) => {
-          const cls = [
-            "key",
-            "white",
-            highlightMidi === midi ? "expected" : "",
-            hitMidi === midi ? "hit" : "",
-            missMidi === midi ? "miss" : "",
-            detectedMidi != null && Math.round(detectedMidi) === midi ? "detected" : "",
-          ]
-            .filter(Boolean)
-            .join(" ");
+          const label = midiToDisplayLabel(midi);
+          const colors = midiColorStyle(midi);
+          const expected = highlightMidis.includes(midi);
           return (
-            <div key={midi} className={cls} data-midi={midi}>
-              <span className="key-label">{midiToName(midi)}</span>
+            <div
+              key={midi}
+              className={keyClass(
+                midi,
+                "white",
+                highlightMidis,
+                hitMidis,
+                missMidis,
+                detectedMidi,
+                holding,
+              )}
+              data-midi={midi}
+              data-note-label={label}
+              data-black-key="false"
+              style={
+                {
+                  ...colors,
+                  ...(expected && holding
+                    ? { ["--hold-pct" as string]: `${Math.round(holdProgress * 100)}%` }
+                    : {}),
+                } as CSSProperties
+              }
+            >
+              <span className="key-label">{label}</span>
             </div>
           );
         })}
       </div>
-      <div className="keyboard-blacks">
+      <div className="keyboard-blacks" aria-hidden={false}>
         {blacks.map((midi) => {
           const whiteBefore = whites.filter((w) => w < midi).length;
-          // Position black key between whites: left = whiteBefore * whiteWidth - half black
-          const leftPct =
-            ((whiteBefore - 0.5) / whites.length) * 100 + 50 / whites.length;
-          const cls = [
-            "key",
-            "black",
-            highlightMidi === midi ? "expected" : "",
-            hitMidi === midi ? "hit" : "",
-            missMidi === midi ? "miss" : "",
-            detectedMidi != null && Math.round(detectedMidi) === midi ? "detected" : "",
-          ]
-            .filter(Boolean)
-            .join(" ");
+          const leftPct = (whiteBefore / whites.length) * 100;
+          const label = midiToDisplayLabel(midi);
+          const colors = midiColorStyle(midi);
           return (
             <div
               key={midi}
-              className={cls}
+              className={keyClass(
+                midi,
+                "black",
+                highlightMidis,
+                hitMidis,
+                missMidis,
+                detectedMidi,
+                holding,
+              )}
               data-midi={midi}
-              style={{ left: `${leftPct}%` }}
-            />
+              data-note-label={label}
+              data-black-key="true"
+              style={{ left: `${leftPct}%`, ...colors }}
+              title={`${label} · siyah tuş`}
+            >
+              <span className="key-label black-label">{label}</span>
+            </div>
           );
         })}
       </div>
