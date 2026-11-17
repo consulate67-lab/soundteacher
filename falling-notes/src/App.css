@@ -565,6 +565,10 @@
   outline-offset: 2px;
 }
 
+.drop.is-chord-voice {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.22);
+}
+
 .drop.is-holding {
   outline-color: #fff6d0;
   filter: brightness(1.08);

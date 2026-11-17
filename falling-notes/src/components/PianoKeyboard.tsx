@@ -8,9 +8,10 @@ import {
 } from "../engine/noteChart";
 
 type Props = {
-  highlightMidi: number | null;
-  hitMidi: number | null;
-  missMidi: number | null;
+  /** Expected keys for the current chord group (1–n simultaneous). */
+  highlightMidis: number[];
+  hitMidis: number[];
+  missMidis: number[];
   detectedMidi: number | null;
   /** True while the current target is being held. */
   holding?: boolean;
@@ -20,19 +21,20 @@ type Props = {
 function keyClass(
   midi: number,
   kind: "white" | "black",
-  highlightMidi: number | null,
-  hitMidi: number | null,
-  missMidi: number | null,
+  highlightMidis: number[],
+  hitMidis: number[],
+  missMidis: number[],
   detectedMidi: number | null,
   holding: boolean,
 ): string {
+  const expected = highlightMidis.includes(midi);
   return [
     "key",
     kind,
-    highlightMidi === midi ? "expected" : "",
-    highlightMidi === midi && holding ? "holding" : "",
-    hitMidi === midi ? "hit" : "",
-    missMidi === midi ? "miss" : "",
+    expected ? "expected" : "",
+    expected && holding ? "holding" : "",
+    hitMidis.includes(midi) ? "hit" : "",
+    missMidis.includes(midi) ? "miss" : "",
     detectedMidi != null && Math.round(detectedMidi) === midi ? "detected" : "",
   ]
     .filter(Boolean)
@@ -40,9 +42,9 @@ function keyClass(
 }
 
 export function PianoKeyboard({
-  highlightMidi,
-  hitMidi,
-  missMidi,
+  highlightMidis,
+  hitMidis,
+  missMidis,
   detectedMidi,
   holding = false,
   holdProgress = 0,
@@ -60,15 +62,16 @@ export function PianoKeyboard({
         {whites.map((midi) => {
           const label = midiToDisplayLabel(midi);
           const colors = midiColorStyle(midi);
+          const expected = highlightMidis.includes(midi);
           return (
             <div
               key={midi}
               className={keyClass(
                 midi,
                 "white",
-                highlightMidi,
-                hitMidi,
-                missMidi,
+                highlightMidis,
+                hitMidis,
+                missMidis,
                 detectedMidi,
                 holding,
               )}
@@ -78,7 +81,7 @@ export function PianoKeyboard({
               style={
                 {
                   ...colors,
-                  ...(highlightMidi === midi && holding
+                  ...(expected && holding
                     ? { ["--hold-pct" as string]: `${Math.round(holdProgress * 100)}%` }
                     : {}),
                 } as CSSProperties
@@ -92,7 +95,6 @@ export function PianoKeyboard({
       <div className="keyboard-blacks" aria-hidden={false}>
         {blacks.map((midi) => {
           const whiteBefore = whites.filter((w) => w < midi).length;
-          // Sit between whites: center over the gap after whiteBefore whites
           const leftPct = (whiteBefore / whites.length) * 100;
           const label = midiToDisplayLabel(midi);
           const colors = midiColorStyle(midi);
@@ -102,9 +104,9 @@ export function PianoKeyboard({
               className={keyClass(
                 midi,
                 "black",
-                highlightMidi,
-                hitMidi,
-                missMidi,
+                highlightMidis,
+                hitMidis,
+                missMidis,
                 detectedMidi,
                 holding,
               )}

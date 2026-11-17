@@ -8,6 +8,11 @@ export type NoteEvent = {
   /** Duration at 1.0× tempo (seconds). */
   duration: number;
   midi: MidiNote;
+  /**
+   * Shared id for simultaneous voices (dyad/chord). Notes with the same
+   * `chordId` share onset; engine treats them as one attack target.
+   */
+  chordId?: string;
 };
 
 /** Exercise type / content category (Turkish UI labels via catalog). */
@@ -47,6 +52,8 @@ export type ActiveDrop = {
   holdProgress: number;
   /** True once the correct pitch has been attacked for this note. */
   attacked: boolean;
+  /** True for every voice in the current simultaneous target group. */
+  isTarget: boolean;
 };
 
 export type GamePhase =

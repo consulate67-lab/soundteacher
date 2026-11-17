@@ -50,13 +50,13 @@ export function FallingNotesStage({ snapshot, fallLeadSec }: Props) {
         const label = midiToDisplayLabel(drop.event.midi);
         const heightRem = dropHeightRem(drop.event.duration, snapshot.bpm);
         const beats = durationBeats(drop.event.duration, snapshot.bpm);
-        const isTarget =
-          snapshot.targetIndex < snapshot.drops.length &&
-          drop.event.id === snapshot.drops[snapshot.targetIndex]?.event.id;
+        const isTarget = drop.isTarget;
         const black = !isWhiteKey(drop.event.midi);
+        const chord = drop.event.chordId != null;
         const cls = [
           "drop",
           black ? "is-black-key" : "is-white-key",
+          chord ? "is-chord-voice" : "",
           drop.result === "hit" ? "is-hit" : "",
           drop.result === "miss" ? "is-miss" : "",
           isTarget ? "is-target" : "",
@@ -77,11 +77,12 @@ export function FallingNotesStage({ snapshot, fallLeadSec }: Props) {
               height: `${heightRem}rem`,
               ...colors,
             }}
-            title={`${label} · ${beats.toFixed(beats % 1 === 0 ? 0 : 1)} vuruş (${midiToName(drop.event.midi)})${black ? " · siyah tuş" : ""}`}
+            title={`${label} · ${beats.toFixed(beats % 1 === 0 ? 0 : 1)} vuruş (${midiToName(drop.event.midi)})${black ? " · siyah tuş" : ""}${chord ? " · akor" : ""}`}
             data-note-label={label}
             data-midi={drop.event.midi}
             data-beats={beats}
             data-black-key={black ? "true" : "false"}
+            data-chord={chord ? "true" : "false"}
           >
             <div
               className="drop-hold-fill"

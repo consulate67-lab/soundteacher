@@ -55,7 +55,13 @@ export const NOTE = {
   G5: 79,
 } as const;
 
-type SeqNote = { midi: number; beats: number };
+/** One chart step: single pitch or simultaneous dyad/chord (low→high). */
+export type MidiHit = number | readonly number[];
+type SeqNote = { midi: MidiHit; beats: number };
+
+function expandMidis(hit: MidiHit): number[] {
+  return (Array.isArray(hit) ? [...hit] : [hit as number]).map((m) => Math.round(m));
+}
 
 export const CATEGORY_LABELS: Record<ChartCategory, string> = {
   gam: "Gam / Dizi",
@@ -135,17 +141,24 @@ export function buildChart(
 ): Chart {
   const beat = 60 / bpm;
   let t = leadInBeats * beat;
-  const notes: NoteEvent[] = seq.map((n, i) => {
+  const notes: NoteEvent[] = [];
+  let step = 0;
+  for (const n of seq) {
     const duration = n.beats * beat;
-    const event: NoteEvent = {
-      id: `${id}-n${i}`,
-      time: t,
-      duration,
-      midi: n.midi,
-    };
+    const midis = expandMidis(n.midi);
+    const chordId = midis.length > 1 ? `${id}-c${step}` : undefined;
+    midis.forEach((midi, voice) => {
+      notes.push({
+        id: `${id}-n${step}${midis.length > 1 ? `v${voice}` : ""}`,
+        time: t,
+        duration,
+        midi,
+        chordId,
+      });
+    });
     t += duration;
-    return event;
-  });
+    step++;
+  }
   return {
     id,
     title,
@@ -193,15 +206,20 @@ function arpeggio(root: number, quality: "maj" | "min" | "dom7"): SeqNote[] {
   return [...up, ...down];
 }
 
-function pattern(midis: number[], beats: number | number[]): SeqNote[] {
+function pattern(midis: MidiHit[], beats: number | number[]): SeqNote[] {
   return midis.map((midi, i) => ({
     midi,
     beats: Array.isArray(beats) ? (beats[i] ?? beats[beats.length - 1] ?? 1) : beats,
   }));
 }
 
+function transposeHit(hit: MidiHit, semitones: number): MidiHit {
+  if (Array.isArray(hit)) return hit.map((m) => m + semitones);
+  return (hit as number) + semitones;
+}
+
 function transposeSeq(seq: SeqNote[], semitones: number): SeqNote[] {
-  return seq.map((n) => ({ midi: n.midi + semitones, beats: n.beats }));
+  return seq.map((n) => ({ midi: transposeHit(n.midi, semitones), beats: n.beats }));
 }
 
 /** Hand-authored PD / traditional motifs + generated drills → ≥100 charts. */

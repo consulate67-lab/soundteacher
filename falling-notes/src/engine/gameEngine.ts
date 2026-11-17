@@ -1,18 +1,23 @@
+import { chordGroupAt, groupHoldDuration, groupMidis, pitchInGroup } from "./chordGroup";
 import type { ActiveDrop, Chart, GameConfig, GamePhase, NoteEvent } from "./types";
 
 /**
  * Falling-notes clock + hold matching:
  * - Chart times are at tempoScale=1.
  * - Wall elapsed * tempoScale advances the music clock when playing.
- * - Attack (= correct pitch onset) must land in the hit window (or after, in wait mode).
- * - Hit requires holding the pitch for HOLD_RATIO of the written duration
- *   (music-time), with short mic gaps forgiven.
- * - waitForNote freezes until attack, then freezes again while holding until
- *   the required hold is met (tempoScale still stretches wall hold length).
+ * - Simultaneous voices (same onset / chordId) form one attack target:
+ *   two drops + two keys; monophonic mic accepts any voice in the group.
+ * - Attack must land in the hit window (or after, in wait mode).
+ * - Hit requires holding a matching pitch for HOLD_RATIO of the written
+ *   duration (music-time); short articulations use a lighter hold.
+ * - waitForNote freezes until attack, then while holding until required hold.
  */
 
-/** Fraction of written note duration that must be held. */
+/** Fraction of written note duration that must be held (long notes). */
 export const HOLD_RATIO = 0.7;
+/** Short articulations (≤ ~⅛–¼ at typical BPM): brief tap is enough. */
+const SHORT_NOTE_SEC = 0.38;
+const SHORT_HOLD_RATIO = 0.4;
 /** Wall-ms silence/gap still counted as continuous hold. */
 const HOLD_GAP_MS = 200;
 
@@ -20,8 +25,10 @@ export type EngineSnapshot = {
   phase: GamePhase;
   musicTime: number;
   drops: ActiveDrop[];
-  /** Index of the next unmatched note (wait / hold target). */
+  /** Index of the first note of the next unmatched chord group. */
   targetIndex: number;
+  /** MIDI numbers expected for the current group (multi-key highlight). */
+  targetMidis: number[];
   hits: number;
   misses: number;
   feedback: "none" | "hit" | "miss";
@@ -97,18 +104,22 @@ export class GameEngine {
     this.lastHoldTickAt = 0;
   }
 
-  private currentTarget(): NoteEvent | null {
-    return this.chart.notes[this.targetIndex] ?? null;
+  private currentGroup(): NoteEvent[] {
+    return chordGroupAt(this.chart.notes, this.targetIndex);
   }
 
-  private requiredHold(target: NoteEvent): number {
-    return Math.max(0.08, target.duration * HOLD_RATIO);
+  private requiredHold(group: NoteEvent[]): number {
+    const dur = groupHoldDuration(group);
+    if (dur <= SHORT_NOTE_SEC) {
+      return Math.max(0.045, dur * SHORT_HOLD_RATIO);
+    }
+    return Math.max(0.08, dur * HOLD_RATIO);
   }
 
-  private pitchMatches(target: NoteEvent): boolean {
+  private pitchMatches(group: NoteEvent[]): boolean {
     if (this.lastDetectedMidi == null) return false;
     if (performance.now() - this.lastPitchAt > HOLD_GAP_MS) return false;
-    return Math.round(this.lastDetectedMidi) === target.midi;
+    return pitchInGroup(group, this.lastDetectedMidi);
   }
 
   /**
@@ -130,25 +141,26 @@ export class GameEngine {
       return;
     }
 
-    const target = this.currentTarget();
-    if (!target || this.results.has(target.id)) return;
+    const group = this.currentGroup();
+    if (group.length === 0) return;
+    if (group.every((n) => this.results.has(n.id))) return;
 
     if (!this.attacked) {
+      const head = group[0]!;
       const windowSec = this.config.hitWindowMs / 1000;
-      const early = target.time - windowSec;
+      const early = head.time - windowSec;
       const inWindow = this.config.waitForNote
         ? this.musicTime >= early
-        : this.musicTime >= early && this.musicTime <= target.time + windowSec;
+        : this.musicTime >= early && this.musicTime <= head.time + windowSec;
       if (!inWindow) return;
-      if (Math.round(detectedMidi) !== target.midi) return;
+      if (!pitchInGroup(group, detectedMidi)) return;
 
       this.attacked = true;
       this.holdAccum = 0;
       this.lastHoldTickAt = now;
       this.phase = "holding";
-      // Freeze clock at attack for wait-for-note; non-wait keeps running in tick.
       if (this.config.waitForNote) {
-        this.musicTime = Math.max(this.musicTime, target.time);
+        this.musicTime = Math.max(this.musicTime, head.time);
         this.musicAtWallStart = this.musicTime;
         this.wallStartedAt = now;
       }
@@ -176,7 +188,6 @@ export class GameEngine {
     } else if (this.phase === "holding") {
       this.advanceHold(now);
       if (!this.config.waitForNote) {
-        // Music keeps moving during hold outside wait mode.
         const wallDelta = (now - this.wallStartedAt) / 1000;
         this.musicTime = this.musicAtWallStart + wallDelta * this.config.tempoScale;
         this.expireMisses(now);
@@ -199,37 +210,42 @@ export class GameEngine {
   }
 
   private advanceHold(now: number): void {
-    const target = this.currentTarget();
-    if (!target || this.results.has(target.id) || !this.attacked) return;
+    const group = this.currentGroup();
+    if (
+      group.length === 0 ||
+      group.every((n) => this.results.has(n.id)) ||
+      !this.attacked
+    ) {
+      return;
+    }
 
-    if (this.pitchMatches(target)) {
+    if (this.pitchMatches(group)) {
       if (this.lastHoldTickAt <= 0) this.lastHoldTickAt = now;
       const wallDelta = (now - this.lastHoldTickAt) / 1000;
       this.lastHoldTickAt = now;
-      // Accumulate in chart/music time so tempoScale stretches the real hold.
       this.holdAccum += wallDelta * this.config.tempoScale;
 
-      if (this.holdAccum >= this.requiredHold(target)) {
+      if (this.holdAccum >= this.requiredHold(group)) {
         this.completeHit(now);
       }
     } else {
-      // Gap: pause accumulation; wait mode stays in holding until pitch returns.
       this.lastHoldTickAt = 0;
       if (!this.config.waitForNote) {
-        // Keep phase holding so expireMisses can still fail the note.
         this.phase = "holding";
       }
     }
   }
 
   private completeHit(now: number): void {
-    const target = this.currentTarget();
-    if (!target) return;
-    this.results.set(target.id, "hit");
+    const group = this.currentGroup();
+    if (group.length === 0) return;
+    for (const n of group) {
+      this.results.set(n.id, "hit");
+    }
     this.hits++;
     this.feedback = "hit";
     this.lastFeedbackAt = now;
-    this.targetIndex++;
+    this.targetIndex += group.length;
     this.resetHold();
     this.phase = "playing";
     this.musicAtWallStart = this.musicTime;
@@ -243,11 +259,12 @@ export class GameEngine {
   private maybeEnterWait(now: number): void {
     if (!this.config.waitForNote) return;
     if (this.attacked) return;
-    const target = this.currentTarget();
-    if (!target) return;
-    if (this.results.has(target.id)) return;
-    if (this.musicTime >= target.time) {
-      this.musicTime = target.time;
+    const group = this.currentGroup();
+    const head = group[0];
+    if (!head) return;
+    if (this.results.has(head.id)) return;
+    if (this.musicTime >= head.time) {
+      this.musicTime = head.time;
       this.phase = "waiting";
       this.musicAtWallStart = this.musicTime;
       this.wallStartedAt = now;
@@ -257,28 +274,31 @@ export class GameEngine {
   private expireMisses(now: number): void {
     const windowSec = this.config.hitWindowMs / 1000;
     while (this.targetIndex < this.chart.notes.length) {
-      const n = this.chart.notes[this.targetIndex]!;
-      if (this.results.has(n.id)) {
-        this.targetIndex++;
+      const group = this.currentGroup();
+      if (group.length === 0) break;
+      if (group.every((n) => this.results.has(n.id))) {
+        this.targetIndex += group.length;
         this.resetHold();
         continue;
       }
 
-      // Wait mode: never auto-miss before/during wait or while holding for this note.
+      const head = group[0]!;
+      const dur = groupHoldDuration(group);
+
       if (this.config.waitForNote) {
-        if (this.musicTime >= n.time || this.attacked) break;
+        if (this.musicTime >= head.time || this.attacked) break;
       }
 
-      const attackDeadline = n.time + windowSec;
-      const holdDeadline = n.time + n.duration + windowSec;
+      const attackDeadline = head.time + windowSec;
+      const holdDeadline = head.time + dur + windowSec;
 
       if (!this.attacked && this.musicTime > attackDeadline) {
-        this.markMiss(n, now);
+        this.markMiss(group, now);
         continue;
       }
 
       if (this.attacked && this.musicTime > holdDeadline) {
-        this.markMiss(n, now);
+        this.markMiss(group, now);
         continue;
       }
 
@@ -286,12 +306,14 @@ export class GameEngine {
     }
   }
 
-  private markMiss(n: NoteEvent, now: number): void {
-    this.results.set(n.id, "miss");
+  private markMiss(group: NoteEvent[], now: number): void {
+    for (const n of group) {
+      this.results.set(n.id, "miss");
+    }
     this.misses++;
     this.feedback = "miss";
     this.lastFeedbackAt = now;
-    this.targetIndex++;
+    this.targetIndex += group.length;
     this.resetHold();
     if (this.phase === "holding" || this.phase === "waiting") {
       this.phase = "playing";
@@ -310,12 +332,14 @@ export class GameEngine {
   }
 
   snapshot(): EngineSnapshot {
-    const target = this.currentTarget();
-    const required = target ? this.requiredHold(target) : 1;
+    const group = this.currentGroup();
+    const required = group.length ? this.requiredHold(group) : 1;
     const holdProgress =
-      target && this.attacked && !this.results.has(target.id)
+      group.length > 0 && this.attacked && !group.every((n) => this.results.has(n.id))
         ? Math.min(1, this.holdAccum / required)
         : 0;
+    const targetIds = new Set(group.map((n) => n.id));
+    const targetMidis = groupMidis(group);
 
     const drops: ActiveDrop[] = this.chart.notes.map((event) => {
       const startScaled = this.scaleTime(event.time);
@@ -323,7 +347,7 @@ export class GameEngine {
       const stored = this.results.get(event.id);
       let result: ActiveDrop["result"] = "pending";
       if (stored) result = stored;
-      const isTarget = target?.id === event.id;
+      const isTarget = targetIds.has(event.id);
       return {
         event,
         startScaled,
@@ -331,6 +355,7 @@ export class GameEngine {
         result,
         holdProgress: isTarget ? holdProgress : stored === "hit" ? 1 : 0,
         attacked: isTarget ? this.attacked : stored === "hit",
+        isTarget,
       };
     });
 
@@ -339,6 +364,7 @@ export class GameEngine {
       musicTime: this.musicTime,
       drops,
       targetIndex: this.targetIndex,
+      targetMidis,
       hits: this.hits,
       misses: this.misses,
       feedback: this.feedback,

@@ -5,6 +5,7 @@ import { Controls } from "./components/Controls";
 import { ExerciseList } from "./components/ExerciseList";
 import { FallingNotesStage } from "./components/FallingNotesStage";
 import { PianoKeyboard } from "./components/PianoKeyboard";
+import { chordGroupAt, groupMidis } from "./engine/chordGroup";
 import { GameEngine, type EngineSnapshot } from "./engine/gameEngine";
 import { CHARTS, DEMO_CHART, getChartById, midiToDisplayLabel } from "./engine/noteChart";
 import type { Chart, ChartDifficulty, ChartLocale, GameConfig } from "./engine/types";
@@ -33,8 +34,8 @@ export default function App() {
   const [micOn, setMicOn] = useState(false);
   const [micError, setMicError] = useState<string | null>(null);
   const [detectedMidi, setDetectedMidi] = useState<number | null>(null);
-  const [flashHit, setFlashHit] = useState<number | null>(null);
-  const [flashMiss, setFlashMiss] = useState<number | null>(null);
+  const [flashHit, setFlashHit] = useState<number[]>([]);
+  const [flashMiss, setFlashMiss] = useState<number[]>([]);
   const [difficultyFilter, setDifficultyFilter] = useState<ChartDifficulty | "all">(
     "all",
   );
@@ -84,37 +85,59 @@ export default function App() {
     if (config.referenceAudio && synthRef.current) {
       for (const n of refNotes) {
         // Wall-clock duration so held notes ring with the falling-note timing.
+        // Short articulations stay short (no artificial sustain).
         const dur = n.duration / config.tempoScale;
+        const isBass =
+          n.chordId != null &&
+          n.midi ===
+            Math.min(
+              ...activeChart.notes
+                .filter((x) => x.chordId === n.chordId)
+                .map((x) => x.midi),
+            );
         synthRef.current.play(
           n.midi,
-          Math.min(Math.max(dur, 0.12), 3.5),
+          Math.min(Math.max(dur, 0.08), 3.5),
           undefined,
-          0.95,
+          isBass ? 0.72 : 0.95,
         );
       }
     }
 
     if (snap.feedback !== "none" && snap.lastFeedbackAt !== lastFeedbackRef.current) {
       lastFeedbackRef.current = snap.lastFeedbackAt;
-      const target = activeChart.notes[snap.targetIndex - 1];
-      if (snap.feedback === "hit" && target) {
-        setFlashHit(target.midi);
-        setFlashMiss(null);
-        // Confirm hit with the same pitched piano sample (music ↔ pitch link).
-        if (!config.referenceAudio) {
-          synthRef.current?.play(
-            target.midi,
-            Math.min(target.duration / config.tempoScale, 1.6),
-            undefined,
-            1,
-          );
+      // targetIndex already advanced past the completed group — recover it.
+      const completedIdx = Math.max(0, snap.targetIndex - 1);
+      const headIdx = (() => {
+        const n = activeChart.notes[completedIdx];
+        if (!n) return -1;
+        if (n.chordId) {
+          return activeChart.notes.findIndex((x) => x.chordId === n.chordId);
         }
-        window.setTimeout(() => setFlashHit(null), 280);
+        return completedIdx;
+      })();
+      const group = headIdx >= 0 ? chordGroupAt(activeChart.notes, headIdx) : [];
+      const midis = groupMidis(group);
+      if (snap.feedback === "hit" && midis.length) {
+        setFlashHit(midis);
+        setFlashMiss([]);
+        if (!config.referenceAudio) {
+          for (const midi of midis) {
+            const note = group.find((g) => g.midi === midi)!;
+            synthRef.current?.play(
+              midi,
+              Math.min(note.duration / config.tempoScale, 1.6),
+              undefined,
+              1,
+            );
+          }
+        }
+        window.setTimeout(() => setFlashHit([]), 280);
       }
-      if (snap.feedback === "miss" && target) {
-        setFlashMiss(target.midi);
-        setFlashHit(null);
-        window.setTimeout(() => setFlashMiss(null), 320);
+      if (snap.feedback === "miss" && midis.length) {
+        setFlashMiss(midis);
+        setFlashHit([]);
+        window.setTimeout(() => setFlashMiss([]), 320);
       }
     }
 
@@ -175,8 +198,8 @@ export default function App() {
   const handleChart = (id: string) => {
     const next = getChartById(id);
     cancelAnimationFrame(rafRef.current);
-    setFlashHit(null);
-    setFlashMiss(null);
+    setFlashHit([]);
+    setFlashMiss([]);
     lastFeedbackRef.current = 0;
     setChart(next);
   };
@@ -186,9 +209,7 @@ export default function App() {
     snapshot.phase === "waiting" ||
     snapshot.phase === "holding";
 
-  const expectedMidi = livePhase
-    ? (chart.notes[snapshot.targetIndex]?.midi ?? null)
-    : null;
+  const expectedMidis = livePhase ? snapshot.targetMidis : [];
 
   const detectedLabel =
     detectedMidi != null ? midiToDisplayLabel(Math.round(detectedMidi)) : "—";
@@ -229,14 +250,14 @@ export default function App() {
 
         <main className="playfield">
           <div
-            className={`feedback-flash ${flashHit != null ? "ok" : ""} ${flashMiss != null ? "bad" : ""}`}
+            className={`feedback-flash ${flashHit.length ? "ok" : ""} ${flashMiss.length ? "bad" : ""}`}
             aria-live="polite"
           />
           <FallingNotesStage snapshot={snapshot} fallLeadSec={FALL_LEAD} />
           <PianoKeyboard
-            highlightMidi={expectedMidi}
-            hitMidi={flashHit}
-            missMidi={flashMiss}
+            highlightMidis={expectedMidis}
+            hitMidis={flashHit}
+            missMidis={flashMiss}
             detectedMidi={detectedMidi}
             holding={snapshot.phase === "holding"}
             holdProgress={snapshot.holdProgress}

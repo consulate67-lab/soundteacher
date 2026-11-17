@@ -36,10 +36,10 @@ Allow microphone access when prompted. Place the tablet on the music stand, aim 
 
 ## MVP features
 
-1. **Falling notes engine** — larger labeled drops (Do1/Re1/…) fall onto a hit line above a real-looking on-screen piano. Drop **height encodes duration** (½ / 1 / 2 / 4 beats); fill shows hold progress.
-2. **Hold matching** — attack within the hit window, then keep the pitch for ~70% of the written duration (tempo scale stretches the real hold; short mic gaps forgiven).
+1. **Falling notes engine** — larger labeled drops (Do1/Re1/…) fall onto a hit line above a real-looking on-screen piano. Drop **height encodes duration** (½ / 1 / 2 / 4 beats); fill shows hold progress. **Simultaneous dyads/chords** spawn two (or more) drops and light multiple keys at once.
+2. **Hold matching** — attack within the hit window, then keep a matching pitch for ~70% of the written duration (short articulations need only a brief tap; tempo scale stretches the real hold; short mic gaps forgiven). Chord groups count as one attack; monophonic mic accepts any voice in the group.
 3. **Color mapping** — each drop uses the same pitch-class color as its target piano key; black-key targets are visually distinct.
-4. **Piano keyboard UI** — realistic white/black layout; keys light for expected / holding / hit / miss / detected; mic match stays primary.
+4. **Piano keyboard UI** — realistic white/black layout; keys light for expected / holding / hit / miss / detected (multi-key for chords); mic match stays primary.
 5. **Tempo control** — `tempoScale` vs performance BPM (`1` = live, `<1` = practice); Salamander piano reference follows the same clock.
 6. **Mic pitch detection** — `getUserMedia` → `AnalyserNode` + autocorrelation; match within ±100–200 ms; noise gate; green/red feedback. Monophonic-first.
 7. **Wait-for-note mode** — scroll freezes until attack, then until the required hold completes (`Notayı bekle`).
